@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<modDesc descVersion="61">
+	<author>loki_79</author>
+    <version>1.0.0.0</version>
+	<title>
+        <en>LumberJack</en>
+        <de>Holzfäller</de>
+        <fr>Bûcheron</fr>
+		<ru>Дровосек</ru>
+    </title>
+    <description>
+<en><![CDATA[This mod adds some quality of life improvements to make clearing trees with a chainsaw a little bit easier, but still retains enough realism to deserve the payment for selling the wood.  The chainsaw can now grind stumps, and the 'super-strength' mode also grants the ability to completley delete trees.
+
+Control method to toggle super strength:
+- Hold down ALT key for temporary strength
+- Double tap ALT key to toggle super strength on/off
+
+Features:
+- Targeting marker to identify chainsaw aim point at all times
+- Easily destroy small pieces of wood, similar to removing superfical branches
+- 2x faster chainsaw cutting
+- 3x increased chainsaw range
+- 4x increased object pick-up range
+- Cut trees anywhere on the map, even on land that cannot be purchased (e.g. the shop)
+- Display mass of viewed objects in F1 menu
+- Toggle 'super-strength' using ALT and increase brightness of targeting overlay to indicate when active
+- Super strength is adaptive (5x held object mass)
+- Chainsaw can remove stumps (grind for 3 seconds)
+]]>
+</en>
+<de><![CDATA[Dieser Mod fügt einige Verbesserungen der Lebensqualität hinzu, um das Abholzen von Bäumen mit der Kettensäge etwas einfacher zu machen, behält aber immer noch genug Realismus, um die Bezahlung für den Verkauf des Holzes zu verdienen.  Die Kettensäge kann nun Baumstümpfe schleifen, und der 'Superstärke'-Modus bietet auch die Möglichkeit, Bäume vollständig zu löschen.
+
+Kontrollmethode zum Umschalten der Superstärke:
+- ALT für temporäre Stärke gedrückt halten
+- Tippe ‘ALT’ doppelt zum Ein-/Ausschalten der Superstärke
+
+Merkmale:
+- Zielmarkierung, um den Zielpunkt der Kettensäge jederzeit zu identifizieren
+- Leichte Zerstörung kleiner Holzstücke, ähnlich wie beim Entfernen von superfischen Ästen
+- 2x schnelleres Kettensägenschneiden
+- 3x erhöhte Reichweite der Kettensäge
+- 4x vergrößerte Objektaufnahme-Reichweite
+- Bäume überall auf der Karte fällen, auch auf Land, das nicht gekauft werden kann (wie das Geschäft)
+- Masse der angezeigten Objekte im F1-Menü anzeigen
+- Schalten Sie die 'Superstärke' mit ALT um und erhöhen Sie die Helligkeit der Ziel-Überlagerung, um anzuzeigen, wann sie aktiv ist.
+- Superfestigkeit ist adaptiv (5x gehaltene Objektmasse)
+- Kettensäge kann Stümpfe entfernen (3 Sekunden schleifen)
+]]>
+</de>
+<fr><![CDATA[Ce mod ajoute quelques améliorations de la qualité de vie pour faciliter le défrichage des arbres à la tronçonneuse, tout en conservant suffisamment de réalisme pour mériter le paiement de la vente du bois.  La tronçonneuse peut désormais broyer des souches, et le mode "super-force" permet également de supprimer complètement des arbres.
+
+Méthode de contrôle pour faire basculer la super force :
+- Maintenir la touche ALT enfoncée pour un effectif temporaire
+- Double touche ALT pour activer/désactiver la super force
+
+Caractéristiques:
+- Marqueur de ciblage pour identifier le point de visée de la tronçonneuse à tout moment
+- Détruire facilement de petits morceaux de bois, comme pour enlever des branches superficielles
+- Coupe à la tronçonneuse 2x plus rapide
+- 3x plus grande gamme de tronçonneuses
+- 4x plus grande portée de ramassage des objets
+- Coupez des arbres n'importe où sur la carte, même sur des terrains qui ne peuvent être achetés (comme le magasin)
+- Afficher la masse des objets visualisés dans le menu F1
+- Basculer la 'super-force' en utilisant l'ALT et augmenter la luminosité de la couche de ciblage pour indiquer quand elle est active
+- La super force est adaptative (5x la masse de l'objet tenu)
+- La tronçonneuse permet d'enlever les souches (broyage pendant 3 secondes)
+]]>
+</fr>
+<ru><![CDATA[Этот мод добавляет некоторые улучшения качества жизни, чтобы сделать расчистку деревьев бензопилой немного проще, но при этом сохраняет достаточно реализма, 
+чтобы заслужить плату за продажу древесины. Бензопила теперь может измельчать пни, а режим «суперсилы» также даёт возможность полностью удалять деревья.
+
+метод управления для переключения суперсилы:
+- Удерживайте клавишу ALT для временного увеличения силы
+- Дважды нажмите клавишу ALT, чтобы включить/выключить суперсилу
+
+Функции:
+- маркер прицеливания для постоянного определения точки прицеливания бензопилы
+- легко измельчайте небольшие куски дерева, как если бы вы удаляли верхние ветки
+- резка бензопилой в 2 раза быстрее
+- в 3 раза увеличен радиус действия бензопилы
+- в 4 раза увеличена дальность подбора предметов
+- рубите деревья в любом месте карты, даже на земле, которую нельзя купить (например, в магазине)
+- отображение массы просматриваемых объектов в меню F1
+- включение режима «сверхсильность» с помощью ALT и увеличение яркости маркера руки, чтобы указать, когда он активен
+- суперсила адаптивна (удерживаемая масса объекта в 5 раз)
+- бензопила может убирать пни (измельчать 3 секунды)
+- работает в мультиплеере
+]]>
+</ru>
+    </description>
+
+	<multiplayer supported="true" />
+	<iconFilename>modIcon.dds</iconFilename>
+	<extraSourceFiles>
+		<sourceFile filename="LumberJack.lua" />
+	</extraSourceFiles>
+	
+	<actions>
+		<action name="LUMBERJACK_STRENGTH" category="PLAYER"/>
+	</actions>
+	<inputBinding>
+		<actionBinding action="LUMBERJACK_STRENGTH" >
+			<binding device="KB_MOUSE_DEFAULT" input="KEY_lalt" />
+		</actionBinding>
+	</inputBinding>	
+	<l10n>
+		<text name="menu_TOGGLE_STRENGTH">
+			<en>Super Strength</en>
+			<de>Superstärke</de>
+			<fr>Super Force</fr>
+			<ru>Суперсила</ru>
+		</text>
+		<text name="input_LUMBERJACK_STRENGTH">
+			<en>Super Strength</en>
+			<de>Superstärke</de>
+			<fr>Super Force</fr>
+			<ru>Суперсила</ru>
+		</text>
+		<text name="text_MASS">
+			<en>Mass</en>
+			<de>Masse</de>
+			<fr>Masse</fr>
+			<ru>Масса</ru>
+		</text>
+		<text name="text_KG">
+			<en>kg</en>
+			<de>kg</de>
+			<fr>kg</fr>
+			<ru>кг</ru>
+		</text>
+	</l10n>
+</modDesc>
