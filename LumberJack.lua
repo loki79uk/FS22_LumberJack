@@ -8,7 +8,7 @@ addModEventListener(LumberJack);
 
 -- ALLOW CHAINSAW CUTTING ANYWHERE ON THE MAP
 function LumberJack:isCuttingAllowed(superFunc, x, y, z)
-	return true;
+	return true
 end
 
 -- ADD SHORTCUT KEY SELECTION TO OPTIONS MENU
@@ -75,6 +75,20 @@ function LumberJack.playerStateThrowIsAvailable(self, superFunc)
 	return superFunc(self)
 end
 
+-- DETECT SUPER STRENGTH CONSOLE COMMAND
+function LumberJack.playerConsoleCommand(self, superFunc)
+	superFunc(self)
+	if g_currentMission.player.superStrengthEnabled then
+		LumberJack.lockStrength = true
+		LumberJack.superStrength = true
+		g_currentMission.player.maxPickableObjectMass = LumberJack.superStrengthValue
+	else
+		LumberJack.lockStrength = false
+		LumberJack.superStrength = false
+		g_currentMission.player.maxPickableObjectMass = LumberJack.normalStrengthValue
+	end
+end
+
 -- LUMBERJACK FUNCTIONS:
 function LumberJack:loadMap(name)
 	--print("Load Mod: 'LumberJack'")
@@ -92,17 +106,20 @@ function LumberJack:loadMap(name)
 	LumberJack.initialised = false
 
 	-- ALLOW CHAINSAW CUTTING ANYWHERE ON THE MAP
-	Chainsaw.isCuttingAllowed = Utils.overwrittenFunction(Chainsaw.isCuttingAllowed, LumberJack.isCuttingAllowed);
+	Chainsaw.isCuttingAllowed = Utils.overwrittenFunction(Chainsaw.isCuttingAllowed, LumberJack.isCuttingAllowed)
 	
 	-- ADD SHORTCUT KEY SELECTION TO OPTIONS MENU
-	Player.registerActionEvents = Utils.appendedFunction(Player.registerActionEvents, LumberJack.registerActionEvents);
+	Player.registerActionEvents = Utils.appendedFunction(Player.registerActionEvents, LumberJack.registerActionEvents)
 	
 	-- MULTIPLAYER SUPER STRENGTH FIX
-	Player.readUpdateStream = Utils.prependedFunction(Player.readUpdateStream, LumberJack.prependPlayerReadUpdateStream);
-	Player.writeUpdateStream = Utils.prependedFunction(Player.writeUpdateStream, LumberJack.prependPlayerWriteUpdateStream);
-	Player.throwObject = Utils.overwrittenFunction(Player.throwObject, LumberJack.playerThrowObject);
-	PlayerStatePickup.isAvailable = Utils.overwrittenFunction(PlayerStatePickup.isAvailable, LumberJack.playerStatePickupIsAvailable);
-	PlayerStateThrow.isAvailable = Utils.overwrittenFunction(PlayerStateThrow.isAvailable, LumberJack.playerStateThrowIsAvailable);
+	Player.readUpdateStream = Utils.prependedFunction(Player.readUpdateStream, LumberJack.prependPlayerReadUpdateStream)
+	Player.writeUpdateStream = Utils.prependedFunction(Player.writeUpdateStream, LumberJack.prependPlayerWriteUpdateStream)
+	Player.throwObject = Utils.overwrittenFunction(Player.throwObject, LumberJack.playerThrowObject)
+	PlayerStatePickup.isAvailable = Utils.overwrittenFunction(PlayerStatePickup.isAvailable, LumberJack.playerStatePickupIsAvailable)
+	PlayerStateThrow.isAvailable = Utils.overwrittenFunction(PlayerStateThrow.isAvailable, LumberJack.playerStateThrowIsAvailable)
+	
+	-- CATCH CONSOLE COMMAND
+	Player.consoleCommandToggleSuperStrongMode = Utils.overwrittenFunction(Player.consoleCommandToggleSuperStrongMode, LumberJack.playerConsoleCommand)
 	
 end
 function LumberJack:deleteMap()
