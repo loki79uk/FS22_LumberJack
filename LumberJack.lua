@@ -96,7 +96,7 @@ function LumberJack:loadMap(name)
 	LumberJack.lockStrength = false
 	LumberJack.doubleTap = 0
 	LumberJack.doubleTapTime = 0
-	LumberJack.superStrengthValue = 100
+	LumberJack.superStrengthValue = 999
 	LumberJack.normalStrengthValue = 0.2
 	LumberJack.stumpGrindingTime = 0
 	LumberJack.stumpGrindingFlag = false
