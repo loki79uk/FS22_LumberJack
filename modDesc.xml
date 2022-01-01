@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <modDesc descVersion="61">
 	<author>loki_79</author>
-    <version>1.0.0.0</version>
+    <version>1.0.1.0</version>
 	<title>
         <en>LumberJack</en>
         <de>Holzfäller</de>
@@ -26,6 +26,9 @@ Features:
 - Toggle 'super-strength' using ALT and increase brightness of targeting overlay to indicate when active
 - Super strength is adaptive (5x held object mass)
 - Chainsaw can remove stumps (grind for 3 seconds)
+
+Changelog:
+v1.0.1.0 - Updated for compatibility with the superstrength feature in "Power Tools" (by w33zl)
 ]]>
 </en>
 <de><![CDATA[Dieser Mod fügt einige Verbesserungen der Lebensqualität hinzu, um das Abholzen von Bäumen mit der Kettensäge etwas einfacher zu machen, behält aber immer noch genug Realismus, um die Bezahlung für den Verkauf des Holzes zu verdienen.  Die Kettensäge kann nun Baumstümpfe schleifen, und der 'Superstärke'-Modus bietet auch die Möglichkeit, Bäume vollständig zu löschen.
@@ -45,6 +48,9 @@ Merkmale:
 - Schalten Sie die 'Superstärke' mit ALT um und erhöhen Sie die Helligkeit der Ziel-Überlagerung, um anzuzeigen, wann sie aktiv ist.
 - Superfestigkeit ist adaptiv (5x gehaltene Objektmasse)
 - Kettensäge kann Stümpfe entfernen (3 Sekunden schleifen)
+
+Changelog:
+v1.0.1.0 - Aktualisiert für Kompatibilität mit der Superstrength-Funktion in "Power Tools" (von w33zl)
 ]]>
 </de>
 <fr><![CDATA[Ce mod ajoute quelques améliorations de la qualité de vie pour faciliter le défrichage des arbres à la tronçonneuse, tout en conservant suffisamment de réalisme pour mériter le paiement de la vente du bois.  La tronçonneuse peut désormais broyer des souches, et le mode "super-force" permet également de supprimer complètement des arbres.
@@ -64,6 +70,9 @@ Caractéristiques:
 - Basculer la 'super-force' en utilisant l'ALT et augmenter la luminosité de la couche de ciblage pour indiquer quand elle est active
 - La super force est adaptative (5x la masse de l'objet tenu)
 - La tronçonneuse permet d'enlever les souches (broyage pendant 3 secondes)
+
+Changelog:
+v1.0.1.0 - Mis à jour pour la compatibilité avec la fonction superstrength dans "Power Tools" (par w33zl)
 ]]>
 </fr>
 <ru><![CDATA[Этот мод добавляет некоторые улучшения качества жизни, чтобы сделать расчистку деревьев бензопилой немного проще, но при этом сохраняет достаточно реализма, 
@@ -85,6 +94,9 @@ Caractéristiques:
 - суперсила адаптивна (удерживаемая масса объекта в 5 раз)
 - бензопила может убирать пни (измельчать 3 секунды)
 - работает в мультиплеере
+
+Changelog:
+v1.0.1.0 - Обновлено для совместимости с функцией сверхпрочности в "Power Tools" (автор w33zl)
 ]]>
 </ru>
     </description>
