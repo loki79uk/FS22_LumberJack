@@ -77,7 +77,12 @@ end
 
 -- DETECT SUPER STRENGTH CONSOLE COMMAND
 function LumberJack.playerConsoleCommand(self, superFunc)
+
+	if self.superStrengthPickupDistanceBackup == nil then
+		self.superStrengthPickupDistanceBackup = LumberJack.pickupDistanceValue
+	end
 	superFunc(self)
+	
 	if g_currentMission.player.superStrengthEnabled then
 		LumberJack.lockStrength = true
 		LumberJack.superStrength = true
@@ -98,10 +103,11 @@ function LumberJack:loadMap(name)
 	LumberJack.doubleTapTime = 0
 	LumberJack.superStrengthValue = 999
 	LumberJack.normalStrengthValue = 0.2
+	LumberJack.pickupDistanceValue = 9.0
 	LumberJack.stumpGrindingTime = 0
 	LumberJack.stumpGrindingFlag = false
 	LumberJack.useChainsawFlag = false
-	LumberJack.splitShapeId = 0
+	LumberJack.splitShape = 0
 	LumberJack.showDebug = false
 	LumberJack.initialised = false
 
@@ -178,16 +184,10 @@ function LumberJack:update(dt)
 			end
 		end
 
-		-- Only change values from default
-		if Player.MAX_PICKABLE_OBJECT_DISTANCE == 3.00 then
-			Player.MAX_PICKABLE_OBJECT_DISTANCE = 12.00
-		end
-		if g_currentMission.player.minCutDistance == 0.50 then
-			g_currentMission.player.minCutDistance = 0.10
-		end
-		if g_currentMission.player.maxCutDistance == 2.00 then
-			g_currentMission.player.maxCutDistance = 6.00
-		end
+		-- change values from default
+		Player.MAX_PICKABLE_OBJECT_DISTANCE = LumberJack.pickupDistanceValue
+		g_currentMission.player.minCutDistance = 0.10
+		g_currentMission.player.maxCutDistance = 6.00
 		LumberJack.initialised = true
 	end
 	
@@ -268,7 +268,7 @@ function LumberJack:update(dt)
 					LumberJack.useChainsawFlag = true
 				end
 			else
-				-- print("CHAINSAW NOT CUTTING")		
+				--print("CHAINSAW NOT CUTTING")		
 				if hTool.ringSelector ~= nil and hTool.ringSelector ~= 0 then	
 					if getVisibility(hTool.ringSelector) == false then
 						setVisibility(hTool.ringSelector, true)

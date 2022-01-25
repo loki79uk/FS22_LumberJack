@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
-<modDesc descVersion="61">
+<modDesc descVersion="63">
 	<author>loki_79</author>
-    <version>1.0.1.0</version>
+    <version>1.0.2.0</version>
 	<title>
         <en>LumberJack</en>
         <de>Holzfäller</de>
@@ -20,15 +20,14 @@ Features:
 - Easily destroy small pieces of wood, similar to removing superfical branches
 - 2x faster chainsaw cutting
 - 3x increased chainsaw range
-- 4x increased object pick-up range
+- 3x increased object pick-up range
 - Cut trees anywhere on the map, even on land that cannot be purchased (e.g. the shop)
 - Display mass of viewed objects in F1 menu
 - Toggle 'super-strength' using ALT and increase brightness of targeting overlay to indicate when active
-- Super strength is adaptive (5x held object mass)
 - Chainsaw can remove stumps (grind for 3 seconds)
 
 Changelog:
-v1.0.1.0 - Updated for compatibility with the superstrength feature in "Power Tools" (by w33zl)
+v1.0.2.0 - Updated for compatibility with the super strength feature in "Power Tools" (by w33zl)
 ]]>
 </en>
 <de><![CDATA[Dieser Mod fügt einige Verbesserungen der Lebensqualität hinzu, um das Abholzen von Bäumen mit der Kettensäge etwas einfacher zu machen, behält aber immer noch genug Realismus, um die Bezahlung für den Verkauf des Holzes zu verdienen.  Die Kettensäge kann nun Baumstümpfe schleifen, und der 'Superstärke'-Modus bietet auch die Möglichkeit, Bäume vollständig zu löschen.
@@ -42,15 +41,14 @@ Merkmale:
 - Leichte Zerstörung kleiner Holzstücke, ähnlich wie beim Entfernen von superfischen Ästen
 - 2x schnelleres Kettensägenschneiden
 - 3x erhöhte Reichweite der Kettensäge
-- 4x vergrößerte Objektaufnahme-Reichweite
+- 3x vergrößerte Objektaufnahme-Reichweite
 - Bäume überall auf der Karte fällen, auch auf Land, das nicht gekauft werden kann (wie das Geschäft)
 - Masse der angezeigten Objekte im F1-Menü anzeigen
 - Schalten Sie die 'Superstärke' mit ALT um und erhöhen Sie die Helligkeit der Ziel-Überlagerung, um anzuzeigen, wann sie aktiv ist.
-- Superfestigkeit ist adaptiv (5x gehaltene Objektmasse)
 - Kettensäge kann Stümpfe entfernen (3 Sekunden schleifen)
 
 Changelog:
-v1.0.1.0 - Aktualisiert für Kompatibilität mit der Superstrength-Funktion in "Power Tools" (von w33zl)
+v1.0.2.0 - Aktualisiert für Kompatibilität mit der Superstrength-Funktion in "Power Tools" (von w33zl)
 ]]>
 </de>
 <fr><![CDATA[Ce mod ajoute quelques améliorations de la qualité de vie pour faciliter le défrichage des arbres à la tronçonneuse, tout en conservant suffisamment de réalisme pour mériter le paiement de la vente du bois.  La tronçonneuse peut désormais broyer des souches, et le mode "super-force" permet également de supprimer complètement des arbres.
@@ -64,15 +62,14 @@ Caractéristiques:
 - Détruire facilement de petits morceaux de bois, comme pour enlever des branches superficielles
 - Coupe à la tronçonneuse 2x plus rapide
 - 3x plus grande gamme de tronçonneuses
-- 4x plus grande portée de ramassage des objets
+- 3x plus grande portée de ramassage des objets
 - Coupez des arbres n'importe où sur la carte, même sur des terrains qui ne peuvent être achetés (comme le magasin)
 - Afficher la masse des objets visualisés dans le menu F1
 - Basculer la 'super-force' en utilisant l'ALT et augmenter la luminosité de la couche de ciblage pour indiquer quand elle est active
-- La super force est adaptative (5x la masse de l'objet tenu)
 - La tronçonneuse permet d'enlever les souches (broyage pendant 3 secondes)
 
 Changelog:
-v1.0.1.0 - Mis à jour pour la compatibilité avec la fonction superstrength dans "Power Tools" (par w33zl)
+v1.0.2.0 - Mis à jour pour la compatibilité avec la fonction superstrength dans "Power Tools" (par w33zl)
 ]]>
 </fr>
 <ru><![CDATA[Этот мод добавляет некоторые улучшения качества жизни, чтобы сделать расчистку деревьев бензопилой немного проще, но при этом сохраняет достаточно реализма, 
@@ -87,16 +84,14 @@ v1.0.1.0 - Mis à jour pour la compatibilité avec la fonction superstrength dan
 - легко измельчайте небольшие куски дерева, как если бы вы удаляли верхние ветки
 - резка бензопилой в 2 раза быстрее
 - в 3 раза увеличен радиус действия бензопилы
-- в 4 раза увеличена дальность подбора предметов
+- в 3 раза увеличена дальность подбора предметов
 - рубите деревья в любом месте карты, даже на земле, которую нельзя купить (например, в магазине)
 - отображение массы просматриваемых объектов в меню F1
 - включение режима «сверхсильность» с помощью ALT и увеличение яркости маркера руки, чтобы указать, когда он активен
-- суперсила адаптивна (удерживаемая масса объекта в 5 раз)
 - бензопила может убирать пни (измельчать 3 секунды)
-- работает в мультиплеере
 
 Changelog:
-v1.0.1.0 - Обновлено для совместимости с функцией сверхпрочности в "Power Tools" (автор w33zl)
+v1.0.2.0 - Обновлено для совместимости с функцией сверхпрочности в "Power Tools" (автор w33zl)
 ]]>
 </ru>
     </description>
