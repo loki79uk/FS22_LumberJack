@@ -38,6 +38,7 @@ function LumberJack.prependPlayerReadUpdateStream(self, streamId, timestamp, con
         if connection == self.networkInformation.creatorConnection then
 			self.superStrengthEnabled = streamReadBool(streamId)
             self.maxPickableObjectMass = streamReadFloat32(streamId)
+            self.maxPickableObjectDistance = streamReadFloat32(streamId)
         end
     end
 end
@@ -47,11 +48,15 @@ function LumberJack.prependPlayerWriteUpdateStream(self, streamId, connection, d
 		if self.superStrengthEnabled == nil then
 			self.superStrengthEnabled = LumberJack.superStrength
 		end
-		streamWriteBool(streamId, self.superStrengthEnabled)
 		if self.maxPickableObjectMass == nil then
 			self.maxPickableObjectMass = LumberJack.normalStrengthValue
 		end
+		if self.maxPickableObjectDistance == nil then
+			self.maxPickableObjectDistance = LumberJack.normalDistanceValue
+		end
+		streamWriteBool(streamId, self.superStrengthEnabled)
 		streamWriteFloat32(streamId, self.maxPickableObjectMass)
+		streamWriteFloat32(streamId, self.maxPickableObjectDistance)
     end
 end
 
@@ -61,6 +66,12 @@ function LumberJack.playerThrowObject(self, superFunc, noEventSend)
 		Player.MAX_PICKABLE_OBJECT_MASS = self.maxPickableObjectMass
 	end
 	return superFunc(self, noEventSend)
+end
+function LumberJack.playerCheckObjectInRange(self, superFunc)
+	if self.maxPickableObjectDistance ~= nil then
+		Player.MAX_PICKABLE_OBJECT_DISTANCE = self.maxPickableObjectDistance
+	end
+	return superFunc(self)
 end
 function LumberJack.playerStatePickupIsAvailable(self, superFunc)
 	if self.player.maxPickableObjectMass ~= nil then
@@ -77,20 +88,17 @@ end
 
 -- DETECT SUPER STRENGTH CONSOLE COMMAND
 function LumberJack.playerConsoleCommand(self, superFunc)
-
-	if self.superStrengthPickupDistanceBackup == nil then
-		self.superStrengthPickupDistanceBackup = LumberJack.pickupDistanceValue
-	end
 	superFunc(self)
-	
 	if g_currentMission.player.superStrengthEnabled then
 		LumberJack.lockStrength = true
 		LumberJack.superStrength = true
 		g_currentMission.player.maxPickableObjectMass = LumberJack.superStrengthValue
+		g_currentMission.player.maxPickableObjectDistance = LumberJack.superDistanceValue
 	else
 		LumberJack.lockStrength = false
 		LumberJack.superStrength = false
 		g_currentMission.player.maxPickableObjectMass = LumberJack.normalStrengthValue
+		g_currentMission.player.maxPickableObjectDistance = LumberJack.normalDistanceValue
 	end
 end
 
@@ -103,7 +111,8 @@ function LumberJack:loadMap(name)
 	LumberJack.doubleTapTime = 0
 	LumberJack.superStrengthValue = 999
 	LumberJack.normalStrengthValue = 0.2
-	LumberJack.pickupDistanceValue = 9.0
+	LumberJack.superDistanceValue = 12
+	LumberJack.normalDistanceValue = 3
 	LumberJack.stumpGrindingTime = 0
 	LumberJack.stumpGrindingFlag = false
 	LumberJack.useChainsawFlag = false
@@ -121,6 +130,7 @@ function LumberJack:loadMap(name)
 	Player.readUpdateStream = Utils.prependedFunction(Player.readUpdateStream, LumberJack.prependPlayerReadUpdateStream)
 	Player.writeUpdateStream = Utils.prependedFunction(Player.writeUpdateStream, LumberJack.prependPlayerWriteUpdateStream)
 	Player.throwObject = Utils.overwrittenFunction(Player.throwObject, LumberJack.playerThrowObject)
+	Player.checkObjectInRange = Utils.overwrittenFunction(Player.checkObjectInRange, LumberJack.playerCheckObjectInRange)
 	PlayerStatePickup.isAvailable = Utils.overwrittenFunction(PlayerStatePickup.isAvailable, LumberJack.playerStatePickupIsAvailable)
 	PlayerStateThrow.isAvailable = Utils.overwrittenFunction(PlayerStateThrow.isAvailable, LumberJack.playerStateThrowIsAvailable)
 	
@@ -150,15 +160,17 @@ function LumberJack:toggleStrength(name, state)
 				if state == 0 then
 					--print("SUPER STRENGTH OFF")
 					LumberJack.superStrength = false
-					g_currentMission.player.maxPickableObjectMass = LumberJack.normalStrengthValue
 					g_currentMission.player.superStrengthEnabled = LumberJack.superStrength
+					g_currentMission.player.maxPickableObjectMass = LumberJack.normalStrengthValue
+					g_currentMission.player.maxPickableObjectDistance = LumberJack.normalDistanceValue
 				end
 			else
 				if state == 1 then
 					--print("SUPER STRENGTH ON")
 					LumberJack.superStrength = true
-					g_currentMission.player.maxPickableObjectMass = LumberJack.superStrengthValue
 					g_currentMission.player.superStrengthEnabled = LumberJack.superStrength
+					g_currentMission.player.maxPickableObjectMass = LumberJack.superStrengthValue
+					g_currentMission.player.maxPickableObjectDistance = LumberJack.superDistanceValue
 				end
 			end
 		end
@@ -176,6 +188,7 @@ function LumberJack:update(dt)
 	if (g_gameStateManager:getGameState()==GameState.PLAY and LumberJack.initialised==false) then
 		LumberJack.playerID = g_currentMission.player.controllerIndex
 		g_currentMission.player.maxPickableObjectMass = LumberJack.normalStrengthValue
+		g_currentMission.player.maxPickableObjectDistance = LumberJack.normalDistanceValue
 		
 		-- enable active objects debugging output:
 		if LumberJack.showDebug then
@@ -185,7 +198,6 @@ function LumberJack:update(dt)
 		end
 
 		-- change values from default
-		Player.MAX_PICKABLE_OBJECT_DISTANCE = LumberJack.pickupDistanceValue
 		g_currentMission.player.minCutDistance = 0.10
 		g_currentMission.player.maxCutDistance = 6.00
 		LumberJack.initialised = true
