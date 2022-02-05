@@ -7,6 +7,7 @@
         <de>Holzfäller</de>
         <fr>Bûcheron</fr>
 		<ru>Дровосек</ru>
+		<cz>Drvoštěp</cz>
     </title>
     <description>
 <en><![CDATA[This mod adds some quality of life improvements to make clearing trees with a chainsaw a little bit easier, but still retains enough realism to deserve the payment for selling the wood.  The chainsaw can now grind stumps, and the 'super-strength' mode also grants the ability to completley delete trees.
@@ -102,6 +103,29 @@ v1.1.0.0
 - Расстояние подбора теперь увеличивается (4x) только при активной суперсиле
 ]]>
 </ru>
+<cz><![CDATA[Tento mod přidává některá vylepšení, aby bylo kácení stromů pomocí motorové pily o něco jednodušší, ale stále si zachovává dostatek realismu, aby sis zasloužil platbu za prodej dřeva. Řetězová pila nyní dokáže brousit pařezy a režim „super-síla“ také umožňuje úplné odstranění stromů.
+
+Způsob ovládání pro přepínání super síly:
+- Podržte klávesu ALT pro dočasnou sílu
+- Dvojitým klepnutím na klávesu ALT zapnete/vypnete super sílu
+
+Funkce:
+- Zaměřovací značka k identifikaci cílového bodu motorové pily za všech okolností
+- Snadno zničte malé kousky dřeva, podobně jako při odstraňování povrchových větví
+- 2x rychlejší řezání motorovou pilou
+- 3x zvýšený dosah řetězové pily
+- 4x zvýšený dosah snímání objektu (pouze když je aktivní super síla)
+- Řez stromy kdekoli na mapě, dokonce i na pozemku, který nelze koupit (např. obchod)
+- Zobrazení hmotnosti prohlížených objektů v menu F1
+– Přepněte „super-sílu“ pomocí ALT a zvyšte jas překryvného cílení, aby bylo indikováno, že je aktivní
+- Motorová pila dokáže odstranit pařezy (brousit po dobu 3 sekund)
+
+Seznam změn:
+v1.1.0.0
+- Aktualizováno pro kompatibilitu s funkcí super pevnosti v "Power Tools" (od w33zl)
+- Vzdálenost vyzvednutí je nyní zvýšena (4x) pouze tehdy, když je aktivní super síla
+]]>
+</cz>
     </description>
 
 	<multiplayer supported="true" />
@@ -124,24 +148,28 @@ v1.1.0.0
 			<de>Superstärke</de>
 			<fr>Super Force</fr>
 			<ru>Суперсила</ru>
+			<cz>Super síla</cz>
 		</text>
 		<text name="input_LUMBERJACK_STRENGTH">
 			<en>Super Strength</en>
 			<de>Superstärke</de>
 			<fr>Super Force</fr>
 			<ru>Суперсила</ru>
+			<cz>Super síla</cz>
 		</text>
 		<text name="text_MASS">
 			<en>Mass</en>
 			<de>Masse</de>
 			<fr>Masse</fr>
 			<ru>Масса</ru>
+			<cz>Hmotnost</cz>
 		</text>
 		<text name="text_KG">
 			<en>kg</en>
 			<de>kg</de>
 			<fr>kg</fr>
 			<ru>кг</ru>
+			<cz>kg</cz>
 		</text>
 	</l10n>
 </modDesc>
