@@ -1,15 +1,17 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <modDesc descVersion="63">
 	<author>loki_79</author>
-    <version>1.1.0.0</version>
+	<version>1.1.0.0</version>
 	<title>
-        <en>LumberJack</en>
-        <de>Holzfäller</de>
-        <fr>Bûcheron</fr>
+		<en>LumberJack</en>
+		<de>Holzfäller</de>
+		<fr>Bûcheron</fr>
 		<ru>Дровосек</ru>
+		<it>Taglialegna</it>
 		<cz>Drvoštěp</cz>
-    </title>
-    <description>
+	</title>
+
+	<description>
 <en><![CDATA[This mod adds some quality of life improvements to make clearing trees with a chainsaw a little bit easier, but still retains enough realism to deserve the payment for selling the wood.  The chainsaw can now grind stumps, and the 'super-strength' mode also grants the ability to completley delete trees.
 
 Control method to toggle super strength:
@@ -103,6 +105,25 @@ v1.1.0.0
 - Расстояние подбора теперь увеличивается (4x) только при активной суперсиле
 ]]>
 </ru>
+<it><![CDATA[Questa mod aggiunge alcuni miglioramenti alla qualità della vita per rendere un po' più facile la rimozione degli alberi con una motosega, ma conserva ancora abbastanza realismo da meritare il pagamento per la vendita del legno. La motosega ora può macinare i ceppi e la modalità "super-forza" garantisce anche la possibilità di eliminare completamente gli alberi.
+
+Metodo di controllo per attivare la super forza:
+- Tieni premuto il tasto ALT per forza temporanea
+- Tocca due volte il tasto ALT per attivare/disattivare la super forza
+
+Caratteristiche:
+- Indicatore di mira per identificare il punto di mira della motosega in ogni momento
+- Distruggi facilmente piccoli pezzi di legno, simile alla rimozione di rami superficiali
+- Taglio della motosega 2 volte più veloce
+- Gamma di motosega aumentata di 3 volte
+- Raggio di raccolta degli oggetti 4 volte maggiore
+- Taglia alberi ovunque sulla mappa, anche su terreni che non possono essere acquistati (es. il negozio)
+- Visualizza la massa degli oggetti visualizzati nel menu F1
+- Attiva o disattiva "super forza" usando ALT e aumenta la luminosità della sovrapposizione di mira per indicare quando è attiva
+- La super forza è adattiva (5 volte la massa dell'oggetto tenuto)
+- La motosega può rimuovere i ceppi (macinare per 3 secondi)
+]]>
+</it>
 <cz><![CDATA[Tento mod přidává některá vylepšení, aby bylo kácení stromů pomocí motorové pily o něco jednodušší, ale stále si zachovává dostatek realismu, aby sis zasloužil platbu za prodej dřeva. Řetězová pila nyní dokáže brousit pařezy a režim „super-síla“ také umožňuje úplné odstranění stromů.
 
 Způsob ovládání pro přepínání super síly:
@@ -126,7 +147,7 @@ v1.1.0.0
 - Vzdálenost vyzvednutí je nyní zvýšena (4x) pouze tehdy, když je aktivní super síla
 ]]>
 </cz>
-    </description>
+	</description>
 
 	<multiplayer supported="true" />
 	<iconFilename>modIcon.dds</iconFilename>
@@ -148,6 +169,7 @@ v1.1.0.0
 			<de>Superstärke</de>
 			<fr>Super Force</fr>
 			<ru>Суперсила</ru>
+			<it>Super Forza</it>
 			<cz>Super síla</cz>
 		</text>
 		<text name="input_LUMBERJACK_STRENGTH">
@@ -155,6 +177,7 @@ v1.1.0.0
 			<de>Superstärke</de>
 			<fr>Super Force</fr>
 			<ru>Суперсила</ru>
+			<it>Super Forza</it>
 			<cz>Super síla</cz>
 		</text>
 		<text name="text_MASS">
@@ -162,6 +185,7 @@ v1.1.0.0
 			<de>Masse</de>
 			<fr>Masse</fr>
 			<ru>Масса</ru>
+			<it>Massa</it>
 			<cz>Hmotnost</cz>
 		</text>
 		<text name="text_KG">
@@ -169,6 +193,7 @@ v1.1.0.0
 			<de>kg</de>
 			<fr>kg</fr>
 			<ru>кг</ru>
+			<it>Kg</it>
 			<cz>kg</cz>
 		</text>
 	</l10n>
