@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
-<modDesc descVersion="63">
+<modDesc descVersion="65">
 	<author>loki_79</author>
-	<version>1.1.0.0</version>
+    <version>1.1.1.0</version>
 	<title>
 		<en>LumberJack</en>
 		<de>Holzfäller</de>
@@ -33,6 +33,8 @@ Changelog:
 v1.1.0.0
 - Updated for compatibility with the super strength feature in "Power Tools" (by w33zl)
 - Pick up distance is now increased (4x) only when super strength is active
+v1.1.1.0
+- Fixed an error where ghost trees were created after removing a whole tree
 ]]>
 </en>
 <de><![CDATA[Dieser Mod fügt einige Verbesserungen der Lebensqualität hinzu, um das Abholzen von Bäumen mit der Kettensäge etwas einfacher zu machen, behält aber immer noch genug Realismus, um die Bezahlung für den Verkauf des Holzes zu verdienen.  Die Kettensäge kann nun Baumstümpfe schleifen, und der 'Superstärke'-Modus bietet auch die Möglichkeit, Bäume vollständig zu löschen.
@@ -56,6 +58,8 @@ Changelog:
 v1.1.0.0
 - Aktualisiert für Kompatibilität mit der Superstrength-Funktion in "Power Tools" (von w33zl)
 - Die Aufnahmedistanz wird jetzt nur noch erhöht (4x), wenn Superstärke aktiv ist
+v1.1.1.0
+- Es wurde ein Fehler behoben, bei dem nach dem Entfernen eines ganzen Baums Geisterbäume erzeugt wurden
 ]]>
 </de>
 <fr><![CDATA[Ce mod ajoute quelques améliorations de la qualité de vie pour faciliter le défrichage des arbres à la tronçonneuse, tout en conservant suffisamment de réalisme pour mériter le paiement de la vente du bois.  La tronçonneuse peut désormais broyer des souches, et le mode "super-force" permet également de supprimer complètement des arbres.
@@ -79,6 +83,8 @@ Changelog:
 v1.1.0.0
 - Mis à jour pour la compatibilité avec la fonction superstrength dans "Power Tools" (par w33zl)
 - La distance de ramassage n'est désormais augmentée (4x) que lorsque la super force est active
+v1.1.1.0
+- Correction d'une erreur où des arbres fantômes étaient créés après la suppression d'un arbre entier
 ]]>
 </fr>
 <ru><![CDATA[Этот мод добавляет некоторые улучшения качества жизни, чтобы сделать расчистку деревьев бензопилой немного проще, но при этом сохраняет достаточно реализма, 
@@ -103,6 +109,8 @@ Changelog:
 v1.1.0.0
 - Обновлено для совместимости с функцией сверхпрочности в "Power Tools" (автор w33zl)
 - Расстояние подбора теперь увеличивается (4x) только при активной суперсиле
+v1.1.1.0
+- Исправлена ошибка, при которой после удаления целого дерева создавались деревья-призраки
 ]]>
 </ru>
 <it><![CDATA[Questa mod aggiunge alcuni miglioramenti alla qualità della vita per rendere un po' più facile la rimozione degli alberi con una motosega, ma conserva ancora abbastanza realismo da meritare il pagamento per la vendita del legno. La motosega ora può macinare i ceppi e la modalità "super-forza" garantisce anche la possibilità di eliminare completamente gli alberi.
@@ -122,6 +130,13 @@ Caratteristiche:
 - Attiva o disattiva "super forza" usando ALT e aumenta la luminosità della sovrapposizione di mira per indicare quando è attiva
 - La super forza è adattiva (5 volte la massa dell'oggetto tenuto)
 - La motosega può rimuovere i ceppi (macinare per 3 secondi)
+
+Changelog:
+v1.1.0.0
+- Aggiornato per la compatibilità con la funzione super forza in "Power Tools" (da w33zl)
+- La distanza di prelievo è ora aumentata (4x) solo quando la super forza è attiva
+v1.1.1.0
+- Corretto un errore per cui venivano creati alberi fantasma dopo aver rimosso un intero albero
 ]]>
 </it>
 <cz><![CDATA[Tento mod přidává některá vylepšení, aby bylo kácení stromů pomocí motorové pily o něco jednodušší, ale stále si zachovává dostatek realismu, aby sis zasloužil platbu za prodej dřeva. Řetězová pila nyní dokáže brousit pařezy a režim „super-síla“ také umožňuje úplné odstranění stromů.
@@ -145,6 +160,8 @@ Seznam změn:
 v1.1.0.0
 - Aktualizováno pro kompatibilitu s funkcí super pevnosti v "Power Tools" (od w33zl)
 - Vzdálenost vyzvednutí je nyní zvýšena (4x) pouze tehdy, když je aktivní super síla
+v1.1.1.0
+- Opravena chyba, kdy se po odstranění celého stromu vytvořily stromy duchů
 ]]>
 </cz>
 	</description>

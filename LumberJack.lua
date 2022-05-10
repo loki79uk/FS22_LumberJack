@@ -267,14 +267,7 @@ function LumberJack:update(dt)
 					if splitShape ~=0 then
 						if getVolume(splitShape) < 0.100 then
 						-- DELETE THE SHAPE if too small to worry about (e.g. felling wedge or thin branch)
-							if g_currentMission.missionDynamicInfo.isMultiplayer then
-							--print("MULTIPLAYER")
-								DeleteShapeEvent.sendEvent(splitShape)
-							else
-							--print("SINGLE PLAYER")
-								g_currentMission:removeKnownSplitShape(splitShape)
-								delete(splitShape)
-							end
+							LumberJack:deleteSplitShape(splitShape)
 						end
 					end
 					LumberJack.useChainsawFlag = true
@@ -370,14 +363,7 @@ function LumberJack:update(dt)
 						hTool.isCutting = false
 					else
 						-- DELETE THE SHAPE
-						if g_currentMission.missionDynamicInfo.isMultiplayer then
-						--print("MULTIPLAYER")
-							DeleteShapeEvent.sendEvent(LumberJack.splitShape)
-						else
-						--print("SINGLE PLAYER")
-							g_currentMission:removeKnownSplitShape(LumberJack.splitShape)
-							delete(LumberJack.splitShape)
-						end
+						LumberJack:deleteSplitShape(LumberJack.splitShape)
 						LumberJack.splitShape = 0
 						LumberJack.stumpGrindingTime = 0
 						LumberJack.stumpGrindingFlag = false
@@ -393,4 +379,58 @@ function LumberJack:update(dt)
 			end
 		end
 	end	
+end
+
+function LumberJack:deleteSplitShape(shape, noEventSend)
+
+	if shape ~= nil then
+		if g_server ~= nil then
+			g_currentMission:removeKnownSplitShape(shape)
+			local isTree = getRigidBodyType(shape) == RigidBodyType.STATIC
+			
+			if isTree then
+				LumberJack.cutShapes = {}
+				local x, y, z = getWorldTranslation(shape)
+				local nx, ny, nz = 0, 1, 0
+				local yx, yy, yz = 1, 0, 0
+				local cutSizeY, cutSizeZ = 5, 5
+				splitShape(shape, x, y + 0.2, z, nx, ny, nz, yx, yy, yz, cutSizeY, cutSizeZ, "cutSplitShapeCallback", LumberJack)
+				g_treePlantManager:removingSplitShape(shape)
+				
+				if table.getn(LumberJack.cutShapes) == 2 then
+					local split0 = LumberJack.cutShapes[1]
+					local split1 = LumberJack.cutShapes[2]
+					local type0 = getRigidBodyType(split0.shape)
+					local type1 = getRigidBodyType(split1.shape)
+					local wasTree = (type0 == RigidBodyType.STATIC and type1 == RigidBodyType.DYNAMIC) or
+									(type1 == RigidBodyType.STATIC and type0 == RigidBodyType.DYNAMIC)
+					if wasTree then
+						delete(LumberJack.cutShapes[1].shape)
+						delete(LumberJack.cutShapes[2].shape)
+					end
+				end
+			end
+			
+			if entityExists(shape) then
+				delete(shape)
+			end
+		else
+			DeleteShapeEvent.sendEvent(shape)
+		end
+	end
+
+end
+
+function LumberJack.cutSplitShapeCallback(unused, shape, isBelow, isAbove, minY, maxY, minZ, maxZ)
+    if shape ~= nil then
+		table.insert(LumberJack.cutShapes, {
+			shape = shape,
+			isBelow = isBelow,
+			isAbove = isAbove,
+			minY = minY,
+			maxY = maxY,
+			minZ = minZ,
+			maxZ = maxZ
+		})
+    end
 end

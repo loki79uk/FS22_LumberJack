@@ -25,7 +25,8 @@ function DeleteShapeEvent:readStream(streamId, connection)
         local splitShapeId = readSplitShapeIdFromStream(streamId)
         if splitShapeId ~= 0 then
 			--print("DeleteShape CLIENT")
-            delete(splitShapeId)
+			LumberJack:deleteSplitShape(splitShapeId, true)
+            --delete(splitShapeId)
         end
     end
 end
@@ -37,16 +38,9 @@ function DeleteShapeEvent:writeStream(streamId, connection)
     end
 end
 
-function DeleteShapeEvent:run(connection)
-	--print("Error: DeleteShapeEvent is not allowed to be executed on a local client")
-end
-
 function DeleteShapeEvent.sendEvent(splitShapeId)
 	--print("DeleteShape - RUN")
 	if g_server ~= nil then
-		--print("DeleteShape SERVER")
-		delete(splitShapeId)
-	else
 		g_client:getServerConnection():sendEvent(DeleteShapeEvent.new(splitShapeId))
 	end
 end
