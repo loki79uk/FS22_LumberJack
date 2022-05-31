@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
-<modDesc descVersion="65">
+<modDesc descVersion="66">
 	<author>loki_79</author>
-    <version>1.1.1.0</version>
+    <version>1.2.0.0</version>
 	<title>
 		<en>LumberJack</en>
 		<de>Holzfäller</de>
@@ -33,7 +33,7 @@ Changelog:
 v1.1.0.0
 - Updated for compatibility with the super strength feature in "Power Tools" (by w33zl)
 - Pick up distance is now increased (4x) only when super strength is active
-v1.1.1.0
+v1.2.0.0
 - Fixed an error where ghost trees were created after removing a whole tree
 ]]>
 </en>
@@ -58,7 +58,7 @@ Changelog:
 v1.1.0.0
 - Aktualisiert für Kompatibilität mit der Superstrength-Funktion in "Power Tools" (von w33zl)
 - Die Aufnahmedistanz wird jetzt nur noch erhöht (4x), wenn Superstärke aktiv ist
-v1.1.1.0
+v1.2.0.0
 - Es wurde ein Fehler behoben, bei dem nach dem Entfernen eines ganzen Baums Geisterbäume erzeugt wurden
 ]]>
 </de>
@@ -83,7 +83,7 @@ Changelog:
 v1.1.0.0
 - Mis à jour pour la compatibilité avec la fonction superstrength dans "Power Tools" (par w33zl)
 - La distance de ramassage n'est désormais augmentée (4x) que lorsque la super force est active
-v1.1.1.0
+v1.2.0.0
 - Correction d'une erreur où des arbres fantômes étaient créés après la suppression d'un arbre entier
 ]]>
 </fr>
@@ -109,7 +109,7 @@ Changelog:
 v1.1.0.0
 - Обновлено для совместимости с функцией сверхпрочности в "Power Tools" (автор w33zl)
 - Расстояние подбора теперь увеличивается (4x) только при активной суперсиле
-v1.1.1.0
+v1.2.0.0
 - Исправлена ошибка, при которой после удаления целого дерева создавались деревья-призраки
 ]]>
 </ru>
@@ -135,7 +135,7 @@ Changelog:
 v1.1.0.0
 - Aggiornato per la compatibilità con la funzione super forza in "Power Tools" (da w33zl)
 - La distanza di prelievo è ora aumentata (4x) solo quando la super forza è attiva
-v1.1.1.0
+v1.2.0.0
 - Corretto un errore per cui venivano creati alberi fantasma dopo aver rimosso un intero albero
 ]]>
 </it>
@@ -160,7 +160,7 @@ Seznam změn:
 v1.1.0.0
 - Aktualizováno pro kompatibilitu s funkcí super pevnosti v "Power Tools" (od w33zl)
 - Vzdálenost vyzvednutí je nyní zvýšena (4x) pouze tehdy, když je aktivní super síla
-v1.1.1.0
+v1.2.0.0
 - Opravena chyba, kdy se po odstranění celého stromu vytvořily stromy duchů
 ]]>
 </cz>
