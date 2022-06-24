@@ -26,7 +26,6 @@ function DeleteShapeEvent:readStream(streamId, connection)
         if splitShapeId ~= 0 then
 			--print("DeleteShape CLIENT")
 			LumberJack:deleteSplitShape(splitShapeId, true)
-            --delete(splitShapeId)
         end
     end
 end
@@ -40,7 +39,7 @@ end
 
 function DeleteShapeEvent.sendEvent(splitShapeId)
 	--print("DeleteShape - RUN")
-	if g_server ~= nil then
+	if g_server == nil then
 		g_client:getServerConnection():sendEvent(DeleteShapeEvent.new(splitShapeId))
 	end
 end
