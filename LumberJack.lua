@@ -8,7 +8,7 @@ addModEventListener(LumberJack);
 
 -- ALLOW CHAINSAW CUTTING ANYWHERE ON THE MAP
 function LumberJack:isCuttingAllowed(superFunc, x, y, z)
-	return true
+	return g_currentMission:getHasPlayerPermission("cutTrees")
 end
 
 -- ADD SHORTCUT KEY SELECTION TO OPTIONS MENU
@@ -337,7 +337,7 @@ function LumberJack:update(dt)
 							end
 						end
 
-						if LumberJack.stumpGrindingFlag then
+						if LumberJack.stumpGrindingFlag and g_currentMission:getHasPlayerPermission("cutTrees") then
 						-- SHOW RED RING SELECTOR
 							setShaderParameter(hTool.ringSelector, "colorScale", 0.8, 0.05, 0.05, 1.0, false)
 						else
@@ -350,7 +350,7 @@ function LumberJack:update(dt)
 				
 				-- GRIND STUMPS USING THE CHAINSAW --
 				if LumberJack.stumpGrindingFlag and g_currentMission.player.isEntered and not g_gui:getIsGuiVisible()
-				and hTool.speedFactor > 0.1 then
+				and hTool.speedFactor > 0.1 and g_currentMission:getHasPlayerPermission("cutTrees") then
 					LumberJack.stumpGrindingTime = LumberJack.stumpGrindingTime + dt
 					if LumberJack.stumpGrindingTime < 3000 then
 						-- STUMP GRINDING
