@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <modDesc descVersion="66">
 	<author>loki_79</author>
-    <version>1.2.1.0</version>
+    <version>1.3.0.0</version>
 	<title>
 		<en>LumberJack</en>
 		<de>Holzfäller</de>
@@ -35,6 +35,10 @@ v1.1.0.0
 - Pick up distance is now increased (4x) only when super strength is active
 v1.2.0.0
 - Fixed an error where ghost trees were created after removing a whole tree
+v1.2.1.0
+- Fixed an error where objects could not be deleted in multiplayer
+v1.3.0.0
+- Using new "permission to cut trees" multiplayer feature in v1.6
 ]]>
 </en>
 <de><![CDATA[Dieser Mod fügt einige Verbesserungen der Lebensqualität hinzu, um das Abholzen von Bäumen mit der Kettensäge etwas einfacher zu machen, behält aber immer noch genug Realismus, um die Bezahlung für den Verkauf des Holzes zu verdienen.  Die Kettensäge kann nun Baumstümpfe schleifen, und der 'Superstärke'-Modus bietet auch die Möglichkeit, Bäume vollständig zu löschen.
@@ -60,6 +64,10 @@ v1.1.0.0
 - Die Aufnahmedistanz wird jetzt nur noch erhöht (4x), wenn Superstärke aktiv ist
 v1.2.0.0
 - Es wurde ein Fehler behoben, bei dem nach dem Entfernen eines ganzen Baums Geisterbäume erzeugt wurden
+v1.2.1.0
+- Ein Fehler wurde behoben, bei dem Objekte im Multiplayer nicht gelöscht werden konnten
+v1.3.0.0
+- Verwendung der neuen Multiplayer-Funktion "Erlaubnis zum Bäume fällen" in v1.6
 ]]>
 </de>
 <fr><![CDATA[Ce mod ajoute quelques améliorations de la qualité de vie pour faciliter le défrichage des arbres à la tronçonneuse, tout en conservant suffisamment de réalisme pour mériter le paiement de la vente du bois.  La tronçonneuse peut désormais broyer des souches, et le mode "super-force" permet également de supprimer complètement des arbres.
@@ -85,6 +93,10 @@ v1.1.0.0
 - La distance de ramassage n'est désormais augmentée (4x) que lorsque la super force est active
 v1.2.0.0
 - Correction d'une erreur où des arbres fantômes étaient créés après la suppression d'un arbre entier
+v1.2.1.0
+- Correction d'une erreur où les objets ne pouvaient pas être supprimés en multijoueur
+v1.3.0.0
+- Utilisation de la nouvelle fonctionnalité multijoueur "permission de couper les arbres" dans la v1.6
 ]]>
 </fr>
 <ru><![CDATA[Этот мод добавляет некоторые улучшения качества жизни, чтобы сделать расчистку деревьев бензопилой немного проще, но при этом сохраняет достаточно реализма, 
@@ -111,6 +123,10 @@ v1.1.0.0
 - Расстояние подбора теперь увеличивается (4x) только при активной суперсиле
 v1.2.0.0
 - Исправлена ошибка, при которой после удаления целого дерева создавались деревья-призраки
+v1.2.1.0
+- Исправлена ошибка, при которой объекты не могли быть удалены в мультиплеере
+v1.3.0.0
+- Использование новой функции мультиплеера "разрешение рубить деревья" в версии 1.6
 ]]>
 </ru>
 <it><![CDATA[Questa mod aggiunge alcuni miglioramenti alla qualità della vita per rendere un po' più facile la rimozione degli alberi con una motosega, ma conserva ancora abbastanza realismo da meritare il pagamento per la vendita del legno. La motosega ora può macinare i ceppi e la modalità "super-forza" garantisce anche la possibilità di eliminare completamente gli alberi.
@@ -137,6 +153,10 @@ v1.1.0.0
 - La distanza di prelievo è ora aumentata (4x) solo quando la super forza è attiva
 v1.2.0.0
 - Corretto un errore per cui venivano creati alberi fantasma dopo aver rimosso un intero albero
+v1.2.1.0
+- Corretto un errore per cui gli oggetti non potevano essere eliminati in multiplayer
+v1.3.0.0
+- Utilizzo della nuova funzione multigiocatore "permesso di tagliare gli alberi" in v1.6
 ]]>
 </it>
 <cz><![CDATA[Tento mod přidává některá vylepšení, aby bylo kácení stromů pomocí motorové pily o něco jednodušší, ale stále si zachovává dostatek realismu, aby sis zasloužil platbu za prodej dřeva. Řetězová pila nyní dokáže brousit pařezy a režim „super-síla“ také umožňuje úplné odstranění stromů.
@@ -162,6 +182,10 @@ v1.1.0.0
 - Vzdálenost vyzvednutí je nyní zvýšena (4x) pouze tehdy, když je aktivní super síla
 v1.2.0.0
 - Opravena chyba, kdy se po odstranění celého stromu vytvořily stromy duchů
+v1.2.1.0
+- Se ha corregido un error por el que no se podían eliminar objetos en el modo multijugador
+v1.3.0.0
+- Uso de la nueva función multijugador "permiso para cortar árboles" en la v1.6
 ]]>
 </cz>
 	</description>
