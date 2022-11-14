@@ -11,6 +11,11 @@ function LumberJack:isCuttingAllowed(superFunc, x, y, z)
 	return g_currentMission:getHasPlayerPermission("cutTrees")
 end
 
+-- ALLOW TREE SPRAYING ANYWHERE ON THE MAP
+function LumberJack:isSprayingAllowed(superFunc, shape)
+	return g_currentMission:getHasPlayerPermission("cutTrees")
+end
+
 -- ADD SHORTCUT KEY SELECTION TO OPTIONS MENU
 function LumberJack:registerActionEvents()
 	local _, actionEventId = g_inputBinding:registerActionEvent('LUMBERJACK_STRENGTH', self, LumberJack.toggleStrength, true, true, false, true)
@@ -104,6 +109,11 @@ function LumberJack:loadMap(name)
 
 	-- ALLOW CHAINSAW CUTTING ANYWHERE ON THE MAP
 	Chainsaw.isCuttingAllowed = Utils.overwrittenFunction(Chainsaw.isCuttingAllowed, LumberJack.isCuttingAllowed)
+	
+	-- ALLOW TREE SPRAYING ANYWHERE ON THE MAP
+	if pdlc_forestryPack~=nil and pdlc_forestryPack.SprayCan~=nil then
+		pdlc_forestryPack.SprayCan.getIsSprayingAllowed = Utils.overwrittenFunction(pdlc_forestryPack.SprayCan.getIsSprayingAllowed, LumberJack.isSprayingAllowed)
+	end
 	
 	-- ADD SHORTCUT KEY SELECTION TO OPTIONS MENU
 	Player.registerActionEvents = Utils.appendedFunction(Player.registerActionEvents, LumberJack.registerActionEvents)
@@ -263,7 +273,7 @@ function LumberJack:update(dt)
 						local xx,xy,xz = localDirectionToWorld(hTool.chainsawSplitShapeFocus, 1,0,0)
 						local yx,yy,yz = localDirectionToWorld(hTool.chainsawSplitShapeFocus, 0,1,0)
 						local zx,zy,zz = localDirectionToWorld(hTool.chainsawSplitShapeFocus, 0,0,1)
-						local size = 1.5
+						local size = 1.7
 
 						local x0 = x + yx*0.45 + zx*0.3
 						local y0 = y + yy*0.45 + zy*0.3
@@ -308,7 +318,7 @@ function LumberJack:update(dt)
 										LumberJack.stumpGrindingFlag = false
 									end
 									if LumberJack.showDebug then
-										print(string.format("below:%s   above:%s   ly:%s", tostring(lenBelow),tostring(lenAbove),tostring(ly)))
+										g_currentMission:addExtraPrintText(string.format("below:%.3f   above:%.3f   ly:%.3f", lenBelow,lenAbove,ly))
 									end
 								end
 							else
@@ -324,6 +334,21 @@ function LumberJack:update(dt)
 							setShaderParameter(hTool.ringSelector, "colorScale", 0.05, 0.05, 0.05, 1.0, false)
 						end
 						
+					else
+						-- CHAINSAW HAS FOUND A PLACE TO CUT THE TREE
+						local x, y, z, nx, ny, nz, yx, yy, yz = hTool:getCutShapeInformation()
+						local shape, _, _, _, _ = findSplitShape(x, y, z, nx, ny, nz, yx, yy, yz, hTool.cutSizeY, hTool.cutSizeZ)
+						
+						if shape ~= nil and shape ~= 0 then
+							local cutStartX, cutStartY, cutStartZ, cutEndX, cutEndY, cutEndZ = hTool:getCutStartEnd()
+							local x0, y0, z0 = (cutStartX+cutEndX)/2, (cutStartY+cutEndY)/2, (cutStartZ+cutEndZ)/2
+							local below, above = getSplitShapePlaneExtents(shape, x0, y0, z0, localDirectionToWorld(shape, 0, 1, 0))
+							g_currentMission:addExtraPrintText(g_i18n:getText("infohud_length") .. string.format(":   %.1fm  |  %.1fm", above, below))
+		
+							if LumberJack.showDebug then
+								drawDebugLine(cutStartX,cutStartY,cutStartZ,1,1,1,cutEndX,cutEndY,cutEndZ,1,1,1)
+							end
+						end
 					end
 				end
 				

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
-<modDesc descVersion="67">
+<modDesc descVersion="71">
 	<author>loki_79</author>
-    <version>1.3.1.0</version>
+    <version>1.4.0.0</version>
 	<title>
 		<en>LumberJack</en>
 		<de>Holzfäller</de>
@@ -41,6 +41,9 @@ v1.3.0.0
 - Using new "permission to cut trees" multiplayer feature in v1.6
 v1.3.1.0
 - Fixed super strength after it was broken in v1.8.1.0
+v1.4.0.0
+- Added new log measurement display tool when cutting
+- Added ability to spray trees on unowned land
 ]]>
 </en>
 <de><![CDATA[Dieser Mod fügt einige Verbesserungen der Lebensqualität hinzu, um das Abholzen von Bäumen mit der Kettensäge etwas einfacher zu machen, behält aber immer noch genug Realismus, um die Bezahlung für den Verkauf des Holzes zu verdienen.  Die Kettensäge kann nun Baumstümpfe schleifen, und der 'Superstärke'-Modus bietet auch die Möglichkeit, Bäume vollständig zu löschen.
@@ -72,6 +75,9 @@ v1.3.0.0
 - Verwendung der neuen Multiplayer-Funktion "Erlaubnis zum Bäume fällen" in v1.6
 v1.3.1.0
 - Superstärke behoben, nachdem sie in v1.8.1.0 kaputt war
+v1.4.0.0
+- Neues Werkzeug zur Anzeige der Stammabmessungen beim Schneiden hinzugefügt
+- Möglichkeit zum Besprühen von Bäumen auf unbewohntem Land zugefügt
 ]]>
 </de>
 <fr><![CDATA[Ce mod ajoute quelques améliorations de la qualité de vie pour faciliter le défrichage des arbres à la tronçonneuse, tout en conservant suffisamment de réalisme pour mériter le paiement de la vente du bois.  La tronçonneuse peut désormais broyer des souches, et le mode "super-force" permet également de supprimer complètement des arbres.
@@ -103,6 +109,9 @@ v1.3.0.0
 - Utilisation de la nouvelle fonctionnalité multijoueur "permission de couper les arbres" dans la v1.6
 v1.3.1.0
 - Correction de la super force après qu'elle ait été cassée dans la v1.8.1.0
+v1.4.0.0
+- Ajout d'un nouvel outil d'affichage de la mesure des billes lors de la coupe
+- Ajout de la possibilité de pulvériser des arbres sur des terrains non possédés
 ]]>
 </fr>
 <ru><![CDATA[Этот мод добавляет некоторые улучшения качества жизни, чтобы сделать расчистку деревьев бензопилой немного проще, но при этом сохраняет достаточно реализма, 
@@ -135,6 +144,9 @@ v1.3.0.0
 - Использование новой функции мультиплеера "разрешение рубить деревья" в версии 1.6
 v1.3.1.0
 - Исправлена суперсила после того, как она была сломана в v1.8.1.0
+v1.4.0.0
+- Добавлен новый инструмент отображения измерения бревен при рубке
+- Добавлена возможность опрыскивать деревья на бесхозных землях
 ]]>
 </ru>
 <it><![CDATA[Questa mod aggiunge alcuni miglioramenti alla qualità della vita per rendere un po' più facile la rimozione degli alberi con una motosega, ma conserva ancora abbastanza realismo da meritare il pagamento per la vendita del legno. La motosega ora può macinare i ceppi e la modalità "super-forza" garantisce anche la possibilità di eliminare completamente gli alberi.
@@ -167,6 +179,9 @@ v1.3.0.0
 - Utilizzo della nuova funzione multigiocatore "permesso di tagliare gli alberi" in v1.6
 v1.3.1.0
 - Fissata la superforza dopo che era stata rotta nella v1.8.1.0
+v1.4.0.0
+- Aggiunto un nuovo strumento di visualizzazione delle misure dei tronchi durante il taglio
+- Aggiunta la possibilità di spruzzare alberi su terreni non di proprietà
 ]]>
 </it>
 <cz><![CDATA[Tento mod přidává některá vylepšení, aby bylo kácení stromů pomocí motorové pily o něco jednodušší, ale stále si zachovává dostatek realismu, aby sis zasloužil platbu za prodej dřeva. Řetězová pila nyní dokáže brousit pařezy a režim „super-síla“ také umožňuje úplné odstranění stromů.
@@ -198,6 +213,9 @@ v1.3.0.0
 - Uso de la nueva función multijugador "permiso para cortar árboles" en la v1.6
 v1.3.1.0
 - Opravena super síla poté, co byla rozbita ve verzi 1.8.1.0
+v1.4.0.0
+- Přidán nový nástroj pro zobrazení měření protokolu při řezání
+- Přidána možnost postřiku stromů na nevlastněných pozemcích
 ]]>
 </cz>
 	</description>
