@@ -73,6 +73,16 @@ function LumberJack.playerCheckObjectInRange(self, superFunc)
 	return superFunc(self)
 end
 
+--REPLACE Player.motionInformation.maxWalkingSpeed
+function LumberJack.playerGetDesiredSpeed(self, superFunc)
+	if self:hasHandtoolEquipped() and self.inputInformation.runAxis > 0 then
+		self.motionInformation.maxWalkingSpeed = LumberJack.maxRunningSpeed
+	else
+		self.motionInformation.maxWalkingSpeed = LumberJack.maxWalkingSpeed
+	end
+	return superFunc(self)
+end
+
 -- DETECT SUPER STRENGTH CONSOLE COMMAND
 function LumberJack.playerConsoleCommand(self, superFunc)
 	superFunc(self)
@@ -100,6 +110,8 @@ function LumberJack:loadMap(name)
 	LumberJack.normalStrengthValue = 0.2
 	LumberJack.superDistanceValue = 12
 	LumberJack.normalDistanceValue = 3
+	LumberJack.maxWalkingSpeed = 4
+	LumberJack.maxRunningSpeed = 9
 	LumberJack.stumpGrindingTime = 0
 	LumberJack.stumpGrindingFlag = false
 	LumberJack.useChainsawFlag = false
@@ -189,6 +201,11 @@ function LumberJack:update(dt)
 		-- change values from default
 		g_currentMission.player.minCutDistance = 0.10
 		g_currentMission.player.maxCutDistance = 6.00
+		
+		--LumberJack.maxWalkingSpeed = g_currentMission.player.motionInformation.maxWalkingSpeed
+		--LumberJack.maxRunningSpeed = g_currentMission.player.motionInformation.maxRunningSpeed
+		Player.getDesiredSpeed = Utils.overwrittenFunction(Player.getDesiredSpeed, LumberJack.playerGetDesiredSpeed)
+
 		LumberJack.initialised = true
 	end
 	
