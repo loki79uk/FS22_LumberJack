@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <modDesc descVersion="71">
 	<author>loki_79</author>
-    <version>1.4.0.1</version>
+    <version>1.4.1.0</version>
 	<title>
 		<en>LumberJack</en>
 		<de>Holzfäller</de>
@@ -30,20 +30,20 @@ Features:
 - Chainsaw can remove stumps (grind for 3 seconds)
 
 Changelog:
-v1.1.0.0
-- Updated for compatibility with the super strength feature in "Power Tools" (by w33zl)
-- Pick up distance is now increased (4x) only when super strength is active
-v1.2.0.0
-- Fixed an error where ghost trees were created after removing a whole tree
-v1.2.1.0
-- Fixed an error where objects could not be deleted in multiplayer
-v1.3.0.0
-- Using new "permission to cut trees" multiplayer feature in v1.6
-v1.3.1.0
-- Fixed super strength after it was broken in v1.8.1.0
 v1.4.0.0
 - Added new log measurement display tool when cutting
 - Added ability to spray trees on unowned land
+v1.3.1.0
+- Fixed super strength after it was broken in v1.8.1.0
+v1.3.0.0
+- Using new "permission to cut trees" multiplayer feature in v1.6
+v1.2.1.0
+- Fixed an error where objects could not be deleted in multiplayer
+v1.2.0.0
+- Fixed an error where ghost trees were created after removing a whole tree
+v1.1.0.0
+- Updated for compatibility with the super strength feature in "Power Tools" (by w33zl)
+- Pick up distance is now increased (4x) only when super strength is active
 ]]>
 </en>
 <de><![CDATA[Dieser Mod fügt einige Verbesserungen der Lebensqualität hinzu, um das Abholzen von Bäumen mit der Kettensäge etwas einfacher zu machen, behält aber immer noch genug Realismus, um die Bezahlung für den Verkauf des Holzes zu verdienen.  Die Kettensäge kann nun Baumstümpfe schleifen, und der 'Superstärke'-Modus bietet auch die Möglichkeit, Bäume vollständig zu löschen.
@@ -64,20 +64,20 @@ Merkmale:
 - Kettensäge kann Stümpfe entfernen (3 Sekunden schleifen)
 
 Changelog:
-v1.1.0.0
-- Aktualisiert für Kompatibilität mit der Superstrength-Funktion in "Power Tools" (von w33zl)
-- Die Aufnahmedistanz wird jetzt nur noch erhöht (4x), wenn Superstärke aktiv ist
-v1.2.0.0
-- Es wurde ein Fehler behoben, bei dem nach dem Entfernen eines ganzen Baums Geisterbäume erzeugt wurden
-v1.2.1.0
-- Ein Fehler wurde behoben, bei dem Objekte im Multiplayer nicht gelöscht werden konnten
-v1.3.0.0
-- Verwendung der neuen Multiplayer-Funktion "Erlaubnis zum Bäume fällen" in v1.6
-v1.3.1.0
-- Superstärke behoben, nachdem sie in v1.8.1.0 kaputt war
 v1.4.0.0
 - Neues Werkzeug zur Anzeige der Stammabmessungen beim Schneiden hinzugefügt
 - Möglichkeit zum Besprühen von Bäumen auf unbewohntem Land zugefügt
+v1.3.1.0
+- Superstärke behoben, nachdem sie in v1.8.1.0 kaputt war
+v1.3.0.0
+- Verwendung der neuen Multiplayer-Funktion "Erlaubnis zum Bäume fällen" in v1.6
+v1.2.1.0
+- Ein Fehler wurde behoben, bei dem Objekte im Multiplayer nicht gelöscht werden konnten
+v1.2.0.0
+- Es wurde ein Fehler behoben, bei dem nach dem Entfernen eines ganzen Baums Geisterbäume erzeugt wurden
+v1.1.0.0
+- Aktualisiert für Kompatibilität mit der Superstrength-Funktion in "Power Tools" (von w33zl)
+- Die Aufnahmedistanz wird jetzt nur noch erhöht (4x), wenn Superstärke aktiv ist
 ]]>
 </de>
 <fr><![CDATA[Ce mod ajoute quelques améliorations de la qualité de vie pour faciliter le défrichage des arbres à la tronçonneuse, tout en conservant suffisamment de réalisme pour mériter le paiement de la vente du bois.  La tronçonneuse peut désormais broyer des souches, et le mode "super-force" permet également de supprimer complètement des arbres.
@@ -98,20 +98,20 @@ Caractéristiques:
 - La tronçonneuse permet d'enlever les souches (broyage pendant 3 secondes)
 
 Changelog:
-v1.1.0.0
-- Mis à jour pour la compatibilité avec la fonction superstrength dans "Power Tools" (par w33zl)
-- La distance de ramassage n'est désormais augmentée (4x) que lorsque la super force est active
-v1.2.0.0
-- Correction d'une erreur où des arbres fantômes étaient créés après la suppression d'un arbre entier
-v1.2.1.0
-- Correction d'une erreur où les objets ne pouvaient pas être supprimés en multijoueur
-v1.3.0.0
-- Utilisation de la nouvelle fonctionnalité multijoueur "permission de couper les arbres" dans la v1.6
-v1.3.1.0
-- Correction de la super force après qu'elle ait été cassée dans la v1.8.1.0
 v1.4.0.0
 - Ajout d'un nouvel outil d'affichage de la mesure des billes lors de la coupe
 - Ajout de la possibilité de pulvériser des arbres sur des terrains non possédés
+v1.3.1.0
+- Correction de la super force après qu'elle ait été cassée dans la v1.8.1.0
+v1.3.0.0
+- Utilisation de la nouvelle fonctionnalité multijoueur "permission de couper les arbres" dans la v1.6
+v1.2.1.0
+- Correction d'une erreur où les objets ne pouvaient pas être supprimés en multijoueur
+v1.2.0.0
+- Correction d'une erreur où des arbres fantômes étaient créés après la suppression d'un arbre entier
+v1.1.0.0
+- Mis à jour pour la compatibilité avec la fonction superstrength dans "Power Tools" (par w33zl)
+- La distance de ramassage n'est désormais augmentée (4x) que lorsque la super force est active
 ]]>
 </fr>
 <ru><![CDATA[Этот мод добавляет некоторые улучшения качества жизни, чтобы сделать расчистку деревьев бензопилой немного проще, но при этом сохраняет достаточно реализма, 
@@ -133,20 +133,20 @@ v1.4.0.0
 - бензопила может убирать пни (измельчать 3 секунды)
 
 Changelog:
-v1.1.0.0
-- Обновлено для совместимости с функцией сверхпрочности в "Power Tools" (автор w33zl)
-- Расстояние подбора теперь увеличивается (4x) только при активной суперсиле
-v1.2.0.0
-- Исправлена ошибка, при которой после удаления целого дерева создавались деревья-призраки
-v1.2.1.0
-- Исправлена ошибка, при которой объекты не могли быть удалены в мультиплеере
-v1.3.0.0
-- Использование новой функции мультиплеера "разрешение рубить деревья" в версии 1.6
-v1.3.1.0
-- Исправлена суперсила после того, как она была сломана в v1.8.1.0
 v1.4.0.0
 - Добавлено отображение размеров частей брёвен при распиливании
 - Добавлена возможность маркировать деревья на бесхозных землях
+v1.3.1.0
+- Исправлена суперсила после того, как она была сломана в v1.8.1.0
+v1.3.0.0
+- Использование новой функции мультиплеера "разрешение рубить деревья" в версии 1.6
+v1.2.1.0
+- Исправлена ошибка, при которой объекты не могли быть удалены в мультиплеере
+v1.2.0.0
+- Исправлена ошибка, при которой после удаления целого дерева создавались деревья-призраки
+v1.1.0.0
+- Обновлено для совместимости с функцией сверхпрочности в "Power Tools" (автор w33zl)
+- Расстояние подбора теперь увеличивается (4x) только при активной суперсиле
 ]]>
 </ru>
 <it><![CDATA[Questa mod aggiunge alcuni miglioramenti alla qualità della vita per rendere un po' più facile la rimozione degli alberi con una motosega, ma conserva ancora abbastanza realismo da meritare il pagamento per la vendita del legno. La motosega ora può macinare i ceppi e la modalità "super-forza" garantisce anche la possibilità di eliminare completamente gli alberi.
@@ -168,20 +168,20 @@ Caratteristiche:
 - La motosega può rimuovere i ceppi (macinare per 3 secondi)
 
 Changelog:
-v1.1.0.0
-- Aggiornato per la compatibilità con la funzione super forza in "Power Tools" (da w33zl)
-- La distanza di prelievo è ora aumentata (4x) solo quando la super forza è attiva
-v1.2.0.0
-- Corretto un errore per cui venivano creati alberi fantasma dopo aver rimosso un intero albero
-v1.2.1.0
-- Corretto un errore per cui gli oggetti non potevano essere eliminati in multiplayer
-v1.3.0.0
-- Utilizzo della nuova funzione multigiocatore "permesso di tagliare gli alberi" in v1.6
-v1.3.1.0
-- Fissata la superforza dopo che era stata rotta nella v1.8.1.0
 v1.4.0.0
 - Aggiunto un nuovo strumento di visualizzazione delle misure dei tronchi durante il taglio
 - Aggiunta la possibilità di spruzzare alberi su terreni non di proprietà
+v1.3.1.0
+- Fissata la superforza dopo che era stata rotta nella v1.8.1.0
+v1.3.0.0
+- Utilizzo della nuova funzione multigiocatore "permesso di tagliare gli alberi" in v1.6
+v1.2.1.0
+- Corretto un errore per cui gli oggetti non potevano essere eliminati in multiplayer
+v1.2.0.0
+- Corretto un errore per cui venivano creati alberi fantasma dopo aver rimosso un intero albero
+v1.1.0.0
+- Aggiornato per la compatibilità con la funzione super forza in "Power Tools" (da w33zl)
+- La distanza di prelievo è ora aumentata (4x) solo quando la super forza è attiva
 ]]>
 </it>
 <cz><![CDATA[Tento mod přidává některá vylepšení, aby bylo kácení stromů pomocí motorové pily o něco jednodušší, ale stále si zachovává dostatek realismu, aby sis zasloužil platbu za prodej dřeva. Řetězová pila nyní dokáže brousit pařezy a režim „super-síla“ také umožňuje úplné odstranění stromů.
@@ -202,20 +202,20 @@ Funkce:
 - Motorová pila dokáže odstranit pařezy (brousit po dobu 3 sekund)
 
 Seznam změn:
-v1.1.0.0
-- Aktualizováno pro kompatibilitu s funkcí super pevnosti v "Power Tools" (od w33zl)
-- Vzdálenost vyzvednutí je nyní zvýšena (4x) pouze tehdy, když je aktivní super síla
-v1.2.0.0
-- Opravena chyba, kdy se po odstranění celého stromu vytvořily stromy duchů
-v1.2.1.0
-- Se ha corregido un error por el que no se podían eliminar objetos en el modo multijugador
-v1.3.0.0
-- Uso de la nueva función multijugador "permiso para cortar árboles" en la v1.6
-v1.3.1.0
-- Opravena super síla poté, co byla rozbita ve verzi 1.8.1.0
 v1.4.0.0
 - Přidán nový nástroj pro zobrazení měření protokolu při řezání
 - Přidána možnost postřiku stromů na nevlastněných pozemcích
+v1.3.1.0
+- Opravena super síla poté, co byla rozbita ve verzi 1.8.1.0
+v1.3.0.0
+- Uso de la nueva función multijugador "permiso para cortar árboles" en la v1.6
+v1.2.1.0
+- Se ha corregido un error por el que no se podían eliminar objetos en el modo multijugador
+v1.2.0.0
+- Opravena chyba, kdy se po odstranění celého stromu vytvořily stromy duchů
+v1.1.0.0
+- Aktualizováno pro kompatibilitu s funkcí super pevnosti v "Power Tools" (od w33zl)
+- Vzdálenost vyzvednutí je nyní zvýšena (4x) pouze tehdy, když je aktivní super síla
 ]]>
 </cz>
 	</description>
@@ -234,38 +234,56 @@ v1.4.0.0
 			<binding device="KB_MOUSE_DEFAULT" input="KEY_lalt" />
 		</actionBinding>
 	</inputBinding>	
-	<l10n>
-		<text name="menu_TOGGLE_STRENGTH">
-			<en>Super Strength</en>
-			<de>Superstärke</de>
-			<fr>Super Force</fr>
-			<ru>Суперсила</ru>
-			<it>Super Forza</it>
-			<cz>Super síla</cz>
-		</text>
-		<text name="input_LUMBERJACK_STRENGTH">
-			<en>Super Strength</en>
-			<de>Superstärke</de>
-			<fr>Super Force</fr>
-			<ru>Суперсила</ru>
-			<it>Super Forza</it>
-			<cz>Super síla</cz>
-		</text>
-		<text name="text_MASS">
-			<en>Mass</en>
-			<de>Masse</de>
-			<fr>Masse</fr>
-			<ru>Масса</ru>
-			<it>Massa</it>
-			<cz>Hmotnost</cz>
-		</text>
-		<text name="text_KG">
-			<en>kg</en>
-			<de>kg</de>
-			<fr>kg</fr>
-			<ru>кг</ru>
-			<it>Kg</it>
-			<cz>kg</cz>
-		</text>
+	<l10n filenamePrefix="language/l10n">
+		<!-- <text name="menu_TOGGLE_STRENGTH"> -->
+			<!-- <en>Super Strength</en> -->
+			<!-- <de>Superstärke</de> -->
+			<!-- <fr>Super Force</fr> -->
+			<!-- <ru>Суперсила</ru> -->
+			<!-- <it>Super Forza</it> -->
+			<!-- <cz>Super síla</cz> -->
+		<!-- </text> -->
+		<!-- <text name="input_LUMBERJACK_STRENGTH"> -->
+			<!-- <en>Super Strength</en> -->
+			<!-- <de>Superstärke</de> -->
+			<!-- <fr>Super Force</fr> -->
+			<!-- <ru>Суперсила</ru> -->
+			<!-- <it>Super Forza</it> -->
+			<!-- <cz>Super síla</cz> -->
+		<!-- </text> -->
+		<!-- <text name="text_MASS"> -->
+			<!-- <en>Mass</en> -->
+			<!-- <de>Masse</de> -->
+			<!-- <fr>Masse</fr> -->
+			<!-- <ru>Масса</ru> -->
+			<!-- <it>Massa</it> -->
+			<!-- <cz>Hmotnost</cz> -->
+		<!-- </text> -->
+		<!-- <text name="text_KG"> -->
+			<!-- <en>kg</en> -->
+			<!-- <de>kg</de> -->
+			<!-- <fr>kg</fr> -->
+			<!-- <ru>кг</ru> -->
+			<!-- <it>Kg</it> -->
+			<!-- <cz>kg</cz> -->
+		<!-- </text> -->
+		<!-- <text name="text_TONNE"> -->
+			<!-- <en>t</en> -->
+			<!-- <de>t</de> -->
+			<!-- <fr>t</fr> -->
+			<!-- <ru>т</ru> -->
+			<!-- <it>t</it> -->
+			<!-- <cz>t</cz> -->
+		<!-- </text> -->
+		<!-- <text name="text_INFINITE"> -->
+			<!-- <en>Infinite</en> -->
+			<!-- <de>Unendlich</de> -->
+			<!-- <fr>Infini</fr> -->
+			<!-- <ru>Бесконечность</ru> -->
+			<!-- <it>Infinito</it> -->
+			<!-- <cz>Nekonečný</cz> -->
+		<!-- </text> -->
+
+
 	</l10n>
 </modDesc>

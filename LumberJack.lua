@@ -2,7 +2,34 @@
 -- LUMBERJACK MOD
 -- ============================================================= --
 LumberJack = {}
+LumberJack.name = g_currentModName
+LumberJack.path = g_currentModDirectory
+LumberJack.createWoodchips = false
+LumberJack.superStrength = false
+LumberJack.lockStrength = false
+LumberJack.doubleTap = 0
+LumberJack.doubleTapTime = 0
+LumberJack.doubleTapThreshold = 500
+LumberJack.superStrengthValue = 1000
+LumberJack.normalStrengthValue = 0.2
+LumberJack.superDistanceValue = 12
+LumberJack.normalDistanceValue = 3
+LumberJack.maxWalkingSpeed = 4
+LumberJack.maxRunningSpeed = 9
+LumberJack.minCutDistance = 0.1
+LumberJack.maxCutDistance = 6.0
+LumberJack.defaultCutDuration = 4
+LumberJack.stumpGrindingTime = 0
+LumberJack.stumpGrindingFlag = false
+LumberJack.useChainsawFlag = false
+LumberJack.splitShape = 0
+LumberJack.showDebug = false
+LumberJack.initialised = false
+
 source(g_currentModDirectory .. 'DeleteShapeEvent.lua')
+source(g_currentModDirectory .. 'CreateSawdustEvent.lua')
+source(g_currentModDirectory .. 'SuperStrengthEvent.lua')
+source(g_currentModDirectory .. 'LumberJackSettings.lua')
 
 addModEventListener(LumberJack)
 
@@ -36,35 +63,6 @@ function LumberJack:registerActionEvents()
 	}
 end
 
--- APPEND PLAYER UPDATE STREAMS FOR MUTIPLAYER 
-function LumberJack.prependPlayerReadUpdateStream(self, streamId, timestamp, connection)
-    if not connection:getIsServer() then
-        -- server code (read data from client)
-        if connection == self.networkInformation.creatorConnection then
-			self.superStrengthEnabled = streamReadBool(streamId)
-            self.maxPickableMass = streamReadFloat32(streamId)
-            self.maxPickableObjectDistance = streamReadFloat32(streamId)
-        end
-    end
-end
-function LumberJack.prependPlayerWriteUpdateStream(self, streamId, connection, dirtyMask)
-	if connection:getIsServer() and self.isOwner then
-        -- client code (send data to server)
-		if self.superStrengthEnabled == nil then
-			self.superStrengthEnabled = LumberJack.superStrength
-		end
-		if self.maxPickableMass == nil then
-			self.maxPickableMass = LumberJack.normalStrengthValue
-		end
-		if self.maxPickableObjectDistance == nil then
-			self.maxPickableObjectDistance = LumberJack.normalDistanceValue
-		end
-		streamWriteBool(streamId, self.superStrengthEnabled)
-		streamWriteFloat32(streamId, self.maxPickableMass)
-		streamWriteFloat32(streamId, self.maxPickableObjectDistance)
-    end
-end
-
 --REPLACE Player.MAX_PICKABLE_OBJECT_DISTANCE FOR CLIENT IN MULTIPLAYER
 function LumberJack.playerCheckObjectInRange(self, superFunc)
 	if self.maxPickableObjectDistance ~= nil then
@@ -75,6 +73,7 @@ end
 
 --REPLACE Player.motionInformation.maxWalkingSpeed
 function LumberJack.playerGetDesiredSpeed(self, superFunc)
+	self.motionInformation.maxRunningSpeed = LumberJack.maxRunningSpeed
 	if self:hasHandtoolEquipped() and self.inputInformation.runAxis > 0 then
 		self.motionInformation.maxWalkingSpeed = LumberJack.maxRunningSpeed
 	else
@@ -99,26 +98,24 @@ function LumberJack.playerConsoleCommand(self, superFunc)
 	end
 end
 
+-- SYNC SETTINGS:
+Player.readStream = Utils.overwrittenFunction(Player.readStream,
+	function(self, superFunc, streamId, connection, objectId)
+		superFunc(self, streamId, connection, objectId)
+		LumberJack.createWoodchips = streamReadBool(streamId)
+	end
+)
+Player.writeStream = Utils.overwrittenFunction(Player.writeStream,
+	function(self, superFunc, streamId, connection)
+		superFunc(self, streamId, connection)
+		streamWriteBool(streamId, LumberJack.createWoodchips or false)
+	end
+)
+
 -- LUMBERJACK FUNCTIONS:
 function LumberJack:loadMap(name)
 	--print("Load Mod: 'LumberJack'")
-	LumberJack.superStrength = false
-	LumberJack.lockStrength = false
-	LumberJack.doubleTap = 0
-	LumberJack.doubleTapTime = 0
-	LumberJack.superStrengthValue = 999
-	LumberJack.normalStrengthValue = 0.2
-	LumberJack.superDistanceValue = 12
-	LumberJack.normalDistanceValue = 3
-	LumberJack.maxWalkingSpeed = 4
-	LumberJack.maxRunningSpeed = 9
-	LumberJack.stumpGrindingTime = 0
-	LumberJack.stumpGrindingFlag = false
-	LumberJack.useChainsawFlag = false
-	LumberJack.splitShape = 0
-	LumberJack.showDebug = false
-	LumberJack.initialised = false
-
+	
 	-- ALLOW CHAINSAW CUTTING ANYWHERE ON THE MAP
 	Chainsaw.isCuttingAllowed = Utils.overwrittenFunction(Chainsaw.isCuttingAllowed, LumberJack.isCuttingAllowed)
 	
@@ -129,23 +126,17 @@ function LumberJack:loadMap(name)
 	
 	-- ADD SHORTCUT KEY SELECTION TO OPTIONS MENU
 	Player.registerActionEvents = Utils.appendedFunction(Player.registerActionEvents, LumberJack.registerActionEvents)
+	InGameMenuGeneralSettingsFrame.onFrameOpen = Utils.appendedFunction(InGameMenuGeneralSettingsFrame.onFrameOpen, LumberJack.onMenuSettingsFrameOpen)
 	
 	-- MULTIPLAYER SUPER STRENGTH FIX
-	Player.readUpdateStream = Utils.prependedFunction(Player.readUpdateStream, LumberJack.prependPlayerReadUpdateStream)
-	Player.writeUpdateStream = Utils.prependedFunction(Player.writeUpdateStream, LumberJack.prependPlayerWriteUpdateStream)
 	Player.checkObjectInRange = Utils.overwrittenFunction(Player.checkObjectInRange, LumberJack.playerCheckObjectInRange)
 	
 	-- CATCH CONSOLE COMMAND
 	Player.consoleCommandToggleSuperStrongMode = Utils.overwrittenFunction(Player.consoleCommandToggleSuperStrongMode, LumberJack.playerConsoleCommand)
 	
-end
-function LumberJack:deleteMap()
-end
-function LumberJack:mouseEvent(posX, posY, isDown, isUp, button)
-end
-function LumberJack:keyEvent(unicode, sym, modifier, isDown)
-end
-function LumberJack:draw()
+	--READ SETTINGS FROM FILE
+	LumberJack.readSettings()
+
 end
 
 function LumberJack:toggleStrength(name, state)
@@ -161,17 +152,13 @@ function LumberJack:toggleStrength(name, state)
 				if state == 0 then
 					--print("SUPER STRENGTH OFF")
 					LumberJack.superStrength = false
-					g_currentMission.player.superStrengthEnabled = LumberJack.superStrength
-					g_currentMission.player.maxPickableMass = LumberJack.normalStrengthValue
-					g_currentMission.player.maxPickableObjectDistance = LumberJack.normalDistanceValue
+					SuperStrengthEvent.sendEvent(LumberJack.superStrength)
 				end
 			else
 				if state == 1 then
 					--print("SUPER STRENGTH ON")
 					LumberJack.superStrength = true
-					g_currentMission.player.superStrengthEnabled = LumberJack.superStrength
-					g_currentMission.player.maxPickableMass = LumberJack.superStrengthValue
-					g_currentMission.player.maxPickableObjectDistance = LumberJack.superDistanceValue
+					SuperStrengthEvent.sendEvent(LumberJack.superStrength)
 				end
 			end
 		end
@@ -184,9 +171,11 @@ function LumberJack:update(dt)
 	if g_currentMission.player==nil then
 		return
 	end
-	
+
 	-- CHANGE GLOBAL VALUES ON FIRST RUN
 	if (g_gameStateManager:getGameState()==GameState.PLAY and LumberJack.initialised==false) then
+		-- print("*** LumberJack - DEV VERSION ***")
+	
 		LumberJack.playerID = g_currentMission.player.controllerIndex
 		g_currentMission.player.maxPickableMass = LumberJack.normalStrengthValue
 		g_currentMission.player.maxPickableObjectDistance = LumberJack.normalDistanceValue
@@ -199,12 +188,8 @@ function LumberJack:update(dt)
 		end
 
 		-- change values from default
-		g_currentMission.player.minCutDistance = 0.10
-		g_currentMission.player.maxCutDistance = 6.00
-		
-		--LumberJack.maxWalkingSpeed = g_currentMission.player.motionInformation.maxWalkingSpeed
-		--LumberJack.maxRunningSpeed = g_currentMission.player.motionInformation.maxRunningSpeed
-		Player.getDesiredSpeed = Utils.overwrittenFunction(Player.getDesiredSpeed, LumberJack.playerGetDesiredSpeed)
+		Player.getDesiredSpeed = Utils.overwrittenFunction(
+			Player.getDesiredSpeed, LumberJack.playerGetDesiredSpeed)
 
 		LumberJack.initialised = true
 	end
@@ -215,7 +200,7 @@ function LumberJack:update(dt)
 		if LumberJack.doubleTap ~= 0 then
 			if LumberJack.doubleTap == 1 then
 				LumberJack.doubleTapTime = LumberJack.doubleTapTime + dt
-				if LumberJack.doubleTapTime > 500 then
+				if LumberJack.doubleTapTime > LumberJack.doubleTapThreshold then
 					LumberJack.doubleTap = 0
 					LumberJack.doubleTapTime = 0
 				end
@@ -257,9 +242,18 @@ function LumberJack:update(dt)
 		local hTool = g_currentMission.player.baseInformation.currentHandtool
 	
 		if hTool ~= nil and hTool.ringSelector ~= nil then
-
-			-- INCRESE CUTTING SPEED x2 (default value is 8.0)
-			hTool.defaultCutDuration = 4.0
+		
+			-- INCRESE CUTTING SPEED
+			hTool.defaultCutDuration = LumberJack.defaultCutDuration
+			
+			-- INCRESE CUT DISTANCE
+			hTool.minCutDistance = LumberJack.minCutDistance
+			hTool.maxCutDistance = LumberJack.maxCutDistance
+			if LumberJack.maxCutDistance < 10 then
+				hTool.cutDetectionDistance = 10
+			else
+				hTool.cutDetectionDistance = LumberJack.maxCutDistance
+			end
 			
 			-- DESTROY SMALL LOGS WHEN USING THE CHAINSAW --
 			if hTool.isCutting then
@@ -278,6 +272,8 @@ function LumberJack:update(dt)
 					end
 					LumberJack.useChainsawFlag = true
 				end
+				LumberJack:createSawdust(hTool)
+
 			else
 				--print("CHAINSAW NOT CUTTING")		
 				if hTool.ringSelector ~= nil and hTool.ringSelector ~= 0 then	
@@ -381,6 +377,7 @@ function LumberJack:update(dt)
 						setTranslation(hTool.graphicsNode, cutTranslation[1]/3, cutTranslation[2]/3, cutTranslation[3]/3)
 						hTool.isCutting = true
 						hTool:updateParticles()
+						LumberJack:createSawdust(hTool)
 						hTool.isCutting = false
 					else
 						-- DELETE THE SHAPE
@@ -395,17 +392,84 @@ function LumberJack:update(dt)
 					LumberJack.stumpGrindingTime = 0
 					g_currentMission.player:lockInput(false)
 				end
+				
+				if LumberJack.useChainsawFlag and hTool.waitingForResetAfterCut then
+					LumberJack.useChainsawFlag = false
+					LumberJack:createSawdust(hTool, -1)
+				end
 
-				LumberJack.useChainsawFlag = false
 			end
 		end
 	end	
+	
+end
+
+
+function LumberJack:createSawdust(hTool, amount, noEventSend)
+
+	if LumberJack.createWoodchips and hTool ~= nil and hTool ~= 0 then
+	
+		if g_server ~= nil then
+		
+			local fillTypeIndex = FillType.WOODCHIPS
+			local minAmount = g_densityMapHeightManager:getMinValidLiterValue(fillTypeIndex)
+		
+			local delta
+			if amount == -1 then
+				delta = minAmount
+			else
+				delta = (60/hTool.defaultCutDuration * (math.random(50, 100)/100) * (g_currentDt/1000)) + (amount or 0)
+			end
+			
+			hTool.totalSawdust = hTool.totalSawdust or 0
+			hTool.totalSawdust = hTool.totalSawdust + delta
+
+			if hTool.totalSawdust >= minAmount then
+				local sx, sy, sz = getWorldTranslation(hTool.ringSelector)
+				local ex, ey, ez = sx, sy, sz
+				
+				if LumberJack.useChainsawFlag and not LumberJack.stumpGrindingFlag then
+					local rand = math.random(50, 100)/100
+					local dx, _, dz = localDirectionToWorld(hTool.ringSelector, 0, 1, 0)
+					sx, sy, sz = getWorldTranslation(hTool.ringSelector)
+					ex, ey, ez = sx, sy, sz
+					sx = sx + (rand * math.min(3, dx))
+					sz = sz + (rand * math.min(3, dz))
+					
+				end
+
+				local innerRadius = 0
+				local outerRadius = DensityMapHeightUtil.getDefaultMaxRadius(fillTypeIndex)
+				local dropped, lineOffset = DensityMapHeightUtil.tipToGroundAroundLine(nil,
+					hTool.totalSawdust, fillTypeIndex, sx, sy, sz, ex, ey, ez, innerRadius, outerRadius)
+				
+				hTool.totalSawdust = hTool.totalSawdust - dropped
+
+				if dropped == 0 then
+					-- print("COULDN'T DROP SAWDUST HERE")
+					hTool.totalSawdust = 0
+				end
+			end
+		else
+			CreateSawdustEvent.sendEvent(g_currentMission.player, amount, noEventSend)
+		end
+	end
+
 end
 
 function LumberJack:deleteSplitShape(shape, noEventSend)
 
 	if shape ~= nil then
 		if g_server ~= nil then
+
+			if shape ~= nil and shape ~= 0 then
+				local volume = getVolume(shape)
+				local splitType = g_splitTypeManager:getSplitTypeByIndex(getSplitType(shape))
+				amount = volume * splitType.volumeToLiter * splitType.woodChipsPerLiter / 10
+				
+				LumberJack:createSawdust(hTool, amount)
+			end
+		
 			g_currentMission:removeKnownSplitShape(shape)
 			local isTree = getRigidBodyType(shape) == RigidBodyType.STATIC
 			
