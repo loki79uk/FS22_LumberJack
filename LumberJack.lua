@@ -26,10 +26,11 @@ LumberJack.splitShape = 0
 LumberJack.showDebug = false
 LumberJack.initialised = false
 
-source(g_currentModDirectory .. 'DeleteShapeEvent.lua')
-source(g_currentModDirectory .. 'CreateSawdustEvent.lua')
-source(g_currentModDirectory .. 'SuperStrengthEvent.lua')
 source(g_currentModDirectory .. 'LumberJackSettings.lua')
+source(g_currentModDirectory .. 'events/DeleteShapeEvent.lua')
+source(g_currentModDirectory .. 'events/ToggleSawdustEvent.lua')
+source(g_currentModDirectory .. 'events/CreateSawdustEvent.lua')
+source(g_currentModDirectory .. 'events/SuperStrengthEvent.lua')
 
 addModEventListener(LumberJack)
 
@@ -65,20 +66,42 @@ end
 
 --REPLACE Player.MAX_PICKABLE_OBJECT_DISTANCE FOR CLIENT IN MULTIPLAYER
 function LumberJack.playerCheckObjectInRange(self, superFunc)
-	if self.maxPickableObjectDistance ~= nil then
-		Player.MAX_PICKABLE_OBJECT_DISTANCE = self.maxPickableObjectDistance
+
+	if LumberJack.originalPickableObjectDistance == nil then
+		LumberJack.originalPickableObjectDistance = Player.MAX_PICKABLE_OBJECT_DISTANCE
 	end
+
+	if self.maxPickableObjectDistance ~= nil then
+		if g_currentMission:getHasPlayerPermission("superStrength") then
+			Player.MAX_PICKABLE_OBJECT_DISTANCE = self.maxPickableObjectDistance
+		else
+			Player.MAX_PICKABLE_OBJECT_DISTANCE = LumberJack.originalPickableObjectDistance
+		end
+	end
+	
 	return superFunc(self)
 end
 
 --REPLACE Player.motionInformation.maxWalkingSpeed
 function LumberJack.playerGetDesiredSpeed(self, superFunc)
-	self.motionInformation.maxRunningSpeed = LumberJack.maxRunningSpeed
-	if self:hasHandtoolEquipped() and self.inputInformation.runAxis > 0 then
-		self.motionInformation.maxWalkingSpeed = LumberJack.maxRunningSpeed
-	else
-		self.motionInformation.maxWalkingSpeed = LumberJack.maxWalkingSpeed
+
+	if LumberJack.originalWalkingSpeed == nil then
+		LumberJack.originalWalkingSpeed = self.motionInformation.maxWalkingSpeed
+		LumberJack.originalRunningSpeed = self.motionInformation.maxRunningSpeed
 	end
+	
+	if g_currentMission:getHasPlayerPermission("superSpeed") then
+		self.motionInformation.maxRunningSpeed = LumberJack.maxRunningSpeed
+		if self:hasHandtoolEquipped() and self.inputInformation.runAxis > 0 then
+			self.motionInformation.maxWalkingSpeed = LumberJack.maxRunningSpeed
+		else
+			self.motionInformation.maxWalkingSpeed = LumberJack.maxWalkingSpeed
+		end
+	else
+		self.motionInformation.maxWalkingSpeed = LumberJack.originalWalkingSpeed
+		self.motionInformation.maxRunningSpeed = LumberJack.originalRunningSpeed
+	end
+	
 	return superFunc(self)
 end
 
@@ -98,20 +121,6 @@ function LumberJack.playerConsoleCommand(self, superFunc)
 	end
 end
 
--- SYNC SETTINGS:
-Player.readStream = Utils.overwrittenFunction(Player.readStream,
-	function(self, superFunc, streamId, connection, objectId)
-		superFunc(self, streamId, connection, objectId)
-		LumberJack.createWoodchips = streamReadBool(streamId)
-	end
-)
-Player.writeStream = Utils.overwrittenFunction(Player.writeStream,
-	function(self, superFunc, streamId, connection)
-		superFunc(self, streamId, connection)
-		streamWriteBool(streamId, LumberJack.createWoodchips or false)
-	end
-)
-
 -- LUMBERJACK FUNCTIONS:
 function LumberJack:loadMap(name)
 	--print("Load Mod: 'LumberJack'")
@@ -126,7 +135,6 @@ function LumberJack:loadMap(name)
 	
 	-- ADD SHORTCUT KEY SELECTION TO OPTIONS MENU
 	Player.registerActionEvents = Utils.appendedFunction(Player.registerActionEvents, LumberJack.registerActionEvents)
-	InGameMenuGeneralSettingsFrame.onFrameOpen = Utils.appendedFunction(InGameMenuGeneralSettingsFrame.onFrameOpen, LumberJack.onMenuSettingsFrameOpen)
 	
 	-- MULTIPLAYER SUPER STRENGTH FIX
 	Player.checkObjectInRange = Utils.overwrittenFunction(Player.checkObjectInRange, LumberJack.playerCheckObjectInRange)
@@ -141,25 +149,36 @@ end
 
 function LumberJack:toggleStrength(name, state)
 	if g_currentMission.player.isEntered and not g_gui:getIsGuiVisible() then
-		if state == 1 then
-			LumberJack.doubleTap = LumberJack.doubleTap + 1
-		end
-		
-		if LumberJack.lockStrength then
-			--print("SUPER STRENGTH LOCKED")
-		else
-			if LumberJack.superStrength then
-				if state == 0 then
-					--print("SUPER STRENGTH OFF")
-					LumberJack.superStrength = false
-					SuperStrengthEvent.sendEvent(LumberJack.superStrength)
-				end
+	
+		if g_currentMission:getHasPlayerPermission("superStrength") then
+
+			if state == 1 then
+				LumberJack.doubleTap = LumberJack.doubleTap + 1
+			end
+			
+			if LumberJack.lockStrength then
+				--print("SUPER STRENGTH LOCKED")
 			else
-				if state == 1 then
-					--print("SUPER STRENGTH ON")
-					LumberJack.superStrength = true
-					SuperStrengthEvent.sendEvent(LumberJack.superStrength)
+				if LumberJack.superStrength then
+					if state == 0 then
+						--print("SUPER STRENGTH OFF")
+						LumberJack.superStrength = false
+						SuperStrengthEvent.sendEvent(LumberJack.superStrength)
+					end
+				else
+					if state == 1 then
+						--print("SUPER STRENGTH ON")
+						LumberJack.superStrength = true
+						SuperStrengthEvent.sendEvent(LumberJack.superStrength)
+					end
 				end
+			end
+			
+		else
+			if LumberJack.superStrength or LumberJack.lockStrength then
+				LumberJack.lockStrength = false
+				LumberJack.superStrength = false
+				SuperStrengthEvent.sendEvent(LumberJack.superStrength)
 			end
 		end
 		
@@ -408,9 +427,8 @@ end
 function LumberJack:createSawdust(hTool, amount, noEventSend)
 
 	if LumberJack.createWoodchips and hTool ~= nil and hTool ~= 0 then
-	
 		if g_server ~= nil then
-		
+
 			local fillTypeIndex = FillType.WOODCHIPS
 			local minAmount = g_densityMapHeightManager:getMinValidLiterValue(fillTypeIndex)
 		
@@ -450,6 +468,7 @@ function LumberJack:createSawdust(hTool, amount, noEventSend)
 					hTool.totalSawdust = 0
 				end
 			end
+
 		else
 			CreateSawdustEvent.sendEvent(g_currentMission.player, amount, noEventSend)
 		end

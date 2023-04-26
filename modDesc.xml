@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
-<modDesc descVersion="71">
+<modDesc descVersion="74">
 	<author>loki_79</author>
-    <version>1.4.1.0</version>
+    <version>1.4.2.0</version>
 	<title>
 		<en>LumberJack</en>
 		<de>Holzfäller</de>
@@ -221,7 +221,7 @@ v1.1.0.0
 	</description>
 
 	<multiplayer supported="true" />
-	<iconFilename>modIcon.dds</iconFilename>
+	<iconFilename>icon_LumberJack.dds</iconFilename>
 	<extraSourceFiles>
 		<sourceFile filename="LumberJack.lua" />
 	</extraSourceFiles>

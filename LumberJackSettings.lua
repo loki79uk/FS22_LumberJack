@@ -13,8 +13,25 @@ LumberJack.menuItems = {
 	[9] = 'maxRunningSpeed'
 }
 
+LumberJack.multiplayerPermissions = {
+	[1] = 'superSpeed',
+	[2] = 'superStrength',
+	[3] = 'chainsawSettings'
+}
+
+Farm.PERMISSION['SUPER_SPEED'] = "superSpeed"
+Farm.PERMISSION['SUPER_STRENGTH'] = "superStrength"
+Farm.PERMISSION['CHAINSAW_SETTINGS'] = "chainsawSettings"
+table.insert(Farm.PERMISSIONS, Farm.PERMISSION.SUPER_SPEED)
+table.insert(Farm.PERMISSIONS, Farm.PERMISSION.SUPER_STRENGTH)
+table.insert(Farm.PERMISSIONS, Farm.PERMISSION.CHAINSAW_SETTINGS)
+table.insert(InGameMenuMultiplayerUsersFrame.CONTROLS, "superSpeedPermissionCheckbox")
+table.insert(InGameMenuMultiplayerUsersFrame.CONTROLS, "superStrengthPermissionCheckbox")
+table.insert(InGameMenuMultiplayerUsersFrame.CONTROLS, "chainsawSettingsPermissionCheckbox")
+
+--DEV
 LumberJack.SETTINGS.showDebug = {
--- LumberJack.createWoodchips = false
+-- LumberJack.showDebug = false
 	['default'] = 1,
 	['values'] = {false, true},
 	['strings'] = {
@@ -22,15 +39,19 @@ LumberJack.SETTINGS.showDebug = {
 		g_i18n:getText("ui_on")
 	}
 }
+--SERVER
 LumberJack.SETTINGS.createWoodchips = {
 -- LumberJack.createWoodchips = false
 	['default'] = 1,
+	['serverOnly'] = true,
 	['values'] = {false, true},
 	['strings'] = {
 		g_i18n:getText("ui_off"),
 		g_i18n:getText("ui_on")
 	}
 }
+
+--PLAYER
 LumberJack.SETTINGS.superStrengthValue = {
 -- LumberJack.superStrengthValue = 1000
 	['default'] = 13,
@@ -186,8 +207,8 @@ function LumberJack.getValue(id)
 	return LumberJack[id]
 end
 
-function LumberJack.getStateIndex(id)
-	local value = LumberJack.getValue(id) 
+function LumberJack.getStateIndex(id, value)
+	local value = value or LumberJack.getValue(id) 
 	local values = LumberJack.SETTINGS[id].values
 	if type(value) == 'number' then
 		local index = LumberJack.SETTINGS[id].default
@@ -221,6 +242,12 @@ function LumberJack.writeSettings()
 	if xmlFile ~= 0 then
 	
 		local function setXmlValue(id)
+		
+			if LumberJack.SETTINGS[id].serverOnly and g_server == nil then
+				print("SKIP: " .. id)
+				return
+			end
+
 			local xmlValueKey = "lumberjack." .. id .. "#value"
 			local value = LumberJack.getValue(id)
 			if type(value) == 'number' then
@@ -243,10 +270,6 @@ function LumberJack.readSettings()
 
 	local userSettingsFile = Utils.getFilename("modSettings/LumberJack.xml", getUserProfileAppPath())
 	
-	if g_server == nil and LumberJack.menuItems[1] == 'createWoodchips' then
-		table.remove(LumberJack.menuItems, 1)
-	end
-	
 	if not fileExists(userSettingsFile) then
 		print("CREATING user settings file: "..userSettingsFile)
 		LumberJack.writeSettings()
@@ -262,24 +285,22 @@ function LumberJack.readSettings()
 				local xmlValueKey = "lumberjack." .. id .. "#value"
 				local value = LumberJack.getValue(id)
 				if type(value) == 'number' then
-					value = getXMLFloat(xmlFile, xmlValueKey)
+					value = getXMLFloat(xmlFile, xmlValueKey) or value
 				elseif type(value) == 'boolean' then
-					value = getXMLBool(xmlFile, xmlValueKey)
+					value = getXMLBool(xmlFile, xmlValueKey) or value
+				end
+				if g_server == nil then
+					-- print("CLIENT - restrict to closest value")
+					value = setting.values[LumberJack.getStateIndex(id, value)]
 				end
 				LumberJack.setValue(id, value)
 			end
 		end
 		
 		print("LUMBERJACK SETTINGS")
-		if g_client and not g_dedicatedServer then
-			for _, id in pairs(LumberJack.menuItems) do
-				getXmlValue(id)
-				print("  " .. tostring(id) .. ":     " .. tostring(LumberJack[id]))
-			end
-		else
-			local id = 'createWoodchips'
+		for _, id in pairs(LumberJack.menuItems) do
 			getXmlValue(id)
-			print("  " .. tostring(id) .. ":     " .. tostring(LumberJack[id]))
+			print("  " .. tostring(id) .. ": " .. tostring(LumberJack[id]))
 		end
 
 		delete(xmlFile)
@@ -298,56 +319,87 @@ function LumberJack:onMenuOptionChanged(state, menuOption)
 		LumberJack.setValue(id, value)
 	end
 
+	if id == 'createWoodchips' then
+		ToggleSawdustEvent.sendEvent(LumberJack.createWoodchips)
+	end
+
 	if id == 'superStrengthValue' or  id == 'normalStrengthValue' or
 	   id == 'superDistanceValue' or  id == 'normalDistanceValue' then
 		SuperStrengthEvent.sendEvent(LumberJack.superStrength)
 	end
-
+	
 	LumberJack.writeSettings()
 end
 
--- APPEND GERNERAL MAIN MENU SETTINGS PAGE 
-function LumberJack.onMenuSettingsFrameOpen(self)
-
-	if not LumberJack.createdGUI then
-		LumberJack.createdGUI = true
+-- APPEND GERNERAL MAIN MENU SETTINGS PAGE
+local inGameMenu = g_gui.screenControllers[InGameMenu]
+local settingsGeneral = inGameMenu.pageSettingsGeneral
+function LumberJack.addMenuOption(id)
 		
-		local function addMenuOption(id, original)
-			
-			local original = original or self.checkAutoHelp
-			local callback = "onMenuOptionChanged"
-			local i18n_title = "setting_lumberJack_" .. id
-			local i18n_tooltip = "toolTip_lumberJack_" .. id
-			local options = LumberJack.SETTINGS[id].strings
-		
-			local menuOption = original:clone()
-			menuOption.target = LumberJack
-			menuOption.id = id
-			
-			menuOption:setCallback("onClickCallback", callback)
-			menuOption:setDisabled(false)
+	local callback = "onMenuOptionChanged"
+	local i18n_title = "setting_lumberJack_" .. id
+	local i18n_tooltip = "toolTip_lumberJack_" .. id
+	local options = LumberJack.SETTINGS[id].strings
 
-			local settingTitle = menuOption.elements[4]
-			local toolTip      = menuOption.elements[6]
-
-			settingTitle:setText(g_i18n:getText(i18n_title))
-			toolTip:setText(g_i18n:getText(i18n_tooltip))
-			menuOption:setTexts({unpack(options)})
-			
-			menuOption:setState(LumberJack.getStateIndex(id))
-
-			return menuOption
-		end
-
-		local title = TextElement.new()
-		title:applyProfile("settingsMenuSubtitle", true)
-		title:setText(g_i18n:getText("menu_LUMBERJACK_TITLE"))
-		self.boxLayout:addElement(title)
-		
-		for _, id in pairs(LumberJack.menuItems) do
-			self.boxLayout:addElement(addMenuOption(id))
-		end
-
-		self.boxLayout:invalidateLayout()
+	local original = settingsGeneral.checkAutoHelp
+	local menuOption = original:clone(settingsGeneral.boxLayout)
+	menuOption.target = LumberJack
+	menuOption.id = id
+	
+	menuOption:setCallback("onClickCallback", callback)
+	if LumberJack.SETTINGS[id].serverOnly and g_server == nil then
+		menuOption:setDisabled(true)
+	else
+		menuOption:setDisabled(false)
 	end
+
+	local setting = menuOption.elements[4]
+	local toolTip = menuOption.elements[6]
+
+	setting:setText(g_i18n:getText(i18n_title))
+	toolTip:setText(g_i18n:getText(i18n_tooltip))
+	menuOption:setTexts({unpack(options)})
+	menuOption:setState(LumberJack.getStateIndex(id))
+
+	return menuOption
 end
+
+local title = TextElement.new()
+title:applyProfile("settingsMenuSubtitle", true)
+title:setText(g_i18n:getText("menu_LUMBERJACK_TITLE"))
+settingsGeneral.boxLayout:addElement(title)
+for _, id in pairs(LumberJack.menuItems) do
+	LumberJack.addMenuOption(id)
+end
+settingsGeneral.boxLayout:invalidateLayout()
+
+
+-- MULTIPLAYER PERMISSIONS
+local multiplayerUsers = inGameMenu.pageMultiplayerUsers
+
+function LumberJack.addMultiplayerPermission(id)
+
+	local newPermissionName = id..'PermissionCheckbox'
+	local i18n_title = "permission_lumberJack_" .. id
+	multiplayerUsers:registerControls({newPermissionName})
+
+	local original = multiplayerUsers.cutTreesPermissionCheckbox.parent
+	local newPermissionRow = original:clone(multiplayerUsers.permissionsBox)
+	table.insert(multiplayerUsers.permissionRow, newPermissionRow)
+
+	local newPermissionLabel = newPermissionRow.elements[1]
+	newPermissionLabel:setText(g_i18n:getText(i18n_title))
+
+	local newPermissionCheckbox = newPermissionRow.elements[2]
+	newPermissionCheckbox.id = newPermissionName
+
+	multiplayerUsers.controlIDs[newPermissionName] = true
+	multiplayerUsers.permissionCheckboxes[id] = newPermissionCheckbox
+	multiplayerUsers.checkboxPermissions[newPermissionCheckbox] = id
+
+end
+
+for _, id in pairs(LumberJack.multiplayerPermissions) do
+	LumberJack.addMultiplayerPermission(id)
+end
+
