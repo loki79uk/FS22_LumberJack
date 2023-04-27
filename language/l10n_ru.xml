@@ -12,6 +12,10 @@
 		<text name="text_SECOND" text="с"/>
 		<text name="text_INFINITE" text="Беспредельно"/>
 		
+		<text name="permission_lumberJack_superSpeed" text="Дровосек: Скорость"/>
+		<text name="permission_lumberJack_superStrength" text="Дровосек: Сила"/>
+		<text name="permission_lumberJack_chainsawSettings" text="Дровосек: Бензопила"/>
+		
 		<text name="setting_lumberJack_createWoodchips" text="Создавать щепу"/>
 		<text name="toolTip_lumberJack_createWoodchips" text="Щепа образуется при рубке деревьев или измельчении пней бензопилой."/>
 				
