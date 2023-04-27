@@ -1,46 +1,47 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <l10n>
+	<translationContributors>nagor</translationContributors>
 	<texts>
-		<text name="menu_LUMBERJACK_TITLE" text="LumberJack"/>
-		<text name="menu_TOGGLE_STRENGTH" text="Super Strength"/>
-		<text name="input_LUMBERJACK_STRENGTH" text="Super Strength"/>
-		<text name="text_MASS" text="Mass"/>
-		<text name="text_TONNE" text="tonne"/>
-		<text name="text_KG" text="kg"/>
-		<text name="text_METRE" text="m"/>
-		<text name="text_SECOND" text="s"/>
-		<text name="text_INFINITE" text="Infinite"/>
+		<text name="menu_LUMBERJACK_TITLE" text="Дровосек"/>
+		<text name="menu_TOGGLE_STRENGTH" text="Суперсила"/>
+		<text name="input_LUMBERJACK_STRENGTH" text="Суперсила"/>
+		<text name="text_MASS" text="Масса"/>
+		<text name="text_TONNE" text="тонн"/>
+		<text name="text_KG" text="кг"/>
+		<text name="text_METRE" text="м"/>
+		<text name="text_SECOND" text="с"/>
+		<text name="text_INFINITE" text="Беспредельно"/>
 		
-		<text name="permission_lumberJack_superSpeed" text="LumberJack Speed"/>
-		<text name="permission_lumberJack_superStrength" text="LumberJack Strength"/>
-		<text name="permission_lumberJack_chainsawSettings" text="LumberJack Chainsaw"/>
+		<text name="permission_lumberJack_superSpeed" text="Дровосек: Скорость"/>
+		<text name="permission_lumberJack_superStrength" text="Дровосек: Сила"/>
+		<text name="permission_lumberJack_chainsawSettings" text="Дровосек: Бензопила"/>
 		
-		<text name="setting_lumberJack_createWoodchips" text="Create Woodchips"/>
-		<text name="toolTip_lumberJack_createWoodchips" text="Woodchips are created when cutting trees or grinding stumps with a chainsaw."/>
+		<text name="setting_lumberJack_createWoodchips" text="Создавать щепу"/>
+		<text name="toolTip_lumberJack_createWoodchips" text="Щепа образуется при рубке деревьев или измельчении пней бензопилой."/>
+				
+		<text name="setting_lumberJack_maxCutDistance" text="Расстояние пропила бензопилой"/>
+		<text name="toolTip_lumberJack_maxCutDistance" text="Максимальное расстояние, на котором игрок может резать бензопилой."/>
 		
-		<text name="setting_lumberJack_maxCutDistance" text="Chainsaw Cut Distance"/>
-		<text name="toolTip_lumberJack_maxCutDistance" text="Maximum distance that the player can reach to cut with a chainsaw."/>
+		<text name="setting_lumberJack_defaultCutDuration" text="Продолжительность резки бензопилой"/>
+		<text name="toolTip_lumberJack_defaultCutDuration" text="Количество секунд для стандартного распила бензопилой."/>
 		
-		<text name="setting_lumberJack_defaultCutDuration" text="Chainsaw Cut Duration"/>
-		<text name="toolTip_lumberJack_defaultCutDuration" text="Number of seconds for a standard cut with the chainsaw."/>
+		<text name="setting_lumberJack_superStrengthValue" text="Величина суперсилы"/>
+		<text name="toolTip_lumberJack_superStrengthValue" text="Максимальный вес, который можно поднять при активной суперсиле."/>
 		
-		<text name="setting_lumberJack_superStrengthValue" text="Super Strength Value"/>
-		<text name="toolTip_lumberJack_superStrengthValue" text="Maximum weight that can be lifted when super strength is active."/>
+		<text name="setting_lumberJack_normalStrengthValue" text="Нормальная сила"/>
+		<text name="toolTip_lumberJack_normalStrengthValue" text="Максимальный вес, который может поднять игрок с нормальной силой."/>
+
+		<text name="setting_lumberJack_superDistanceValue" text="Дистанция суперсилы"/>
+		<text name="toolTip_lumberJack_superDistanceValue" text="Расстояние, на котором игрок может поднять объекты, когда активна суперсила."/>
+
+		<text name="setting_lumberJack_normalDistanceValue" text="Дистанция нормальной силы"/>
+		<text name="toolTip_lumberJack_normalDistanceValue" text="Расстояние, на котором игрок может поднять предметы с нормальной силой."/>
+
+		<text name="setting_lumberJack_maxWalkingSpeed" text="Скорость ходьбы"/>
+		<text name="toolTip_lumberJack_maxWalkingSpeed" text="Нормальная скорость ходьбы игрока."/>
 		
-		<text name="setting_lumberJack_normalStrengthValue" text="Normal Strength Value"/>
-		<text name="toolTip_lumberJack_normalStrengthValue" text="Maximum weight that can be lifted by the player with normal strength."/>
-		
-		<text name="setting_lumberJack_superDistanceValue" text="Super Strength Distance"/>
-		<text name="toolTip_lumberJack_superDistanceValue" text="Distance that player can reach to lift objects when super strength is active."/>
-		
-		<text name="setting_lumberJack_normalDistanceValue" text="Normal Strength Distance"/>
-		<text name="toolTip_lumberJack_normalDistanceValue" text="Distance that player can reach to lift objects with normal strength."/>
-		
-		<text name="setting_lumberJack_maxWalkingSpeed" text="Walking Speed"/>
-		<text name="toolTip_lumberJack_maxWalkingSpeed" text="The normal walking speed of the player."/>
-		
-		<text name="setting_lumberJack_maxRunningSpeed" text="Running Speed"/>
-		<text name="toolTip_lumberJack_maxRunningSpeed" text="The normal running speed of the player."/>
+		<text name="setting_lumberJack_maxRunningSpeed" text="Скорость бега"/>
+		<text name="toolTip_lumberJack_maxRunningSpeed" text="Нормальная скорость бега игрока."/>
 		
     </texts>
 </l10n>
