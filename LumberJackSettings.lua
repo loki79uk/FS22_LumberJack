@@ -1,22 +1,23 @@
 
 LumberJack.SETTINGS = {}
+LumberJack.CONTROLS = {}
 
 LumberJack.menuItems = {
-	[1] = 'createWoodchips',
-	[2] = 'superStrengthValue',
-	[3] = 'normalStrengthValue',
-	[4] = 'superDistanceValue',
-	[5] = 'normalDistanceValue',
-	[6] = 'maxCutDistance',
-	[7] = 'defaultCutDuration',
-	[8] = 'maxWalkingSpeed',
-	[9] = 'maxRunningSpeed'
+	'createWoodchips',
+	'maxWalkingSpeed',
+	'maxRunningSpeed',
+	'superStrengthValue',
+	'normalStrengthValue',
+	'superDistanceValue',
+	'normalDistanceValue',
+	'maxCutDistance',
+	'defaultCutDuration'
 }
 
 LumberJack.multiplayerPermissions = {
-	[1] = 'superSpeed',
-	[2] = 'superStrength',
-	[3] = 'chainsawSettings'
+	'superSpeed',
+	'superStrength',
+	'chainsawSettings'
 }
 
 Farm.PERMISSION['SUPER_SPEED'] = "superSpeed"
@@ -55,6 +56,7 @@ LumberJack.SETTINGS.createWoodchips = {
 LumberJack.SETTINGS.superStrengthValue = {
 -- LumberJack.superStrengthValue = 1000
 	['default'] = 13,
+	['permission'] = 'superStrength',
 	['values'] = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 20.0, 50.0, 100.0, 200.0, 500.0, 1000.0, math.huge},
 	['strings'] = {
 		"1 " .. g_i18n:getText("text_TONNE"),
@@ -79,6 +81,7 @@ LumberJack.SETTINGS.superStrengthValue = {
 LumberJack.SETTINGS.normalStrengthValue = {
 -- LumberJack.normalStrengthValue = 0.2
 	['default'] = 2,
+	['permission'] = 'superStrength',
 	['values'] = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0},
 	['strings'] = {
 		"100 "..g_i18n:getText("text_KG"),
@@ -96,6 +99,7 @@ LumberJack.SETTINGS.normalStrengthValue = {
 LumberJack.SETTINGS.superDistanceValue = {
 -- LumberJack.superDistanceValue = 12
 	['default'] = 2,
+	['permission'] = 'superStrength',
 	['values'] = {10, 12, 15, 20, 25, 30, 35, 40, 45, 50},
 	['strings'] = {
 	"10 "..g_i18n:getText("text_METRE"),
@@ -113,6 +117,7 @@ LumberJack.SETTINGS.superDistanceValue = {
 LumberJack.SETTINGS.normalDistanceValue = {
 -- LumberJack.normalDistanceValue = 3
 	['default'] = 1,
+	['permission'] = 'superStrength',
 	['values'] = {3, 4, 5, 6, 7, 8},
 	['strings'] = {
 	"3 "..g_i18n:getText("text_METRE"),
@@ -126,6 +131,7 @@ LumberJack.SETTINGS.normalDistanceValue = {
 LumberJack.SETTINGS.maxCutDistance = {
 -- LumberJack.maxCutDistance = 6.0
 	['default'] = 6,
+	['permission'] = 'chainsawSettings',
 	['values'] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12},
 	['strings'] = {
 	"1 "..g_i18n:getText("text_METRE"),
@@ -145,6 +151,7 @@ LumberJack.SETTINGS.maxCutDistance = {
 LumberJack.SETTINGS.defaultCutDuration = {
 -- LumberJack.defaultCutDuration = 4
 	['default'] = 4,
+	['permission'] = 'chainsawSettings',
 	['values'] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12},
 	['strings'] = {
 	"1 "..g_i18n:getText("text_SECOND"),
@@ -164,6 +171,7 @@ LumberJack.SETTINGS.defaultCutDuration = {
 LumberJack.SETTINGS.maxWalkingSpeed = {
 -- LumberJack.maxWalkingSpeed = 4
 	['default'] = 1,
+	['permission'] = 'superSpeed',
 	['values'] = {4.0,4.4,4.8,5.2,5.6,6.0,6.4,6.8,7.2,7.6,8.0},
 	['strings'] = {
 	"100%",
@@ -182,6 +190,7 @@ LumberJack.SETTINGS.maxWalkingSpeed = {
 LumberJack.SETTINGS.maxRunningSpeed = {
 -- LumberJack.maxRunningSpeed = 9
 	['default'] = 1,
+	['permission'] = 'superSpeed',
 	['values'] = {9.0,9.9,10.8,11.7,12.6,13.5,14.4,15.3,16.2,17.1,18.0},
 	['strings'] = {
 	"100%",
@@ -244,7 +253,6 @@ function LumberJack.writeSettings()
 		local function setXmlValue(id)
 		
 			if LumberJack.SETTINGS[id].serverOnly and g_server == nil then
-				print("SKIP: " .. id)
 				return
 			end
 
@@ -360,6 +368,8 @@ function LumberJack.addMenuOption(id)
 	toolTip:setText(g_i18n:getText(i18n_tooltip))
 	menuOption:setTexts({unpack(options)})
 	menuOption:setState(LumberJack.getStateIndex(id))
+	
+	LumberJack.CONTROLS[id] = menuOption
 
 	return menuOption
 end
@@ -403,3 +413,28 @@ for _, id in pairs(LumberJack.multiplayerPermissions) do
 	LumberJack.addMultiplayerPermission(id)
 end
 
+--ENABLE/DISABLE OPTIONS FOR CLIENTS
+InGameMenuGeneralSettingsFrame.onFrameOpen = Utils.appendedFunction(InGameMenuGeneralSettingsFrame.onFrameOpen, function()
+
+	local isAdmin = g_currentMission:getIsServer() or g_currentMission.isMasterUser
+	
+	for _, id in pairs(LumberJack.menuItems) do
+	
+		local menuOption = LumberJack.CONTROLS[id]
+		menuOption:setState(LumberJack.getStateIndex(id))
+	
+		if LumberJack.SETTINGS[id].serverOnly and g_server == nil then
+			menuOption:setDisabled(true)
+		else
+		
+			local permission = isAdmin or LumberJack.SETTINGS[id].permission or false
+			if permission then
+				permission = g_currentMission:getHasPlayerPermission(permission)
+			end
+			menuOption:setDisabled(not permission)
+			
+		end
+
+	end
+
+end)

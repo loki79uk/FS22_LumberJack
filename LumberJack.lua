@@ -35,8 +35,12 @@ source(g_currentModDirectory .. 'events/SuperStrengthEvent.lua')
 addModEventListener(LumberJack)
 
 -- ALLOW CHAINSAW CUTTING ANYWHERE ON THE MAP
-function LumberJack:isCuttingAllowed(superFunc, x, y, z)
-	return g_currentMission:getHasPlayerPermission("cutTrees")
+function LumberJack:isCuttingAllowed(superFunc, x, y, z, shape)
+	local canCutTrees = g_currentMission:getHasPlayerPermission("cutTrees")
+	local canChainsaw = g_currentMission:getHasPlayerPermission("chainsawSettings")
+	local canAccess = g_currentMission.accessHandler:canFarmAccessLand(self.player.farmId, x, z)
+	
+	return canCutTrees and (canChainsaw or canAccess)
 end
 
 -- ALLOW TREE SPRAYING ANYWHERE ON THE MAP
@@ -262,16 +266,33 @@ function LumberJack:update(dt)
 	
 		if hTool ~= nil and hTool.ringSelector ~= nil then
 		
-			-- INCRESE CUTTING SPEED
-			hTool.defaultCutDuration = LumberJack.defaultCutDuration
-			
-			-- INCRESE CUT DISTANCE
-			hTool.minCutDistance = LumberJack.minCutDistance
-			hTool.maxCutDistance = LumberJack.maxCutDistance
-			if LumberJack.maxCutDistance < 10 then
-				hTool.cutDetectionDistance = 10
+			if LumberJack.originalDefaultCutDuration == nil then
+				LumberJack.originalDefaultCutDuration = hTool.defaultCutDuration
+				LumberJack.originalMinCutDistance = hTool.minCutDistance
+				LumberJack.originalMaxCutDistance = hTool.maxCutDistance
+				LumberJack.originalMaxModelTranslation = hTool.maxModelTranslation
+				LumberJack.originalCutDetectionDistance = hTool.cutDetectionDistance
+			end
+		
+			if g_currentMission:getHasPlayerPermission('chainsawSettings') then
+				-- INCRESE CUTTING SPEED
+				hTool.defaultCutDuration = LumberJack.defaultCutDuration
+				
+				-- INCRESE CUT DISTANCE
+				hTool.minCutDistance = LumberJack.minCutDistance
+				hTool.maxCutDistance = LumberJack.maxCutDistance
+				hTool.maxModelTranslation = LumberJack.maxCutDistance
+				if LumberJack.maxCutDistance < LumberJack.originalCutDetectionDistance then
+					hTool.cutDetectionDistance = LumberJack.originalCutDetectionDistance
+				else
+					hTool.cutDetectionDistance = LumberJack.maxCutDistance
+				end
 			else
-				hTool.cutDetectionDistance = LumberJack.maxCutDistance
+				hTool.defaultCutDuration = LumberJack.originalDefaultCutDuration
+				hTool.minCutDistance = LumberJack.originalMinCutDistance
+				hTool.maxCutDistance = LumberJack.originalMaxCutDistance
+				hTool.maxModelTranslation = LumberJack.originalMaxModelTranslation
+				hTool.cutDetectionDistance = LumberJack.originalCutDetectionDistance
 			end
 			
 			-- DESTROY SMALL LOGS WHEN USING THE CHAINSAW --
@@ -291,6 +312,7 @@ function LumberJack:update(dt)
 					end
 					LumberJack.useChainsawFlag = true
 				end
+				
 				LumberJack:createSawdust(hTool)
 
 			else
@@ -443,17 +465,15 @@ function LumberJack:createSawdust(hTool, amount, noEventSend)
 			hTool.totalSawdust = hTool.totalSawdust + delta
 
 			if hTool.totalSawdust >= minAmount then
-				local sx, sy, sz = getWorldTranslation(hTool.ringSelector)
+				local positionNode = hTool.graphicsNode --hTool.referenceNode --hTool.ringSelector
+				local sx, sy, sz = getWorldTranslation(positionNode)
 				local ex, ey, ez = sx, sy, sz
 				
 				if LumberJack.useChainsawFlag and not LumberJack.stumpGrindingFlag then
 					local rand = math.random(50, 100)/100
-					local dx, _, dz = localDirectionToWorld(hTool.ringSelector, 0, 1, 0)
-					sx, sy, sz = getWorldTranslation(hTool.ringSelector)
-					ex, ey, ez = sx, sy, sz
+					local dx, _, dz = localDirectionToWorld(positionNode, 0, 1, 0)
 					sx = sx + (rand * math.min(3, dx))
 					sz = sz + (rand * math.min(3, dz))
-					
 				end
 
 				local innerRadius = 0

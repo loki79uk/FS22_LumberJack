@@ -21,23 +21,33 @@ end
 
 function ToggleSawdustEvent:readStream(streamId, connection)
 	--print("ToggleSawdust - READ STREAM")
-    if connection:getIsServer() then
-        self.createWoodchips = streamReadBool(streamId)
-        LumberJack.createWoodchips = self.createWoodchips
-    end
+	self.createWoodchips = streamReadBool(streamId)
+	LumberJack.createWoodchips = self.createWoodchips
+	
+	if connection:getIsServer() then
+		local woodchipsOption = LumberJack.CONTROLS['createWoodchips']
+		local isAdmin = g_currentMission:getIsServer() or g_currentMission.isMasterUser
+		woodchipsOption:setState(LumberJack.getStateIndex('createWoodchips'))
+		woodchipsOption:setDisabled(not isAdmin)
+	else
+		ToggleSawdustEvent.sendEvent(LumberJack.createWoodchips)
+	end
+
 end
 
 function ToggleSawdustEvent:writeStream(streamId, connection)
 	--print("ToggleSawdust - WRITE STREAM");
-	if not connection:getIsServer() then
-        streamWriteBool(streamId, self.createWoodchips)
-    end
+	streamWriteBool(streamId, self.createWoodchips)
 end
 
-function ToggleSawdustEvent.sendEvent(createWoodchips)
+function ToggleSawdustEvent.sendEvent(createWoodchips, noEventSend)
 	if noEventSend == nil or noEventSend == false then
 		if g_server ~= nil then
-			g_server:broadcastEvent(PlayerPermissionsEvent.new(createWoodchips), false)
+			--print("server: Toggle Sawdust Event")
+			g_server:broadcastEvent(ToggleSawdustEvent.new(createWoodchips), false)
+		else
+			--print("client: Toggle Sawdust Event")
+			g_client:getServerConnection():sendEvent(ToggleSawdustEvent.new(createWoodchips))
 		end
 	end
 end
