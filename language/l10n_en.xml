@@ -11,9 +11,13 @@
 		<text name="text_SECOND" text="s"/>
 		<text name="text_INFINITE" text="Infinite"/>
 		
+		<text name="permission_lumberJack_superSpeed" text="LumberJack Speed"/>
+		<text name="permission_lumberJack_superStrength" text="LumberJack Strength"/>
+		<text name="permission_lumberJack_chainsawSettings" text="LumberJack Chainsaw"/>
+		
 		<text name="setting_lumberJack_createWoodchips" text="Create Woodchips"/>
 		<text name="toolTip_lumberJack_createWoodchips" text="Woodchips are created when cutting trees or grinding stumps with a chainsaw."/>
-				
+		
 		<text name="setting_lumberJack_maxCutDistance" text="Chainsaw Cut Distance"/>
 		<text name="toolTip_lumberJack_maxCutDistance" text="Maximum distance that the player can reach to cut with a chainsaw."/>
 		
@@ -25,13 +29,13 @@
 		
 		<text name="setting_lumberJack_normalStrengthValue" text="Normal Strength Value"/>
 		<text name="toolTip_lumberJack_normalStrengthValue" text="Maximum weight that can be lifted by the player with normal strength."/>
-
+		
 		<text name="setting_lumberJack_superDistanceValue" text="Super Strength Distance"/>
 		<text name="toolTip_lumberJack_superDistanceValue" text="Distance that player can reach to lift objects when super strength is active."/>
-
+		
 		<text name="setting_lumberJack_normalDistanceValue" text="Normal Strength Distance"/>
 		<text name="toolTip_lumberJack_normalDistanceValue" text="Distance that player can reach to lift objects with normal strength."/>
-
+		
 		<text name="setting_lumberJack_maxWalkingSpeed" text="Walking Speed"/>
 		<text name="toolTip_lumberJack_maxWalkingSpeed" text="The normal walking speed of the player."/>
 		

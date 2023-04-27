@@ -22,22 +22,22 @@ end
 
 function CreateSawdustEvent:readStream(streamId, connection)
 	--print("CreateSawdust - READ STREAM")
-    if not connection:getIsServer() then
-        self.player = NetworkUtil.readNodeObject(streamId)
-        self.amount = streamReadInt32(streamId)
+	if not connection:getIsServer() then
+		self.player = NetworkUtil.readNodeObject(streamId)
+		self.amount = streamReadInt32(streamId)
 		
 		local currentTool = self.player.baseInformation.currentHandtool
-        LumberJack:createSawdust(currentTool, self.amount, true)
+		LumberJack:createSawdust(currentTool, self.amount, true)
 		
-    end
+	end
 end
 
 function CreateSawdustEvent:writeStream(streamId, connection)
 	--print("CreateSawdust - WRITE STREAM");
 	if connection:getIsServer() then
 		NetworkUtil.writeNodeObject(streamId, self.player)
-        streamWriteInt32(streamId, self.amount)
-    end
+		streamWriteInt32(streamId, self.amount)
+	end
 end
 
 function CreateSawdustEvent.sendEvent(player, amount, noEventSend)

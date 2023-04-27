@@ -16,14 +16,14 @@ function SuperStrengthEvent.new(superStrengthEnabled, maxPickableMass, maxObject
 	--print("SuperStrength - NEW")
 	local self = SuperStrengthEvent.emptyNew()
 	self.superStrengthEnabled = superStrengthEnabled
-    self.maxPickableMass = maxPickableMass
+	self.maxPickableMass = maxPickableMass
 	self.maxObjectDistance = maxObjectDistance
 	return self
 end
 
 function SuperStrengthEvent:readStream(streamId, connection)
-	-- print("SuperStrength - READ STREAM")
-    if not connection:getIsServer() then
+	--print("SuperStrength - READ STREAM")
+	if not connection:getIsServer() then
 		local superStrengthEnabled = streamReadBool(streamId)
 		local maxPickableMass = streamReadFloat32(streamId)
 		local maxObjectDistance = streamReadFloat32(streamId)
@@ -34,20 +34,20 @@ function SuperStrengthEvent:readStream(streamId, connection)
 			player.maxPickableMass = maxPickableMass
 			player.maxPickableObjectDistance = maxObjectDistance
 		end
-    end
+	end
 end
 
 function SuperStrengthEvent:writeStream(streamId, connection)
-	-- print("SuperStrength - WRITE STREAM");
+	--print("SuperStrength - WRITE STREAM");
 	if connection:getIsServer() then
 		streamWriteBool(streamId, self.superStrengthEnabled or LumberJack.superStrength)
 		streamWriteFloat32(streamId, self.maxPickableMass or LumberJack.normalStrengthValue)
 		streamWriteFloat32(streamId, self.maxObjectDistance or LumberJack.normalDistanceValue)
-    end
+	end
 end
 
 function SuperStrengthEvent.sendEvent(superStrengthEnabled)
-	-- print("SuperStrength - RUN")
+	--print("SuperStrength - RUN")
 	if g_currentMission.player then
 	
 		local maxPickableMass = LumberJack.normalStrengthValue
@@ -62,7 +62,7 @@ function SuperStrengthEvent.sendEvent(superStrengthEnabled)
 		g_currentMission.player.maxPickableObjectDistance = maxObjectDistance
 		
 		if g_server == nil then
-			-- print("SuperStrength CLIENT SEND")
+			--print("SuperStrength CLIENT SEND")
 			g_client:getServerConnection():sendEvent(SuperStrengthEvent.new(superStrengthEnabled, maxPickableMass, maxObjectDistance))
 		end
 	end
