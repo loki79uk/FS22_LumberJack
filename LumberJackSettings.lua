@@ -427,11 +427,11 @@ InGameMenuGeneralSettingsFrame.onFrameOpen = Utils.appendedFunction(InGameMenuGe
 			menuOption:setDisabled(true)
 		else
 		
-			local permission = isAdmin or LumberJack.SETTINGS[id].permission or false
-			if permission then
-				permission = g_currentMission:getHasPlayerPermission(permission)
-			end
-			menuOption:setDisabled(not permission)
+			local permission = LumberJack.SETTINGS[id].permission
+			local hasPermission = g_currentMission:getHasPlayerPermission(permission)
+		
+			local canChange = isAdmin or hasPermission or false
+			menuOption:setDisabled(not canChange)
 			
 		end
 
