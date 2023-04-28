@@ -205,7 +205,7 @@ function LumberJack:update(dt)
 		
 		-- enable active objects debugging output:
 		if LumberJack.showDebug then
-			if g_server ~= nil then
+			if g_currentMission:getIsServer() then
 				g_server.showActiveObjects = true
 			end
 		end
@@ -449,7 +449,7 @@ end
 function LumberJack:createSawdust(hTool, amount, noEventSend)
 
 	if LumberJack.createWoodchips and hTool ~= nil and hTool ~= 0 then
-		if g_server ~= nil then
+		if g_currentMission:getIsServer() then
 
 			local fillTypeIndex = FillType.WOODCHIPS
 			local minAmount = g_densityMapHeightManager:getMinValidLiterValue(fillTypeIndex)
@@ -499,7 +499,7 @@ end
 function LumberJack:deleteSplitShape(shape, noEventSend)
 
 	if shape ~= nil then
-		if g_server ~= nil then
+		if g_currentMission:getIsServer() then
 
 			if shape ~= nil and shape ~= 0 then
 				local volume = getVolume(shape)

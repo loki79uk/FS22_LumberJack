@@ -355,11 +355,7 @@ function LumberJack.addMenuOption(id)
 	menuOption.id = id
 	
 	menuOption:setCallback("onClickCallback", callback)
-	if LumberJack.SETTINGS[id].serverOnly and g_server == nil then
-		menuOption:setDisabled(true)
-	else
-		menuOption:setDisabled(false)
-	end
+	menuOption:setDisabled(false)
 
 	local setting = menuOption.elements[4]
 	local toolTip = menuOption.elements[6]
@@ -424,7 +420,7 @@ InGameMenuGeneralSettingsFrame.onFrameOpen = Utils.appendedFunction(InGameMenuGe
 		menuOption:setState(LumberJack.getStateIndex(id))
 	
 		if LumberJack.SETTINGS[id].serverOnly and g_server == nil then
-			menuOption:setDisabled(true)
+			menuOption:setDisabled(not isAdmin)
 		else
 		
 			local permission = LumberJack.SETTINGS[id].permission
