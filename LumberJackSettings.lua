@@ -434,3 +434,11 @@ InGameMenuGeneralSettingsFrame.onFrameOpen = Utils.appendedFunction(InGameMenuGe
 	end
 
 end)
+
+--SEND SETTINGS TO CLIENT:
+FSBaseMission.sendInitialClientState = Utils.appendedFunction(FSBaseMission.sendInitialClientState,
+function(self, connection, user, farm)
+
+	ToggleSawdustEvent.sendEvent(LumberJack.createWoodchips)
+	
+end)
