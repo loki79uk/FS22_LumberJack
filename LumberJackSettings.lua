@@ -10,6 +10,7 @@ LumberJack.menuItems = {
 	'normalStrengthValue',
 	'superDistanceValue',
 	'normalDistanceValue',
+	'cutAnywhere',
 	'maxCutDistance',
 	'defaultCutDuration'
 }
@@ -53,6 +54,17 @@ LumberJack.SETTINGS.createWoodchips = {
 }
 
 --PLAYER
+LumberJack.SETTINGS.cutAnywhere = {
+-- LumberJack.cutAnywhere = true
+	['default'] = 2,
+	['permission'] = 'chainsawSettings',
+	['values'] = {false, true},
+	['strings'] = {
+		g_i18n:getText("ui_off"),
+		g_i18n:getText("ui_on")
+	}
+}
+
 LumberJack.SETTINGS.superStrengthValue = {
 -- LumberJack.superStrengthValue = 1000
 	['default'] = 13,
@@ -292,16 +304,21 @@ function LumberJack.readSettings()
 			if setting then
 				local xmlValueKey = "lumberjack." .. id .. "#value"
 				local value = LumberJack.getValue(id)
-				if type(value) == 'number' then
-					value = getXMLFloat(xmlFile, xmlValueKey) or value
-				elseif type(value) == 'boolean' then
-					value = getXMLBool(xmlFile, xmlValueKey) or false
+				if hasXMLProperty(xmlFile, xmlValueKey) then
+				
+					if type(value) == 'number' then
+						value = getXMLFloat(xmlFile, xmlValueKey) or value
+					elseif type(value) == 'boolean' then
+						value = getXMLBool(xmlFile, xmlValueKey) or false
+					end
+
+					if g_server == nil and type(value) == 'number' then
+						-- print("CLIENT - restrict to closest value")
+						value = setting.values[LumberJack.getStateIndex(id, value)]
+					end
+					LumberJack.setValue(id, value)
+				
 				end
-				if g_server == nil and type(value) == 'number' then
-					-- print("CLIENT - restrict to closest value")
-					value = setting.values[LumberJack.getStateIndex(id, value)]
-				end
-				LumberJack.setValue(id, value)
 			end
 		end
 		

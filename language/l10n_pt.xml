@@ -14,6 +14,9 @@
 		<text name="permission_lumberJack_superSpeed" text="LumberJack Speed"/>
 		<text name="permission_lumberJack_superStrength" text="LumberJack Strength"/>
 		<text name="permission_lumberJack_chainsawSettings" text="LumberJack Chainsaw"/>
+				
+		<text name="setting_lumberJack_cutAnywhere" text="Cut Anywhere"/>
+		<text name="toolTip_lumberJack_cutAnywhere" text="The player can use a chainsaw anywhere on the map."/>
 		
 		<text name="setting_lumberJack_createWoodchips" text="Create Woodchips"/>
 		<text name="toolTip_lumberJack_createWoodchips" text="Woodchips are created when cutting trees or grinding stumps with a chainsaw."/>

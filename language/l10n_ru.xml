@@ -15,6 +15,9 @@
 		<text name="permission_lumberJack_superSpeed" text="Дровосек: Скорость"/>
 		<text name="permission_lumberJack_superStrength" text="Дровосек: Сила"/>
 		<text name="permission_lumberJack_chainsawSettings" text="Дровосек: Бензопила"/>
+				
+		<text name="setting_lumberJack_cutAnywhere" text="Вырезать где угодно"/>
+		<text name="toolTip_lumberJack_cutAnywhere" text="Игрок может использовать бензопилу в любом месте на карте."/>
 		
 		<text name="setting_lumberJack_createWoodchips" text="Создавать щепу"/>
 		<text name="toolTip_lumberJack_createWoodchips" text="Щепа образуется при рубке деревьев или измельчении пней бензопилой."/>

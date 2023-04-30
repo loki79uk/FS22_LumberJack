@@ -4,6 +4,7 @@
 LumberJack = {}
 LumberJack.name = g_currentModName
 LumberJack.path = g_currentModDirectory
+LumberJack.cutAnywhere = true
 LumberJack.createWoodchips = false
 LumberJack.superStrength = false
 LumberJack.lockStrength = false
@@ -40,7 +41,7 @@ function LumberJack:isCuttingAllowed(superFunc, x, y, z, shape)
 	local canChainsaw = g_currentMission:getHasPlayerPermission("chainsawSettings")
 	local canAccess = g_currentMission.accessHandler:canFarmAccessLand(self.player.farmId, x, z)
 	
-	return canCutTrees and (canChainsaw or canAccess)
+	return canCutTrees and ((canChainsaw and LumberJack.cutAnywhere) or canAccess)
 end
 
 -- ALLOW TREE SPRAYING ANYWHERE ON THE MAP
