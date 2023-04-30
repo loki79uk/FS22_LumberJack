@@ -57,7 +57,7 @@ LumberJack.SETTINGS.superStrengthValue = {
 -- LumberJack.superStrengthValue = 1000
 	['default'] = 13,
 	['permission'] = 'superStrength',
-	['values'] = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 20.0, 50.0, 100.0, 200.0, 500.0, 1000.0, math.huge},
+	['values'] = {1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 20.0, 50.0, 100.0, 200.0, 500.0, 1000.0, 100000000},
 	['strings'] = {
 		"1 " .. g_i18n:getText("text_TONNE"),
 		"2 " .. g_i18n:getText("text_TONNE"),
@@ -297,7 +297,7 @@ function LumberJack.readSettings()
 				elseif type(value) == 'boolean' then
 					value = getXMLBool(xmlFile, xmlValueKey) or value
 				end
-				if g_server == nil then
+				if g_server == nil and type(value) == 'number' then
 					-- print("CLIENT - restrict to closest value")
 					value = setting.values[LumberJack.getStateIndex(id, value)]
 				end
@@ -323,7 +323,6 @@ function LumberJack:onMenuOptionChanged(state, menuOption)
 	local value = setting[id].values[state]
 	
 	if value ~= nil then
-		print("SET " .. id .. " = " .. tostring(value))
 		LumberJack.setValue(id, value)
 	end
 
