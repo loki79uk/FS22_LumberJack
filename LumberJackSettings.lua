@@ -295,7 +295,7 @@ function LumberJack.readSettings()
 				if type(value) == 'number' then
 					value = getXMLFloat(xmlFile, xmlValueKey) or value
 				elseif type(value) == 'boolean' then
-					value = getXMLBool(xmlFile, xmlValueKey) or value
+					value = getXMLBool(xmlFile, xmlValueKey) or false
 				end
 				if g_server == nil and type(value) == 'number' then
 					-- print("CLIENT - restrict to closest value")
