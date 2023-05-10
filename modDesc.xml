@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <modDesc descVersion="74">
 	<author>loki_79</author>
-    <version>1.4.2.7</version>
+    <version>1.4.2.8</version>
 	<title>
 		<en>LumberJack</en>
 		<de>Holzfäller</de>
@@ -12,7 +12,7 @@
 	</title>
 
 	<description>
-<en><![CDATA[This mod adds some quality of life improvements to make clearing trees with a chainsaw a little bit easier, but still retains enough realism to deserve the payment for selling the wood.  The chainsaw can now grind stumps, and the 'super-strength' mode also grants the ability to completley delete trees.
+<en><![CDATA[This mod adds some quality of life improvements to make clearing trees with a chainsaw a little bit easier, but still retains enough realism to deserve the payment for selling the wood.  The chainsaw can now grind stumps, and the 'super-strength' mode also grants the ability to completely delete trees.
 
 Control method to toggle super strength:
 - Hold down ALT key for temporary strength
@@ -20,7 +20,7 @@ Control method to toggle super strength:
 
 Features:
 - Targeting marker to identify chainsaw aim point at all times
-- Easily destroy small pieces of wood, similar to removing superfical branches
+- Easily destroy small pieces of wood, similar to removing superficial branches
 - 2x faster chainsaw cutting
 - 3x increased chainsaw range
 - 4x increased object pick-up range (only when super strength is active)
