@@ -1,49 +1,49 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <l10n>
 	<texts>
-		<text name="menu_LUMBERJACK_TITLE" text="LumberJack"/>
-		<text name="menu_TOGGLE_STRENGTH" text="Super Strength"/>
-		<text name="input_LUMBERJACK_STRENGTH" text="Super Strength"/>
-		<text name="text_MASS" text="Mass"/>
-		<text name="text_TONNE" text="tonne"/>
+		<text name="menu_LUMBERJACK_TITLE" text="TræFælder"/>
+		<text name="menu_TOGGLE_STRENGTH" text="Super Kræfter"/>
+		<text name="input_LUMBERJACK_STRENGTH" text="Super Kræfter"/>
+		<text name="text_MASS" text="Vægt"/>
+		<text name="text_TONNE" text="tons"/>
 		<text name="text_KG" text="kg"/>
 		<text name="text_METRE" text="m"/>
 		<text name="text_SECOND" text="s"/>
-		<text name="text_INFINITE" text="Infinite"/>
+		<text name="text_INFINITE" text="Uendelig"/>
 		
-		<text name="permission_lumberJack_superSpeed" text="LumberJack Speed"/>
-		<text name="permission_lumberJack_superStrength" text="LumberJack Strength"/>
-		<text name="permission_lumberJack_chainsawSettings" text="LumberJack Chainsaw"/>
+		<text name="permission_lumberJack_superSpeed" text="Træfælder Fart"/>
+		<text name="permission_lumberJack_superStrength" text="Træfælder Kræfter"/>
+		<text name="permission_lumberJack_chainsawSettings" text="Træfælder Kædesav"/>
 				
-		<text name="setting_lumberJack_cutAnywhere" text="Cut Anywhere"/>
-		<text name="toolTip_lumberJack_cutAnywhere" text="The player can use a chainsaw anywhere on the map."/>
+		<text name="setting_lumberJack_cutAnywhere" text="Skær Overalt"/>
+		<text name="toolTip_lumberJack_cutAnywhere" text="Spilleren kan bruge en kædesav overalt i kortet."/>
 		
-		<text name="setting_lumberJack_createWoodchips" text="Create Woodchips"/>
-		<text name="toolTip_lumberJack_createWoodchips" text="Woodchips are created when cutting trees or grinding stumps with a chainsaw."/>
+		<text name="setting_lumberJack_createWoodchips" text="Lav Træflis"/>
+		<text name="toolTip_lumberJack_createWoodchips" text="Træflis bliver lavet ved skæring i træer eller fjerning af stubbe med en kædesav."/>
+				
+		<text name="setting_lumberJack_maxCutDistance" text="Kædesav Skære Distance"/>
+		<text name="toolTip_lumberJack_maxCutDistance" text="Maximum distance spiller kan række til skæring med en kædesav."/>
 		
-		<text name="setting_lumberJack_maxCutDistance" text="Chainsaw Cut Distance"/>
-		<text name="toolTip_lumberJack_maxCutDistance" text="Maximum distance that the player can reach to cut with a chainsaw."/>
+		<text name="setting_lumberJack_defaultCutDuration" text="Kædesav Skære Tid"/>
+		<text name="toolTip_lumberJack_defaultCutDuration" text="Antal af sekunder for et standard snit med en kædesav."/>
 		
-		<text name="setting_lumberJack_defaultCutDuration" text="Chainsaw Cut Duration"/>
-		<text name="toolTip_lumberJack_defaultCutDuration" text="Number of seconds for a standard cut with the chainsaw."/>
+		<text name="setting_lumberJack_superStrengthValue" text="Super Stærk Værdi"/>
+		<text name="toolTip_lumberJack_superStrengthValue" text="Maximum vægt der kan løftes når super stærk er aktiv."/>
 		
-		<text name="setting_lumberJack_superStrengthValue" text="Super Strength Value"/>
-		<text name="toolTip_lumberJack_superStrengthValue" text="Maximum weight that can be lifted when super strength is active."/>
+		<text name="setting_lumberJack_normalStrengthValue" text="Normale Kræfter Værdi"/>
+		<text name="toolTip_lumberJack_normalStrengthValue" text="Maximum vægt der kan løftes af spiller med normale kræfter."/>
+
+		<text name="setting_lumberJack_superDistanceValue" text="Super Stærk Distance"/>
+		<text name="toolTip_lumberJack_superDistanceValue" text="Distance spiller kan nå for at løfte objekter når super kræfter er aktiv."/>
+
+		<text name="setting_lumberJack_normalDistanceValue" text="Normale Kræfter Distance"/>
+		<text name="toolTip_lumberJack_normalDistanceValue" text="Distance spiller kan nå for at løfte objekter med normale kræfter."/>
+
+		<text name="setting_lumberJack_maxWalkingSpeed" text="Gå Hastighed"/>
+		<text name="toolTip_lumberJack_maxWalkingSpeed" text="Den normale gå hastighed af spiller."/>
 		
-		<text name="setting_lumberJack_normalStrengthValue" text="Normal Strength Value"/>
-		<text name="toolTip_lumberJack_normalStrengthValue" text="Maximum weight that can be lifted by the player with normal strength."/>
-		
-		<text name="setting_lumberJack_superDistanceValue" text="Super Strength Distance"/>
-		<text name="toolTip_lumberJack_superDistanceValue" text="Distance that player can reach to lift objects when super strength is active."/>
-		
-		<text name="setting_lumberJack_normalDistanceValue" text="Normal Strength Distance"/>
-		<text name="toolTip_lumberJack_normalDistanceValue" text="Distance that player can reach to lift objects with normal strength."/>
-		
-		<text name="setting_lumberJack_maxWalkingSpeed" text="Walking Speed"/>
-		<text name="toolTip_lumberJack_maxWalkingSpeed" text="The normal walking speed of the player."/>
-		
-		<text name="setting_lumberJack_maxRunningSpeed" text="Running Speed"/>
-		<text name="toolTip_lumberJack_maxRunningSpeed" text="The normal running speed of the player."/>
+		<text name="setting_lumberJack_maxRunningSpeed" text="Løbe Hastighed"/>
+		<text name="toolTip_lumberJack_maxRunningSpeed" text="Den normale løbe hastighed af spiller."/>
 		
     </texts>
 </l10n>
