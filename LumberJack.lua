@@ -56,18 +56,6 @@ function LumberJack:registerActionEvents()
 	g_inputBinding:setActionEventTextPriority(actionEventId, GS_PRIO_VERY_LOW)
 	g_inputBinding:setActionEventActive(actionEventId, true)
     g_inputBinding:setActionEventText(actionEventId, g_i18n:getText("menu_TOGGLE_STRENGTH"))
-	
-	--print("registerActionEvents")
-	-- self.inputInformation.registrationList[InputAction.LUMBERJACK_STRENGTH] = {
-		-- text = g_i18n:getText("menu_TOGGLE_STRENGTH"),
-		-- triggerAlways = false,
-		-- triggerDown = true,
-		-- eventId = actionEventId,
-		-- textVisibility = true,
-		-- triggerUp = true,
-		-- callback = LumberJack.toggleStrength,
-		-- activeType = Player.INPUT_ACTIVE_TYPE.IS_MOVEMENT
-	-- }
 end
 
 --REPLACE Player.MAX_PICKABLE_OBJECT_DISTANCE FOR CLIENT IN MULTIPLAYER
@@ -201,7 +189,7 @@ function LumberJack:update(dt)
 	
 		-- CHANGE GLOBAL VALUES ON FIRST RUN
 		if (g_gameStateManager:getGameState()==GameState.PLAY and LumberJack.initialised==false) then
-			print("*** LumberJack - DEV VERSION ***")
+			-- print("*** LumberJack - DEV VERSION ***")
 		
 			LumberJack.playerID = g_currentMission.player.controllerIndex
 			g_currentMission.player.maxPickableMass = LumberJack.normalStrengthValue
@@ -386,7 +374,7 @@ function LumberJack:update(dt)
 								setShaderParameter(hTool.ringSelector, "colorScale", 0.8, 0.05, 0.05, 1.0, false)
 							else
 							-- SHOW GREY RING SELECTOR
-								setShaderParameter(hTool.ringSelector, "colorScale", 0.05, 0.05, 0.05, 1.0, false)
+								setShaderParameter(hTool.ringSelector, "colorScale", 0.15, 0.15, 0.15, 1.0, false)
 							end
 							
 						else

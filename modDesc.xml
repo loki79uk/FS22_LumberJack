@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <modDesc descVersion="74">
 	<author>loki_79</author>
-    <version>1.4.2.9</version>
+    <version>1.5.0.0</version>
 	<title>
 		<en>LumberJack</en>
 		<de>Holzfäller</de>
@@ -21,15 +21,20 @@ Control method to toggle super strength:
 Features:
 - Targeting marker to identify chainsaw aim point at all times
 - Easily destroy small pieces of wood, similar to removing superficial branches
-- 2x faster chainsaw cutting
-- 3x increased chainsaw range
-- 4x increased object pick-up range (only when super strength is active)
+- Adjustable chainsaw cutting speed and range
+- Adjustable object mass and pick-up range (only when super strength is active)
 - Cut trees anywhere on the map, even on land that cannot be purchased (e.g. the shop)
 - Display mass of viewed objects in F1 menu
 - Toggle 'super-strength' using ALT and increase brightness of targeting overlay to indicate when active
 - Chainsaw can remove stumps (grind for 3 seconds)
 
 Changelog:
+v1.5.0.0
+- Added ability to run while holding a chainsaw
+- Added options in the main menu to configure strength and speed settings for the player
+- Creation of woodchips can be turned on/off (server setting only in multiplayer)
+- All other settings are configurable for each player in multiplayer
+- Added individual permissions in multiplayer to use strength, speed or chainsaw settings
 v1.4.0.0
 - Added new log measurement display tool when cutting
 - Added ability to spray trees on unowned land
@@ -55,15 +60,20 @@ Kontrollmethode zum Umschalten der Superstärke:
 Merkmale:
 - Zielmarkierung, um den Zielpunkt der Kettensäge jederzeit zu identifizieren
 - Leichte Zerstörung kleiner Holzstücke, ähnlich wie beim Entfernen von superfischen Ästen
-- 2x schnelleres Kettensägenschneiden
-- 3x erhöhte Reichweite der Kettensäge
-- 4x vergrößerte Objektaufnahme-Reichweite (nur wenn Superstärke aktiv ist)
+- Einstellbare Geschwindigkeit und Reichweite der Kettensäge
+- Einstellbare Objektmasse und Aufnahmereichweite (nur bei aktiver Superstärke)
 - Bäume überall auf der Karte fällen, auch auf Land, das nicht gekauft werden kann (wie das Geschäft)
 - Masse der angezeigten Objekte im F1-Menü anzeigen
 - Schalten Sie die 'Superstärke' mit ALT um und erhöhen Sie die Helligkeit der Ziel-Überlagerung, um anzuzeigen, wann sie aktiv ist.
 - Kettensäge kann Stümpfe entfernen (3 Sekunden schleifen)
 
 Changelog:
+v1.5.0.0
+- Es wurde die Möglichkeit hinzugefügt, mit einer Kettensäge in der Hand zu laufen.
+- Optionen im Hauptmenü hinzugefügt, um die Stärke- und Geschwindigkeitseinstellungen für den Spieler zu konfigurieren
+- Die Erzeugung von Holzschnitzeln kann ein-/ausgeschaltet werden (Servereinstellung nur im Mehrspielermodus)
+- Alle anderen Einstellungen sind für jeden Spieler im Mehrspielermodus konfigurierbar
+- Individuelle Berechtigungen im Mehrspielermodus zur Verwendung von Stärke-, Geschwindigkeits- oder Kettensägeneinstellungen hinzugefügt
 v1.4.0.0
 - Neues Werkzeug zur Anzeige der Stammabmessungen beim Schneiden hinzugefügt
 - Möglichkeit zum Besprühen von Bäumen auf unbewohntem Land zugefügt
@@ -89,15 +99,20 @@ Méthode de contrôle pour faire basculer la super force :
 Caractéristiques:
 - Marqueur de ciblage pour identifier le point de visée de la tronçonneuse à tout moment
 - Détruire facilement de petits morceaux de bois, comme pour enlever des branches superficielles
-- Coupe à la tronçonneuse 2x plus rapide
-- 3x plus grande gamme de tronçonneuses
-- 4x plus grande portée de ramassage des objets (uniquement lorsque la super force est active)
+- Vitesse et portée de coupe de la tronçonneuse réglables
+- Masse de l'objet et distance de ramassage réglables (uniquement lorsque la superpuissance est activée)
 - Coupez des arbres n'importe où sur la carte, même sur des terrains qui ne peuvent être achetés (comme le magasin)
 - Afficher la masse des objets visualisés dans le menu F1
 - Basculer la 'super-force' en utilisant l'ALT et augmenter la luminosité de la couche de ciblage pour indiquer quand elle est active
 - La tronçonneuse permet d'enlever les souches (broyage pendant 3 secondes)
 
 Changelog:
+v1.5.0.0
+- Ajout de la possibilité de courir en tenant une tronçonneuse
+- Ajout d'options dans le menu principal pour configurer les paramètres de force et de vitesse du joueur
+- La création de copeaux de bois peut être activée/désactivée (paramètre serveur uniquement en multijoueur)
+- Tous les autres paramètres sont configurables pour chaque joueur en multijoueur
+- Ajout de permissions individuelles en multijoueur pour utiliser les paramètres de force, de vitesse ou de tronçonneuse
 v1.4.0.0
 - Ajout d'un nouvel outil d'affichage de la mesure des billes lors de la coupe
 - Ajout de la possibilité de pulvériser des arbres sur des terrains non possédés
@@ -124,15 +139,20 @@ v1.1.0.0
 Функции:
 - маркер прицеливания для постоянного определения точки прицеливания бензопилы
 - легко измельчайте небольшие куски дерева, как если бы вы удаляли верхние ветки
-- резка бензопилой в 2 раза быстрее
-- в 3 раза увеличен радиус действия бензопилы
-- в 4 раза увеличена дальность подбора предметов (только при активной суперсиле)
+- Регулируемая скорость и дальность резки бензопилой
+- Регулируемая масса объекта и дальность захвата (только при активной суперсиле)
 - рубите деревья в любом месте карты, даже на земле, которую нельзя купить (например, в магазине)
 - отображение массы просматриваемых объектов в меню F1
 - включение режима «сверхсильность» с помощью ALT и увеличение яркости маркера руки, чтобы указать, когда он активен
 - бензопила может убирать пни (измельчать 3 секунды)
 
 Changelog:
+v1.5.0.0
+- Добавлена возможность бежать, держа в руках бензопилу
+- Добавлены опции в главном меню для настройки параметров силы и скорости игрока
+- Создание щепок может быть включено/выключено (настройка сервера только в мультиплеере)
+- Все остальные настройки настраиваются для каждого игрока в мультиплеере
+- Добавлены индивидуальные разрешения в мультиплеере на использование настроек силы, скорости или бензопилы
 v1.4.0.0
 - Добавлено отображение размеров частей брёвен при распиливании
 - Добавлена возможность маркировать деревья на бесхозных землях
@@ -158,9 +178,8 @@ Metodo di controllo per attivare la super forza:
 Caratteristiche:
 - Indicatore di mira per identificare il punto di mira della motosega in ogni momento
 - Distruggi facilmente piccoli pezzi di legno, simile alla rimozione di rami superficiali
-- Taglio della motosega 2 volte più veloce
-- Gamma di motosega aumentata di 3 volte
-- Raggio di raccolta degli oggetti 4 volte maggiore
+- Velocità e raggio di taglio della motosega regolabili
+- Massa e raggio di raccolta degli oggetti regolabili (solo quando è attiva la superforza)
 - Taglia alberi ovunque sulla mappa, anche su terreni che non possono essere acquistati (es. il negozio)
 - Visualizza la massa degli oggetti visualizzati nel menu F1
 - Attiva o disattiva "super forza" usando ALT e aumenta la luminosità della sovrapposizione di mira per indicare quando è attiva
@@ -168,6 +187,12 @@ Caratteristiche:
 - La motosega può rimuovere i ceppi (macinare per 3 secondi)
 
 Changelog:
+v1.5.0.0
+- Aggiunta la possibilità di correre tenendo in mano una motosega
+- Aggiunte opzioni nel menu principale per configurare le impostazioni di forza e velocità per il giocatore
+- La creazione di cippato può essere attivata/disattivata (impostazione del server solo in multiplayer)
+- Tutte le altre impostazioni sono configurabili per ogni giocatore in multiplayer
+- Aggiunte autorizzazioni individuali in multigiocatore per l'uso delle impostazioni di forza, velocità o motosega
 v1.4.0.0
 - Aggiunto un nuovo strumento di visualizzazione delle misure dei tronchi durante il taglio
 - Aggiunta la possibilità di spruzzare alberi su terreni non di proprietà
@@ -193,15 +218,20 @@ Způsob ovládání pro přepínání super síly:
 Funkce:
 - Zaměřovací značka k identifikaci cílového bodu motorové pily za všech okolností
 - Snadno zničte malé kousky dřeva, podobně jako při odstraňování povrchových větví
-- 2x rychlejší řezání motorovou pilou
-- 3x zvýšený dosah řetězové pily
-- 4x zvýšený dosah snímání objektu (pouze když je aktivní super síla)
+- Nastavitelná rychlost a rozsah řezání řetězovou pilou
+- Nastavitelná hmotnost a rozsah sběru předmětů (pouze při aktivním režimu super síly)
 - Řez stromy kdekoli na mapě, dokonce i na pozemku, který nelze koupit (např. obchod)
 - Zobrazení hmotnosti prohlížených objektů v menu F1
 – Přepněte „super-sílu“ pomocí ALT a zvyšte jas překryvného cílení, aby bylo indikováno, že je aktivní
 - Motorová pila dokáže odstranit pařezy (brousit po dobu 3 sekund)
 
 Seznam změn:
+v1.5.0.0
+- Přidána možnost běhu s motorovou pilou v ruce
+- V hlavní nabídce byly přidány možnosti pro konfiguraci nastavení síly a rychlosti hráče
+- Možnost zapnout/vypnout vytváření dřevěných třísek (nastavení serveru pouze ve hře více hráčů)
+- Všechna ostatní nastavení jsou konfigurovatelná pro každého hráče ve více hráčích
+- Přidána individuální oprávnění ve hře více hráčů k používání nastavení síly, rychlosti nebo motorové pily
 v1.4.0.0
 - Přidán nový nástroj pro zobrazení měření protokolu při řezání
 - Přidána možnost postřiku stromů na nevlastněných pozemcích
@@ -234,56 +264,6 @@ v1.1.0.0
 			<binding device="KB_MOUSE_DEFAULT" input="KEY_lalt" />
 		</actionBinding>
 	</inputBinding>	
-	<l10n filenamePrefix="language/l10n">
-		<!-- <text name="menu_TOGGLE_STRENGTH"> -->
-			<!-- <en>Super Strength</en> -->
-			<!-- <de>Superstärke</de> -->
-			<!-- <fr>Super Force</fr> -->
-			<!-- <ru>Суперсила</ru> -->
-			<!-- <it>Super Forza</it> -->
-			<!-- <cz>Super síla</cz> -->
-		<!-- </text> -->
-		<!-- <text name="input_LUMBERJACK_STRENGTH"> -->
-			<!-- <en>Super Strength</en> -->
-			<!-- <de>Superstärke</de> -->
-			<!-- <fr>Super Force</fr> -->
-			<!-- <ru>Суперсила</ru> -->
-			<!-- <it>Super Forza</it> -->
-			<!-- <cz>Super síla</cz> -->
-		<!-- </text> -->
-		<!-- <text name="text_MASS"> -->
-			<!-- <en>Mass</en> -->
-			<!-- <de>Masse</de> -->
-			<!-- <fr>Masse</fr> -->
-			<!-- <ru>Масса</ru> -->
-			<!-- <it>Massa</it> -->
-			<!-- <cz>Hmotnost</cz> -->
-		<!-- </text> -->
-		<!-- <text name="text_KG"> -->
-			<!-- <en>kg</en> -->
-			<!-- <de>kg</de> -->
-			<!-- <fr>kg</fr> -->
-			<!-- <ru>кг</ru> -->
-			<!-- <it>Kg</it> -->
-			<!-- <cz>kg</cz> -->
-		<!-- </text> -->
-		<!-- <text name="text_TONNE"> -->
-			<!-- <en>t</en> -->
-			<!-- <de>t</de> -->
-			<!-- <fr>t</fr> -->
-			<!-- <ru>т</ru> -->
-			<!-- <it>t</it> -->
-			<!-- <cz>t</cz> -->
-		<!-- </text> -->
-		<!-- <text name="text_INFINITE"> -->
-			<!-- <en>Infinite</en> -->
-			<!-- <de>Unendlich</de> -->
-			<!-- <fr>Infini</fr> -->
-			<!-- <ru>Бесконечность</ru> -->
-			<!-- <it>Infinito</it> -->
-			<!-- <cz>Nekonečný</cz> -->
-		<!-- </text> -->
-
-
-	</l10n>
+	<l10n filenamePrefix="language/l10n"/>
+	
 </modDesc>
