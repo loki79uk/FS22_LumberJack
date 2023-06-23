@@ -202,9 +202,17 @@ function LumberJack:update(dt)
 				end
 			end
 
-			-- change values from default
-			Player.getDesiredSpeed = Utils.overwrittenFunction(
-				Player.getDesiredSpeed, LumberJack.playerGetDesiredSpeed)
+			if g_modIsLoaded['FS22_PlayerSpeed'] then
+				print("LUMBERJACK SPEED DISABLED: FS22_PlayerSpeed detected")
+				LumberJack.menuItems.maxWalkingSpeed = nil
+				LumberJack.menuItems.maxRunningSpeed = nil
+				LumberJack.SETTINGS.maxWalkingSpeed.disabled = true
+				LumberJack.SETTINGS.maxRunningSpeed.disabled = true
+			else
+				-- change values from default
+				Player.getDesiredSpeed = Utils.overwrittenFunction(
+					Player.getDesiredSpeed, LumberJack.playerGetDesiredSpeed)
+			end
 
 			LumberJack.initialised = true
 		end

@@ -435,7 +435,9 @@ InGameMenuGeneralSettingsFrame.onFrameOpen = Utils.appendedFunction(InGameMenuGe
 		local menuOption = LumberJack.CONTROLS[id]
 		menuOption:setState(LumberJack.getStateIndex(id))
 	
-		if LumberJack.SETTINGS[id].serverOnly and g_server == nil then
+		if LumberJack.SETTINGS[id].disabled then
+			menuOption:setDisabled(true)
+		elseif LumberJack.SETTINGS[id].serverOnly and g_server == nil then
 			menuOption:setDisabled(not isAdmin)
 		else
 		
