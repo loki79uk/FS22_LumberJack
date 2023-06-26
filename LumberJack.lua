@@ -202,8 +202,10 @@ function LumberJack:update(dt)
 				end
 			end
 
-			if g_modIsLoaded['FS22_PlayerSpeed'] then
-				print("LUMBERJACK SPEED DISABLED: FS22_PlayerSpeed detected")
+			if g_modIsLoaded['FS22_PlayerSpeed']
+			or g_modIsLoaded['FS22_QuickCamera']
+			then
+				print("LUMBERJACK SPEED DISABLED")
 				LumberJack.menuItems.maxWalkingSpeed = nil
 				LumberJack.menuItems.maxRunningSpeed = nil
 				LumberJack.SETTINGS.maxWalkingSpeed.disabled = true
