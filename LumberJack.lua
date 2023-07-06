@@ -263,7 +263,7 @@ function LumberJack:update(dt)
 		if g_currentMission.player:hasHandtoolEquipped() then
 			local hTool = g_currentMission.player.baseInformation.currentHandtool
 		
-			if hTool ~= nil and hTool.ringSelector ~= nil then
+			if hTool ~= nil and hTool.ringSelector ~= nil and hTool.chainsawSplitShapeFocus ~= nil then
 			
 				if LumberJack.originalDefaultCutDuration == nil then
 					LumberJack.originalDefaultCutDuration = hTool.defaultCutDuration
