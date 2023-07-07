@@ -26,6 +26,8 @@ LumberJack.useChainsawFlag = false
 LumberJack.splitShape = 0
 LumberJack.maxWoodchips = 2000
 LumberJack.showDebug = false
+LumberJack.allowBushCutting = true
+LumberJack.bushCuttingFlag = true
 LumberJack.initialised = false
 -- LumberJack.superStrengthActivatesCutAnywhere = true
 -- LumberJack.canCutLogsAnywhere = true
@@ -188,6 +190,75 @@ function LumberJack:toggleStrength(name, state)
 		end
 
 	end
+end
+
+function LumberJack.getNonMowableDecoFunction()
+	local functionData = LumberJack.nonMowableDecoFunction
+
+	if functionData == nil then
+		local decoFoliages = nil
+
+		if g_currentMission.foliageSystem ~= nil then
+			decoFoliages = g_currentMission.foliageSystem:getDecoFoliages()
+		end
+
+		local terrainRootNode = g_currentMission.terrainRootNode
+
+		if decoFoliages ~= nil and #decoFoliages > 0 then
+			functionData = {
+				decoModifiers = {},
+				decoFilters = {}
+			}
+
+			for index, decoFoliage in pairs(decoFoliages) do
+				DebugUtil.printTableRecursively(decoFoliage, tostring(index)..":", 0,2)
+				if decoFoliage.terrainDataPlaneId ~= nil and not decoFoliage.mowable then
+
+					local decoModifier = DensityMapModifier.new(decoFoliage.terrainDataPlaneId, decoFoliage.startStateChannel, decoFoliage.numStateChannels, terrainRootNode)
+
+					decoModifier:setNewTypeIndexMode(DensityIndexCompareMode.ZERO)
+
+					local decoFilter = DensityMapFilter.new(decoFoliage.terrainDataPlaneId, decoFoliage.startStateChannel, decoFoliage.numStateChannels, terrainRootNode)
+
+					decoFilter:setValueCompareParams(DensityValueCompareType.GREATER, 0)
+
+					functionData.decoModifiers[index] = decoModifier
+					functionData.decoFilters[index] = decoFilter
+				end
+			end
+
+			LumberJack.nonMowableDecoFunction = functionData
+		end
+	end
+
+	return functionData
+end
+
+function LumberJack:removeNonMowableDeco(startWorldX, startWorldZ, dirX, dirZ)
+	local functionData = LumberJack.getNonMowableDecoFunction()
+
+	if functionData ~= nil then
+		for index, decoFilter in pairs(functionData.decoFilters) do
+			local decoModifier = functionData.decoModifiers[index]
+
+			if decoModifier ~= nil and decoFilter ~= nil then
+				decoModifier:setParallelogramWorldCoords(startWorldX+dirX, startWorldZ+dirZ, startWorldX + dirZ, startWorldZ - dirX, startWorldX - dirZ, startWorldZ + dirX, DensityCoordType.POINT_POINT_POINT)
+				decoModifier:executeSet(0, decoFilter)
+			end
+		end
+	end
+
+end
+
+function LumberJack:hasNonMowableDeco(startWorldX, startWorldZ, dirX, dirZ)
+	--local a,b,c = FSDensityMapUtil.getBushDensity(startWorldX+dirX, startWorldZ+dirZ, startWorldX + dirZ, startWorldZ - dirX, startWorldX - dirZ, startWorldZ + dirX)
+	--DebugUtil.drawDebugParallelogram(startWorldX+dirX, startWorldZ+dirZ, dirZ-dirX, -dirX-dirZ, -dirZ-dirX, dirX-dirZ, 0.1, 1,0,0, 1, false)
+
+	local bushId = getTerrainDataPlaneByName(g_currentMission.terrainRootNode, "decoBush")
+	local bits = getDensityAtWorldPos(bushId, startWorldX, 0, startWorldZ)
+	Logging.info("hasNonMowableDeco: %f %f", bitAND(bits, 15), bitShiftRight(bits,4))
+
+	return bitAND(bits, 15) == 3
 end
 
 function LumberJack:updateRingSelector(minY, maxY, minZ, maxZ)
@@ -457,7 +528,14 @@ function LumberJack:update(dt)
 								end
 							end
 
-							if LumberJack.stumpGrindingFlag and g_currentMission:getHasPlayerPermission("cutTrees") then
+							if LumberJack.allowBushCutting and not LumberJack.stumpGrindingFlag then
+								local dirX, dirZ = MathUtil.getDirectionFromYRotation(g_currentMission.player.rotY)
+								local rx, _, rz = getWorldTranslation(hTool.ringSelector)
+
+								LumberJack.bushCuttingFlag = LumberJack:hasNonMowableDeco(rx, rz, dirX, dirZ)
+							end
+
+							if (LumberJack.stumpGrindingFlag and g_currentMission:getHasPlayerPermission("cutTrees")) or LumberJack.bushCuttingFlag then
 							-- SHOW RED RING SELECTOR
 								setShaderParameter(hTool.ringSelector, "colorScale", 0.8, 0.05, 0.05, 1.0, false)
 							else
@@ -504,7 +582,21 @@ function LumberJack:update(dt)
 							LumberJack.stumpGrindingFlag = false
 							g_currentMission.player:lockInput(false)
 						end
-
+					elseif LumberJack.bushCuttingFlag and hTool.speedFactor > 0.1 then
+						LumberJack.stumpGrindingTime = LumberJack.stumpGrindingTime + dt
+						if LumberJack.stumpGrindingTime < 100 then
+							g_currentMission.player:lockInput(true)
+							hTool.isCutting = true
+							hTool:updateParticles()
+							hTool.isCutting = false
+						else
+							local dirX, dirZ = MathUtil.getDirectionFromYRotation(g_currentMission.player.rotY)
+							local x, _, z = getWorldTranslation(hTool.ringSelector)
+							LumberJack:removeNonMowableDeco(x, z, dirX, dirZ)
+							LumberJack.stumpGrindingTime = 0
+							LumberJack.bushCuttingFlag = false
+							g_currentMission.player:lockInput(false)
+						end
 					else
 						LumberJack.stumpGrindingTime = 0
 						g_currentMission.player:lockInput(false)
