@@ -27,6 +27,9 @@ LumberJack.splitShape = 0
 LumberJack.maxWoodchips = 2000
 LumberJack.showDebug = false
 LumberJack.initialised = false
+-- LumberJack.superStrengthActivatesCutAnywhere = true
+-- LumberJack.canCutLogsAnywhere = true
+-- alternative to individual bool permissions: cut levels: 0=only accessible, 1=logs anywhere, 2=anything anywhere with superStrength, 3=anything anywhere
 
 source(g_currentModDirectory .. 'LumberJackSettings.lua')
 source(g_currentModDirectory .. 'events/DeleteShapeEvent.lua')
@@ -41,7 +44,15 @@ function LumberJack:isCuttingAllowed(superFunc, x, y, z, shape)
 	local canCutTrees = g_currentMission:getHasPlayerPermission("cutTrees")
 	local canChainsaw = g_currentMission:getHasPlayerPermission("chainsawSettings")
 	local canAccess = g_currentMission.accessHandler:canFarmAccessLand(self.player.farmId, x, z)
-	
+	-- preparation for mode where you can cut logs anywhere, but not necessarily trees
+	-- local isSplit = getIsSplitShapeSplit(shape)
+	-- local isStatic = getRigidBodyType(shape) == RigidBodyType.STATIC
+	-- local isLog = isSplit and not isStatic
+	-- -- local isStump = isSplit and isStatic -- not needed here
+	-- -- local isTree = not isSplit and not isStatic -- not needed here
+	-- local canCutAnywhere = LumberJack.cutAnywhere or (LumberJack.superStrengthActivatesCutAnywhere and LumberJack.superStrength)
+	-- local canCutBecauseLog = LumberJack.canCutLogsAnywhere and isLog
+	-- return canCutTrees and ((canChainsaw and canCutAnywhere) or canAccess or canCutBecauseLog)
 	return canCutTrees and ((canChainsaw and LumberJack.cutAnywhere) or canAccess)
 end
 
@@ -72,7 +83,7 @@ function LumberJack.playerCheckObjectInRange(self, superFunc)
 			Player.MAX_PICKABLE_OBJECT_DISTANCE = LumberJack.originalPickableObjectDistance
 		end
 	end
-	
+
 	return superFunc(self)
 end
 
@@ -83,7 +94,7 @@ function LumberJack.playerGetDesiredSpeed(self, superFunc)
 		LumberJack.originalWalkingSpeed = self.motionInformation.maxWalkingSpeed
 		LumberJack.originalRunningSpeed = self.motionInformation.maxRunningSpeed
 	end
-	
+
 	if g_currentMission:getHasPlayerPermission("superSpeed") then
 		self.motionInformation.maxRunningSpeed = LumberJack.maxRunningSpeed
 		if self:hasHandtoolEquipped() and self.inputInformation.runAxis > 0 then
@@ -95,7 +106,7 @@ function LumberJack.playerGetDesiredSpeed(self, superFunc)
 		self.motionInformation.maxWalkingSpeed = LumberJack.originalWalkingSpeed
 		self.motionInformation.maxRunningSpeed = LumberJack.originalRunningSpeed
 	end
-	
+
 	return superFunc(self)
 end
 
@@ -118,24 +129,24 @@ end
 -- LUMBERJACK FUNCTIONS:
 function LumberJack:loadMap(name)
 	--print("Load Mod: 'LumberJack'")
-	
+
 	-- ALLOW CHAINSAW CUTTING ANYWHERE ON THE MAP
 	Chainsaw.isCuttingAllowed = Utils.overwrittenFunction(Chainsaw.isCuttingAllowed, LumberJack.isCuttingAllowed)
-	
+
 	-- ALLOW TREE SPRAYING ANYWHERE ON THE MAP
 	if pdlc_forestryPack~=nil and pdlc_forestryPack.SprayCan~=nil then
 		pdlc_forestryPack.SprayCan.getIsSprayingAllowed = Utils.overwrittenFunction(pdlc_forestryPack.SprayCan.getIsSprayingAllowed, LumberJack.isSprayingAllowed)
 	end
-	
+
 	-- ADD SHORTCUT KEY SELECTION TO OPTIONS MENU
 	Player.registerActionEvents = Utils.appendedFunction(Player.registerActionEvents, LumberJack.registerActionEvents)
-	
+
 	-- MULTIPLAYER SUPER STRENGTH FIX
 	Player.checkObjectInRange = Utils.overwrittenFunction(Player.checkObjectInRange, LumberJack.playerCheckObjectInRange)
-	
+
 	-- CATCH CONSOLE COMMAND
 	Player.consoleCommandToggleSuperStrongMode = Utils.overwrittenFunction(Player.consoleCommandToggleSuperStrongMode, LumberJack.playerConsoleCommand)
-	
+
 	--READ SETTINGS FROM FILE
 	LumberJack.readSettings()
 
@@ -143,13 +154,13 @@ end
 
 function LumberJack:toggleStrength(name, state)
 	if g_currentMission.player.isEntered and not g_gui:getIsGuiVisible() then
-	
+
 		if g_currentMission:getHasPlayerPermission("superStrength") then
 
 			if state == 1 then
 				LumberJack.doubleTap = LumberJack.doubleTap + 1
 			end
-			
+
 			if LumberJack.lockStrength then
 				--print("SUPER STRENGTH LOCKED")
 			else
@@ -167,7 +178,7 @@ function LumberJack:toggleStrength(name, state)
 					end
 				end
 			end
-			
+
 		else
 			if LumberJack.superStrength or LumberJack.lockStrength then
 				LumberJack.lockStrength = false
@@ -175,8 +186,24 @@ function LumberJack:toggleStrength(name, state)
 				SuperStrengthEvent.sendEvent(LumberJack.superStrength)
 			end
 		end
-		
+
 	end
+end
+
+function LumberJack:updateRingSelector(minY, maxY, minZ, maxZ)
+	local scale = math.max(maxY - minY, maxZ - minZ) + self.ringSelectorScaleOffset
+
+	setScale(self.ringSelector, 1, scale, scale)
+
+	local a, b, c = localToWorld(self.chainsawSplitShapeFocus, 0, (minY + maxY) * 0.5, (minZ + maxZ) * 0.5)
+	local x, y, z = worldToLocal(getParent(self.ringSelector), a, b, c)
+
+	setTranslation(self.ringSelector, x, y, z)
+end
+
+function LumberJack:resetRingSelector(size, yo, zo)
+	setScale(self.ringSelector, 1, size, size)
+	setTranslation(self.ringSelector, 0, size*.5-yo, size*.5-zo)
 end
 
 function LumberJack:update(dt)
@@ -186,15 +213,15 @@ function LumberJack:update(dt)
 	end
 
 	if g_currentMission.player.isEntered and not g_gui:getIsGuiVisible() then
-	
+
 		-- CHANGE GLOBAL VALUES ON FIRST RUN
 		if (g_gameStateManager:getGameState()==GameState.PLAY and LumberJack.initialised==false) then
 			-- print("*** LumberJack - DEV VERSION ***")
-		
+
 			LumberJack.playerID = g_currentMission.player.controllerIndex
 			g_currentMission.player.maxPickableMass = LumberJack.normalStrengthValue
 			g_currentMission.player.maxPickableObjectDistance = LumberJack.normalDistanceValue
-			
+
 			-- enable active objects debugging output:
 			if LumberJack.showDebug then
 				if g_currentMission:getIsServer() then
@@ -258,13 +285,13 @@ function LumberJack:update(dt)
 			end
 			g_currentMission.player.aimOverlay:setColor(1, 1, 1, 0.3)
 		end
-		
+
 		-- DESTROY SMALL LOGS WHEN USING THE CHAINSAW --
 		if g_currentMission.player:hasHandtoolEquipped() then
 			local hTool = g_currentMission.player.baseInformation.currentHandtool
-		
+
 			if hTool ~= nil and hTool.ringSelector ~= nil and hTool.chainsawSplitShapeFocus ~= nil then
-			
+
 				if LumberJack.originalDefaultCutDuration == nil then
 					LumberJack.originalDefaultCutDuration = hTool.defaultCutDuration
 					LumberJack.originalMinCutDistance = hTool.minCutDistance
@@ -272,12 +299,12 @@ function LumberJack:update(dt)
 					LumberJack.originalMaxModelTranslation = hTool.maxModelTranslation
 					LumberJack.originalCutDetectionDistance = hTool.cutDetectionDistance
 				end
-			
+
 				if g_currentMission:getHasPlayerPermission('chainsawSettings') then
-					-- INCRESE CUTTING SPEED
+					-- INCREASE CUTTING SPEED
 					hTool.defaultCutDuration = LumberJack.defaultCutDuration
-					
-					-- INCRESE CUT DISTANCE
+
+					-- INCREASE CUT DISTANCE
 					hTool.minCutDistance = LumberJack.minCutDistance
 					hTool.maxCutDistance = LumberJack.maxCutDistance
 					hTool.maxModelTranslation = LumberJack.maxCutDistance
@@ -293,10 +320,10 @@ function LumberJack:update(dt)
 					hTool.maxModelTranslation = LumberJack.originalMaxModelTranslation
 					hTool.cutDetectionDistance = LumberJack.originalCutDetectionDistance
 				end
-				
+
 				-- DESTROY SMALL LOGS WHEN USING THE CHAINSAW --
 				if hTool.isCutting then
-					--print("CHAINSAW CUTTING")				
+					--print("CHAINSAW CUTTING")
 					if not LumberJack.useChainsawFlag then
 						-- Find the splitShape from chainsawSplitShapeFocus (lastFoundObject doesn't exist for client in multiplayer)
 						local x,y,z = getWorldTranslation(hTool.chainsawSplitShapeFocus)
@@ -311,64 +338,114 @@ function LumberJack:update(dt)
 						end
 						LumberJack.useChainsawFlag = true
 					end
-					
+
 					LumberJack:createSawdust(hTool)
 
 				else
-					--print("CHAINSAW NOT CUTTING")		
-					if hTool.ringSelector ~= nil and hTool.ringSelector ~= 0 then	
+					--print("CHAINSAW NOT CUTTING")
+					if hTool.ringSelector ~= nil and hTool.ringSelector ~= 0 then
 						if getVisibility(hTool.ringSelector) == false then
 							setVisibility(hTool.ringSelector, true)
-							
+
 							-- Find the splitShape from chainsawSplitShapeFocus
 							LumberJack.splitShape = 0
 							local x,y,z = getWorldTranslation(hTool.chainsawSplitShapeFocus)
 							local xx,xy,xz = localDirectionToWorld(hTool.chainsawSplitShapeFocus, 1,0,0)
 							local yx,yy,yz = localDirectionToWorld(hTool.chainsawSplitShapeFocus, 0,1,0)
 							local zx,zy,zz = localDirectionToWorld(hTool.chainsawSplitShapeFocus, 0,0,1)
-							local size = 1.7
+							local size = 2
 
-							local x0 = x + yx*0.45 + zx*0.3
-							local y0 = y + yy*0.45 + zy*0.3
-							local z0 = z + yz*0.45 + zz*0.3
-							local xx0,xy0,xz0 = 1,0,0
-							local yx0,yy0,yz0 = 0,-1,0
-							local zx0,zy0,zz0 = 0,0,-1
-							if LumberJack.showDebug then
-								local r = hTool.ringSelectorScaleOffset
-								Utils.renderTextAtWorldPosition(x0-xx0*r,y0-xy0*r,z0-xz0*r, "-x", getCorrectTextSize(0.012), 0)
-								Utils.renderTextAtWorldPosition(x0+xx0*r,y0+xy0*r,z0+xz0*r, "+x", getCorrectTextSize(0.012), 0)
-								Utils.renderTextAtWorldPosition(x0-yx0*r,y0-yy0*r,z0-yz0*r, "-y", getCorrectTextSize(0.012), 0)
-								Utils.renderTextAtWorldPosition(x0+yx0*r,y0+yy0*r,z0+yz0*r, "+y", getCorrectTextSize(0.012), 0)
-								Utils.renderTextAtWorldPosition(x0-zx0*r,y0-zy0*r,z0-zz0*r, "-z", getCorrectTextSize(0.012), 0)
-								Utils.renderTextAtWorldPosition(x0+zx0*r,y0+zy0*r,z0+zz0*r, "+z", getCorrectTextSize(0.012), 0)
-							end
+							-- chainsawSplitShapeFocus and ringSelector represent a plane with X as the normal
+							-- so P0(x0,y0,z0) is the point on that plane closest to the camera
+							local zs = 0.45
+							local ys = zs
+							local x0 = x - zx * zs - yx * ys
+							local y0 = y - zy * zs - yy * ys
+							local z0 = z - zz * zs - yz * ys
 
-							x = x0 - xx0*size/2 + yx0*0.45 - zx0*size/2
-							y = y0 - xy0*size/2 + yy0*0.45 - zy0*size/2
-							z = z0 - xz0*size/2 + yz0*0.45 - zz0*size/2
-							xx,xy,xz = xx0,xy0,xz0
-							yx,yy,yz = yx0,yy0,yz0
-							zx,zy,zz = zx0,zy0,zz0
-							if LumberJack.showDebug then
-								drawDebugLine(x,y,z,1,1,1,x+xx*size,y+xy*size,z+xz*size,1,1,1)
-								drawDebugLine(x,y,z,1,1,1,x+zx*size,y+zy*size,z+zz*size,1,1,1)
-								drawDebugLine(x+xx*size,y+xy*size,z+xz*size,1,1,1,x+xx*size+zx*size,y+xy*size+zy*size,z+xz*size+zz*size,1,1,1)
-								drawDebugLine(x+zx*size,y+zy*size,z+zz*size,1,1,1,x+xx*size+zx*size,y+xy*size+zy*size,z+xz*size+zz*size,1,1,1)
-							end
+							-- this 'if' is always true because we are setting splitShape to 0 above and it is not changed in between
 							if LumberJack.splitShape==0 then
-								LumberJack.splitShape, _, _, _, _ = findSplitShape(x,y,z, -yx,-yy,-yz, xx,xy,xz, size, size)
+								local minY, maxY, minZ, maxZ
+
+								-- findSplitShape(P, N, Y, sizeY, sizeZ): N is the normal and needs to be the X vector of the ringSelector
+								-- we are starting from top-close point P0 and extend a plane down and away
+								local bx,by,bz = x0+zx*size, y0+zy*size, z0+zz*size
+								local dx,dy,dz = x0+yx*size, y0+yy*size, z0+yz*size
+								local bdx,bdy,bdz = bx+yx*size, by+yy*size, bz+yz*size
+								if LumberJack.showDebug then
+									-- show search area
+									drawDebugLine(x0,y0,z0, 0,1,0, bx,by,bz, 0,1,0)
+									drawDebugLine(x0,y0,z0, 0,0,1, dx,dy,dz, 0,0,1)
+									drawDebugLine(bdx,bdy,bdz, 0,1,0, dx,dy,dz, 0,1,0)
+									drawDebugLine(bdx,bdy,bdz, 0,0,1, bx,by,bz, 0,0,1)
+								end
+
+								LumberJack.splitShape, minY, maxY, minZ, maxZ = findSplitShape(x0, y0, z0, xx, xy, xz, yx, yy, yz, size, size)
+								if LumberJack.showDebug and minY ~= nil then
+									-- show found split
+									drawDebugLine(x0+yx*minY,y0+yy*minY,z0+yz*minY, 0,1,0, bx+yx*minY,by+yy*minY,bz+yz*minY, 0,1,0)
+									drawDebugLine(x0+yx*maxY,y0+yy*maxY,z0+yz*maxY, 0,1,0, bx+yx*maxY,by+yy*maxY,bz+yz*maxY, 0,1,0)
+									drawDebugLine(x0+zx*minZ,y0+zy*minZ,z0+zz*minZ, 0,0,1, dx+zx*minZ,dy+zy*minZ,dz+zz*minZ, 0,0,1)
+									drawDebugLine(x0+zx*maxZ,y0+zy*maxZ,z0+zz*maxZ, 0,0,1, dx+zx*maxZ,dy+zy*maxZ,dz+zz*maxZ, 0,0,1)
+								end
+								local isSplit = getIsSplitShapeSplit(LumberJack.splitShape)
+								local isStatic = getRigidBodyType(LumberJack.splitShape) == RigidBodyType.STATIC
+
+								if LumberJack.splitShape == 0 then
+									LumberJack.resetRingSelector(hTool, size, ys, zs)
+									if LumberJack.showDebug then
+										g_currentMission:addExtraPrintText("nothing found")
+									end
+								elseif not isSplit then
+									-- found a tree, but we want to ignore those
+									LumberJack.splitShape = 0
+									LumberJack.resetRingSelector(hTool, size, ys, zs)
+									if LumberJack.showDebug then
+										g_currentMission:addExtraPrintText("found tree")
+									end
+								end
+
 								if LumberJack.splitShape~=0 then
-								
-									if LumberJack.superStrength then
+									-- calculate topmost point and compare against ground
+									local rx, ry, rz = x0+yx*minY+zx*minZ, y0+yy*minY+zy*minZ, z0+yz*minY+zz*minZ
+									local yg=getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, rx, 0, rz)
+									if LumberJack.showDebug then
+										DebugUtil.drawDebugGizmoAtWorldPos(rx,ry,rz, zx,zy,zz, yx,yy,yz, "R")
+									end
+
+									if ry-yg < 0.1 then
+										LumberJack.stumpGrindingFlag = false
+										LumberJack.resetRingSelector(hTool, size, ys, zs)
+										if LumberJack.showDebug then
+										    g_currentMission:addExtraPrintText("ringSelector below ground")
+										end
+									elseif LumberJack.superStrength then
 										LumberJack.stumpGrindingFlag = true
+										LumberJack.updateRingSelector(hTool, minY-ys, maxY-ys, minZ-zs, maxZ-zs)
+									elseif not isStatic then
+										-- found a log, but no superStrength, so we won't grind it away
+										LumberJack.stumpGrindingFlag = false
+										LumberJack.resetRingSelector(hTool, size, ys, zs)
+										if LumberJack.showDebug then
+											g_currentMission:addExtraPrintText("not a stump")
+										end
 									else
-										local lenBelow, lenAbove = getSplitShapePlaneExtents(LumberJack.splitShape, x,y,z, -yx,-yy,-yz)
-										local _,ly,_ = worldToLocal(LumberJack.splitShape, x,y,z)
-										if ly < 0.5 and lenAbove < 1 then
+										local midZ = (maxZ+minZ)*0.5
+										local midY = (maxY+minY)*0.5
+										local cx,cy,cz = x0+yx*midY+zx*midZ, y0+yy*midY+zy*midZ, z0+yz*midY+zz*midZ
+
+										local lenBelow, lenAbove = getSplitShapePlaneExtents(LumberJack.splitShape, cx,cy,cz, 0, 1, 0)
+										local _,ly,_ = worldToLocal(LumberJack.splitShape, cx,cy,cz)
+										-- ly+lenAbove is roughly the height of the stump above ground
+										if ly+lenAbove < 0.65 then
 											LumberJack.stumpGrindingFlag = true
+											LumberJack.updateRingSelector(hTool, minY-ys, maxY-ys, minZ-zs, maxZ-zs)
 										else
 											LumberJack.stumpGrindingFlag = false
+											LumberJack.resetRingSelector(hTool, size, ys, zs)
+											if LumberJack.showDebug then
+												g_currentMission:addExtraPrintText("stump too tall")
+											end
 										end
 										if LumberJack.showDebug then
 											g_currentMission:addExtraPrintText(string.format("below:%.3f   above:%.3f   ly:%.3f", lenBelow,lenAbove,ly))
@@ -376,6 +453,7 @@ function LumberJack:update(dt)
 									end
 								else
 									LumberJack.stumpGrindingFlag = false
+									LumberJack.resetRingSelector(hTool, size, ys, zs)
 								end
 							end
 
@@ -386,25 +464,25 @@ function LumberJack:update(dt)
 							-- SHOW GREY RING SELECTOR
 								setShaderParameter(hTool.ringSelector, "colorScale", 0.15, 0.15, 0.15, 1.0, false)
 							end
-							
+
 						else
 							-- CHAINSAW HAS FOUND A PLACE TO CUT THE TREE
 							local x, y, z, nx, ny, nz, yx, yy, yz = hTool:getCutShapeInformation()
 							local shape, _, _, _, _ = findSplitShape(x, y, z, nx, ny, nz, yx, yy, yz, hTool.cutSizeY, hTool.cutSizeZ)
-							
+
 							if shape ~= nil and shape ~= 0 then
 								local cutStartX, cutStartY, cutStartZ, cutEndX, cutEndY, cutEndZ = hTool:getCutStartEnd()
 								local x0, y0, z0 = (cutStartX+cutEndX)/2, (cutStartY+cutEndY)/2, (cutStartZ+cutEndZ)/2
 								local below, above = getSplitShapePlaneExtents(shape, x0, y0, z0, localDirectionToWorld(shape, 0, 1, 0))
 								g_currentMission:addExtraPrintText(g_i18n:getText("infohud_length") .. string.format(":   %.1fm  |  %.1fm", above, below))
-			
+
 								if LumberJack.showDebug then
 									drawDebugLine(cutStartX,cutStartY,cutStartZ,1,1,1,cutEndX,cutEndY,cutEndZ,1,1,1)
 								end
 							end
 						end
 					end
-					
+
 					-- GRIND STUMPS USING THE CHAINSAW --
 					if LumberJack.stumpGrindingFlag and hTool.speedFactor > 0.1 and g_currentMission:getHasPlayerPermission("cutTrees") then
 						LumberJack.stumpGrindingTime = LumberJack.stumpGrindingTime + dt
@@ -426,12 +504,12 @@ function LumberJack:update(dt)
 							LumberJack.stumpGrindingFlag = false
 							g_currentMission.player:lockInput(false)
 						end
-						
+
 					else
 						LumberJack.stumpGrindingTime = 0
 						g_currentMission.player:lockInput(false)
 					end
-					
+
 					if LumberJack.useChainsawFlag then
 						LumberJack.useChainsawFlag = false
 						if hTool.waitingForResetAfterCut then
@@ -444,8 +522,8 @@ function LumberJack:update(dt)
 				end
 			end
 		end
-	end	
-	
+	end
+
 end
 
 
@@ -456,7 +534,7 @@ function LumberJack:createSawdust(hTool, amount, position, noEventSend)
 
 			local fillTypeIndex = FillType.WOODCHIPS
 			local minAmount = g_densityMapHeightManager:getMinValidLiterValue(fillTypeIndex)
-		
+
 			local delta
 			if amount == -2 then
 				delta = 0
@@ -466,23 +544,23 @@ function LumberJack:createSawdust(hTool, amount, position, noEventSend)
 			else
 				delta = (60/hTool.defaultCutDuration * (math.random(50, 100)/100) * (g_currentDt/1000)) + (amount or 0)
 			end
-			
+
 			hTool.totalSawdust = hTool.totalSawdust or 0
 			hTool.totalSawdust = hTool.totalSawdust + delta
 
 			if hTool.totalSawdust >= minAmount then
-			
+
 				local positionNode = hTool.graphicsNode
 				local pos = {getWorldTranslation(positionNode)}
-				
+
 				if position then
 					pos[1] = position[1]
 					pos[3] = position[3]
 				end
-				
+
 				local sx, sy, sz = pos[1], pos[2], pos[3]
 				local ex, ey, ez = sx, sy, sz
-				
+
 				if LumberJack.useChainsawFlag and not LumberJack.stumpGrindingFlag then
 					local rand = math.random(50, 100)/100
 					local dx, _, dz = localDirectionToWorld(positionNode, 0, 1, 0)
@@ -494,9 +572,9 @@ function LumberJack:createSawdust(hTool, amount, position, noEventSend)
 				local outerRadius = DensityMapHeightUtil.getDefaultMaxRadius(fillTypeIndex)
 				local dropped, lineOffset = DensityMapHeightUtil.tipToGroundAroundLine(nil,
 					hTool.totalSawdust, fillTypeIndex, sx, sy, sz, ex, ey, ez, innerRadius, outerRadius)
-				
+
 				hTool.totalSawdust = hTool.totalSawdust - dropped
-				
+
 				if dropped == 0 then
 					-- print("COULDN'T DROP SAWDUST HERE")
 					hTool.totalSawdust = 0
@@ -524,10 +602,10 @@ function LumberJack:deleteSplitShape(shape, noEventSend)
 				local cutPosition = {getWorldTranslation(shape)}
 				LumberJack:createSawdust(hTool, amount, cutPosition)
 			end
-		
+
 			g_currentMission:removeKnownSplitShape(shape)
 			local isTree = getRigidBodyType(shape) == RigidBodyType.STATIC
-			
+
 			if isTree then
 				LumberJack.cutShapes = {}
 				local x, y, z = getWorldTranslation(shape)
@@ -536,7 +614,7 @@ function LumberJack:deleteSplitShape(shape, noEventSend)
 				local cutSizeY, cutSizeZ = 5, 5
 				splitShape(shape, x, y + 0.2, z, nx, ny, nz, yx, yy, yz, cutSizeY, cutSizeZ, "cutSplitShapeCallback", LumberJack)
 				g_treePlantManager:removingSplitShape(shape)
-				
+
 				if table.getn(LumberJack.cutShapes) == 2 then
 					local split0 = LumberJack.cutShapes[1]
 					local split1 = LumberJack.cutShapes[2]
@@ -550,7 +628,7 @@ function LumberJack:deleteSplitShape(shape, noEventSend)
 					end
 				end
 			end
-			
+
 			if entityExists(shape) then
 				delete(shape)
 			end
