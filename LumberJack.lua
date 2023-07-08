@@ -274,10 +274,10 @@ function LumberJack:update(dt)
 				end
 			
 				if g_currentMission:getHasPlayerPermission('chainsawSettings') then
-					-- INCRESE CUTTING SPEED
+					-- INCREASE CUTTING SPEED
 					hTool.defaultCutDuration = LumberJack.defaultCutDuration
 					
-					-- INCRESE CUT DISTANCE
+					-- INCREASE CUT DISTANCE
 					hTool.minCutDistance = LumberJack.minCutDistance
 					hTool.maxCutDistance = LumberJack.maxCutDistance
 					hTool.maxModelTranslation = LumberJack.maxCutDistance
@@ -321,7 +321,6 @@ function LumberJack:update(dt)
 							setVisibility(hTool.ringSelector, true)
 							
 							-- Find the splitShape from chainsawSplitShapeFocus
-							LumberJack.splitShape = 0
 							local x,y,z = getWorldTranslation(hTool.chainsawSplitShapeFocus)
 							local xx,xy,xz = localDirectionToWorld(hTool.chainsawSplitShapeFocus, 1,0,0)
 							local yx,yy,yz = localDirectionToWorld(hTool.chainsawSplitShapeFocus, 0,1,0)
@@ -356,28 +355,28 @@ function LumberJack:update(dt)
 								drawDebugLine(x+xx*size,y+xy*size,z+xz*size,1,1,1,x+xx*size+zx*size,y+xy*size+zy*size,z+xz*size+zz*size,1,1,1)
 								drawDebugLine(x+zx*size,y+zy*size,z+zz*size,1,1,1,x+xx*size+zx*size,y+xy*size+zy*size,z+xz*size+zz*size,1,1,1)
 							end
-							if LumberJack.splitShape==0 then
-								LumberJack.splitShape, _, _, _, _ = findSplitShape(x,y,z, -yx,-yy,-yz, xx,xy,xz, size, size)
-								if LumberJack.splitShape~=0 then
-								
-									if LumberJack.superStrength then
+							
+							LumberJack.splitShape, _, _, _, _ = findSplitShape(x,y,z, -yx,-yy,-yz, xx,xy,xz, size, size)
+							if LumberJack.splitShape~=0 then
+							
+								if LumberJack.superStrength then
+									LumberJack.stumpGrindingFlag = true
+								else
+									local lenBelow, lenAbove = getSplitShapePlaneExtents(LumberJack.splitShape, x,y,z, -yx,-yy,-yz)
+									local _,ly,_ = worldToLocal(LumberJack.splitShape, x,y,z)
+									if ly < 0.5 and lenAbove < 1 then
 										LumberJack.stumpGrindingFlag = true
 									else
-										local lenBelow, lenAbove = getSplitShapePlaneExtents(LumberJack.splitShape, x,y,z, -yx,-yy,-yz)
-										local _,ly,_ = worldToLocal(LumberJack.splitShape, x,y,z)
-										if ly < 0.5 and lenAbove < 1 then
-											LumberJack.stumpGrindingFlag = true
-										else
-											LumberJack.stumpGrindingFlag = false
-										end
-										if LumberJack.showDebug then
-											g_currentMission:addExtraPrintText(string.format("below:%.3f   above:%.3f   ly:%.3f", lenBelow,lenAbove,ly))
-										end
+										LumberJack.stumpGrindingFlag = false
 									end
-								else
-									LumberJack.stumpGrindingFlag = false
+									if LumberJack.showDebug then
+										g_currentMission:addExtraPrintText(string.format("below:%.3f   above:%.3f   ly:%.3f", lenBelow,lenAbove,ly))
+									end
 								end
+							else
+								LumberJack.stumpGrindingFlag = false
 							end
+
 
 							if LumberJack.stumpGrindingFlag and g_currentMission:getHasPlayerPermission("cutTrees") then
 							-- SHOW RED RING SELECTOR
