@@ -25,8 +25,9 @@ LumberJack.stumpGrindingFlag = false
 LumberJack.useChainsawFlag = false
 LumberJack.splitShape = 0
 LumberJack.maxWoodchips = 2000
-LumberJack.showDebug = false
-LumberJack.allowBushCutting = true
+LumberJack.showDebug = true
+-- 0=off, otherwise area is n by n meter
+LumberJack.bushCuttingArea = 2
 LumberJack.bushCuttingFlag = true
 LumberJack.initialised = false
 -- LumberJack.superStrengthActivatesCutAnywhere = true
@@ -140,6 +141,9 @@ function LumberJack:loadMap(name)
 		pdlc_forestryPack.SprayCan.getIsSprayingAllowed = Utils.overwrittenFunction(pdlc_forestryPack.SprayCan.getIsSprayingAllowed, LumberJack.isSprayingAllowed)
 	end
 
+	-- tap into raycast
+	Chainsaw.cutRaycastCallback = Utils.prependedFunction(Chainsaw.cutRaycastCallback, LumberJack.checkForStump)
+
 	-- ADD SHORTCUT KEY SELECTION TO OPTIONS MENU
 	Player.registerActionEvents = Utils.appendedFunction(Player.registerActionEvents, LumberJack.registerActionEvents)
 
@@ -234,15 +238,16 @@ function LumberJack.getNonMowableDecoFunction()
 	return functionData
 end
 
-function LumberJack:removeNonMowableDeco(startWorldX, startWorldZ, dirX, dirZ)
+function LumberJack:removeNonMowableDeco(startWorldX, startWorldZ)
 	local functionData = LumberJack.getNonMowableDecoFunction()
 
 	if functionData ~= nil then
+		local h=LumberJack.bushCuttingArea/2
 		for index, decoFilter in pairs(functionData.decoFilters) do
 			local decoModifier = functionData.decoModifiers[index]
 
 			if decoModifier ~= nil and decoFilter ~= nil then
-				decoModifier:setParallelogramWorldCoords(startWorldX+dirX, startWorldZ+dirZ, startWorldX + dirZ, startWorldZ - dirX, startWorldX - dirZ, startWorldZ + dirX, DensityCoordType.POINT_POINT_POINT)
+				decoModifier:setParallelogramWorldCoords(startWorldX-h, startWorldZ-h, startWorldX+h, startWorldZ-h, startWorldX-h, startWorldZ+h, DensityCoordType.POINT_POINT_POINT)
 				decoModifier:executeSet(0, decoFilter)
 			end
 		end
@@ -250,15 +255,30 @@ function LumberJack:removeNonMowableDeco(startWorldX, startWorldZ, dirX, dirZ)
 
 end
 
-function LumberJack:hasNonMowableDeco(startWorldX, startWorldZ, dirX, dirZ)
-	--local a,b,c = FSDensityMapUtil.getBushDensity(startWorldX+dirX, startWorldZ+dirZ, startWorldX + dirZ, startWorldZ - dirX, startWorldX - dirZ, startWorldZ + dirX)
-	--DebugUtil.drawDebugParallelogram(startWorldX+dirX, startWorldZ+dirZ, dirZ-dirX, -dirX-dirZ, -dirZ-dirX, dirX-dirZ, 0.1, 1,0,0, 1, false)
-
+function LumberJack:hasNonMowableDeco(startWorldX, startWorldZ)
 	local bushId = getTerrainDataPlaneByName(g_currentMission.terrainRootNode, "decoBush")
-	local bits = getDensityAtWorldPos(bushId, startWorldX, 0, startWorldZ)
---	Logging.info("hasNonMowableDeco: %f %f", bitAND(bits, 15), bitShiftRight(bits,4))
+	local found = false
+	local n=LumberJack.bushCuttingArea
+	for x = -n, n do
+		for z = -n, n do
+			local bits = getDensityAtWorldPos(bushId, startWorldX+x*.5, 0, startWorldZ+z*.5)
 
-	return bitAND(bits, 15) == 3
+			if LumberJack.showDebug then
+				local rx,rz = math.floor((startWorldX+x*.5)*2)/2+0.05, math.floor((startWorldZ+z*.5)*2)/2+0.05
+				if bitAND(bits, 15) == 3 then
+					found = true
+					DebugUtil.drawDebugAreaRectangle(rx,0,rz, rx+.4,0,rz, rx,0,rz+.4, true, 0,1,0)
+				else
+					DebugUtil.drawDebugAreaRectangle(rx,0,rz, rx+.4,0,rz, rx,0,rz+.4, true, 1,0,0)
+				end
+				local yg=getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, rx+.2,0,rz+.2)
+				Utils.renderTextAtWorldPosition(rx+.2, yg+0.1, rz+.2, string.format("%d %d", bitAND(bits, 15), bitShiftRight(bits,4)), getCorrectTextSize(0.012), 0, {1,1,1})
+			elseif bitAND(bits, 15) == 3 then
+				return true
+			end
+		end
+	end
+	return found
 end
 
 
@@ -268,7 +288,7 @@ function LumberJack:resetRingSelector(dt)
 	local parent = getParent(self.ringSelector)
 
 	-- target position
-	local tx,ty,tz = localToLocal(self.chainsawCameraFocus, parent, 0, 0, -0.3)
+	local tx,ty,tz = localToLocal(self.chainsawCameraFocus, parent, 0, 0, -0.2)
 
 	-- move center of ring selector to ground level, if it would be below
 	local wx,wy,wz = localToWorld(parent, tx,ty,tz)
@@ -318,6 +338,7 @@ function LumberJack:resetRingSelector(dt)
 end
 
 function LumberJack:checkForStump(hitObjectId)
+	LumberJack.splitShape = 0
 	if hitObjectId == nil or hitObjectId == 0 then
 		return
 	end
@@ -332,14 +353,8 @@ function LumberJack:checkForStump(hitObjectId)
 	local isStump = isSplit and isStatic
 	-- but with superStrength we also want to grind logs or full trees away
 	if isStump or LumberJack.superStrength then
-		-- if no object was found so far or the current one is a stump
-		-- that means: keep the first found object, or the last found stump
-		-- also means: if there is a log and a stump, never choose the log
-		if self.splitShape == 0 or isStump then
-			self.splitShape = hitObjectId
-		end
+		LumberJack.splitShape = hitObjectId
 	end
-
 end
 
 function LumberJack:update(dt)
@@ -481,64 +496,37 @@ function LumberJack:update(dt)
 					--print("CHAINSAW NOT CUTTING")
 					if hTool.ringSelector ~= nil and hTool.ringSelector ~= 0 then
 						if getVisibility(hTool.ringSelector) == false then
-							setVisibility(hTool.ringSelector, true)
+							if hTool.cutFocusDistance < hTool.maxCutDistance and hTool.cutFocusDistance > 0 then
+								setVisibility(hTool.ringSelector, true)
 
-							-- slide ringSelector into default position
-							LumberJack.resetRingSelector(hTool, dt)
+								-- slide ringSelector into default position
+								LumberJack.resetRingSelector(hTool, dt)
 
-							LumberJack.splitShape = 0
-
-							local rotX,rotY,rotZ = 0,0,0
-							local extendX,extendY,extendZ = 0.005, 0.005, 0.005
-							local rx,ry,rz = getWorldTranslation(hTool.ringSelector)
-
-							-- the callback will set LumberJack.splitShape, if it finds a stump
-							overlapBox(rx,ry,rz, rotX, rotY, rotZ, extendX, extendY, extendZ, "checkForStump", self, CollisionFlag.TREE, true, true, true)
-
-							if LumberJack.showDebug then
-								DebugUtil.drawOverlapBox(rx,ry,rz, rotX, rotY, rotZ, extendX, extendY, extendZ, .3,.3,.3)
-							end
-
-							if LumberJack.splitShape~=0 then
-								if LumberJack.superStrength then
+								if LumberJack.splitShape~=0 and hTool.cutFocusDistance>0 then
 									LumberJack.stumpGrindingFlag = true
 								else
-									-- Y of ground at ringSelector center
-									local yg=getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, rx, 0, rz)
-									local lenBelow, lenAbove = getSplitShapePlaneExtents(LumberJack.splitShape, 0,yg,0, 0, 1, 0)
-
-									if lenAbove < 0.65 then
-										LumberJack.stumpGrindingFlag = true
-									else
-										LumberJack.stumpGrindingFlag = false
-										if LumberJack.showDebug then
-											g_currentMission:addExtraPrintText("stump too tall")
-										end
-									end
+									LumberJack.stumpGrindingFlag = false
 									if LumberJack.showDebug then
-										g_currentMission:addExtraPrintText(string.format("below:%.3f   above:%.3f", lenBelow,lenAbove))
+										g_currentMission:addExtraPrintText("no stump found")
 									end
 								end
-							else
-								LumberJack.stumpGrindingFlag = false
-								if LumberJack.showDebug then
-									g_currentMission:addExtraPrintText("no stump found")
+
+								if LumberJack.bushCuttingArea>0 and not LumberJack.stumpGrindingFlag then
+									local rx, _, rz = getWorldTranslation(hTool.ringSelector)
+
+									LumberJack.bushCuttingFlag = LumberJack:hasNonMowableDeco(rx, rz)
 								end
-							end
 
-							if LumberJack.allowBushCutting and not LumberJack.stumpGrindingFlag then
-								local dirX, dirZ = MathUtil.getDirectionFromYRotation(g_currentMission.player.rotY)
-								local rx, _, rz = getWorldTranslation(hTool.ringSelector)
-
-								LumberJack.bushCuttingFlag = LumberJack:hasNonMowableDeco(rx, rz, dirX, dirZ)
-							end
-
-							if (LumberJack.stumpGrindingFlag and g_currentMission:getHasPlayerPermission("cutTrees")) or LumberJack.bushCuttingFlag then
-							-- SHOW RED RING SELECTOR
-								setShaderParameter(hTool.ringSelector, "colorScale", 0.8, 0.05, 0.05, 1.0, false)
-							else
-							-- SHOW GREY RING SELECTOR
-								setShaderParameter(hTool.ringSelector, "colorScale", 0.15, 0.15, 0.15, 1.0, false)
+								if LumberJack.stumpGrindingFlag and g_currentMission:getHasPlayerPermission("cutTrees") then
+									-- SHOW RED RING SELECTOR
+									setShaderParameter(hTool.ringSelector, "colorScale", 0.8, 0.05, 0.05, 1.0, false)
+								elseif LumberJack.bushCuttingFlag then
+									-- SHOW GREEN RING SELECTOR
+									setShaderParameter(hTool.ringSelector, "colorScale", 0.2, 0.8, 0.05, 1.0, false)
+								else
+									-- SHOW GREY RING SELECTOR
+									setShaderParameter(hTool.ringSelector, "colorScale", 0.15, 0.15, 0.15, 1.0, false)
+								end
 							end
 
 						else
@@ -588,9 +576,8 @@ function LumberJack:update(dt)
 							hTool:updateParticles()
 							hTool.isCutting = false
 						else
-							local dirX, dirZ = MathUtil.getDirectionFromYRotation(g_currentMission.player.rotY)
 							local x, _, z = getWorldTranslation(hTool.ringSelector)
-							LumberJack:removeNonMowableDeco(x, z, dirX, dirZ)
+							LumberJack:removeNonMowableDeco(x, z)
 							LumberJack.stumpGrindingTime = 0
 							LumberJack.bushCuttingFlag = false
 							g_currentMission.player:lockInput(false)
