@@ -256,25 +256,90 @@ function LumberJack:hasNonMowableDeco(startWorldX, startWorldZ, dirX, dirZ)
 
 	local bushId = getTerrainDataPlaneByName(g_currentMission.terrainRootNode, "decoBush")
 	local bits = getDensityAtWorldPos(bushId, startWorldX, 0, startWorldZ)
-	Logging.info("hasNonMowableDeco: %f %f", bitAND(bits, 15), bitShiftRight(bits,4))
+--	Logging.info("hasNonMowableDeco: %f %f", bitAND(bits, 15), bitShiftRight(bits,4))
 
 	return bitAND(bits, 15) == 3
 end
 
-function LumberJack:updateRingSelector(minY, maxY, minZ, maxZ)
-	local scale = math.max(maxY - minY, maxZ - minZ) + self.ringSelectorScaleOffset
+
+function LumberJack:resetRingSelector(dt)
+	local x,y,z = getTranslation(self.ringSelector)
+	local _,scale,_ = getScale(self.ringSelector)
+	local parent = getParent(self.ringSelector)
+
+	-- target position
+	local tx,ty,tz = localToLocal(self.chainsawCameraFocus, parent, 0, 0, -0.3)
+
+	-- move center of ring selector to ground level, if it would be below
+	local wx,wy,wz = localToWorld(parent, tx,ty,tz)
+	local yg=getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, wx,0,wz)
+	if wy < yg then
+		tx,ty,tz = worldToLocal(parent, wx,yg,wz)
+	end
+
+	-- difference between current and target
+	local dx,dy,dz,ds = tx-x, ty-y, tz-z, 1-scale
+
+	local len = math.sqrt(dx*dx+dy*dy+dz*dz+ds*ds)
+
+	-- if we are almost there, snap to target
+	if len<0.01 then
+		LumberJack.resetRingSelectorSpeed=nil
+		setTranslation(self.ringSelector, tx,ty,tz)
+		setScale(self.ringSelector, 1,1,1)
+		return
+	end
+
+	-- get movement speed
+	local speed=LumberJack.resetRingSelectorSpeed
+	if speed==nil then
+		speed=0.0006*dt
+	end
+
+	-- if we would overshoot, snap to target
+	if speed>=len then
+		speed=len
+		LumberJack.resetRingSelectorSpeed=nil
+		setTranslation(self.ringSelector, tx,ty,tz)
+		setScale(self.ringSelector, 1,1,1)
+		return
+	end
+
+	-- calculate new position and scale
+	-- we should probably incorporate dt into the factor to make it framerate independent
+	local f=speed/len
+	x,y,z,scale=x+dx*f,y+dy*f,z+dz*f,scale+ds*f
+
+	-- increase speed for next step
+	LumberJack.resetRingSelectorSpeed=speed+0.0006*dt
 
 	setScale(self.ringSelector, 1, scale, scale)
-
-	local a, b, c = localToWorld(self.chainsawSplitShapeFocus, 0, (minY + maxY) * 0.5, (minZ + maxZ) * 0.5)
-	local x, y, z = worldToLocal(getParent(self.ringSelector), a, b, c)
-
-	setTranslation(self.ringSelector, x, y, z)
+	setTranslation(self.ringSelector, x,y,z)
 end
 
-function LumberJack:resetRingSelector(size, yo, zo)
-	setScale(self.ringSelector, 1, size, size)
-	setTranslation(self.ringSelector, 0, size*.5-yo, size*.5-zo)
+function LumberJack:checkForStump(hitObjectId)
+	if hitObjectId == nil or hitObjectId == 0 then
+		return
+	end
+
+	local isSplitShape = getHasClassId(hitObjectId, ClassIds.MESH_SPLIT_SHAPE)
+	if not isSplitShape then
+		return
+	end
+
+	local isSplit = getIsSplitShapeSplit(hitObjectId)
+	local isStatic = getRigidBodyType(hitObjectId) == RigidBodyType.STATIC
+	local isStump = isSplit and isStatic
+	-- but with superStrength we also want to grind logs or full trees away
+	if isStump or LumberJack.superStrength then
+		-- if no object was found so far or the current one is a stump
+		-- that means: keep the first found object, or the last found stump
+		-- also means: if there is a log and a stump, never choose the log
+		if self.splitShape == 0 or isStump then
+			self.splitShape = hitObjectId
+		end
+	end
+
 end
 
 function LumberJack:update(dt)
@@ -358,10 +423,12 @@ function LumberJack:update(dt)
 		end
 
 		-- DESTROY SMALL LOGS WHEN USING THE CHAINSAW --
+		local chainsawEquipped = false
 		if g_currentMission.player:hasHandtoolEquipped() then
 			local hTool = g_currentMission.player.baseInformation.currentHandtool
 
 			if hTool ~= nil and hTool.ringSelector ~= nil and hTool.chainsawSplitShapeFocus ~= nil then
+				chainsawEquipped = true
 
 				if LumberJack.originalDefaultCutDuration == nil then
 					LumberJack.originalDefaultCutDuration = hTool.defaultCutDuration
@@ -418,113 +485,74 @@ function LumberJack:update(dt)
 						if getVisibility(hTool.ringSelector) == false then
 							setVisibility(hTool.ringSelector, true)
 
-							-- Find the splitShape from chainsawSplitShapeFocus
+							-- hTool.ringSelector will be destroyed and recreated
+							-- apparently it also deletes our node, so we need to recreate it
+							if LumberJack.overlapNode == nil then
+								LumberJack.overlapNode = createTransformGroup("overlapNode")
+								link(hTool.ringSelector, LumberJack.overlapNode)
+							end
+
+							-- slide ringSelector into default position
+							LumberJack.resetRingSelector(hTool, dt)
+
+							-- obtain terrain normal vector
+							local cx, _, cz = getWorldTranslation(hTool.ringSelector)
+							local tnx,tny,tnz = getTerrainNormalAtWorldPos(g_currentMission.terrainRootNode, cx, 0, cz)
+
+							-- obtain ringSelector normal vector
+							local rsnx, rsny, rsnz = MathUtil.vector3Normalize(localDirectionToWorld(hTool.ringSelector, 1,0,0))
+
+							-- calculate ringSelector forward vector, which is perpendicular to world up vector: rsf = up x rsn
+							-- would be better to use terrain normal instead of up, but I don't know how to get it
+							local rsfx, rsfy, rsfz = MathUtil.crossProduct(tnx,tny,tnz, rsnx,rsny,rsnz)
+							-- calculate ringSelector up vector, which is perpendicular to forward and normal: rsu = rnx x rsf
+							local rsux, rsuy, rsuz = MathUtil.crossProduct(rsnx,rsny,rsnz, rsfx, rsfy, rsfz)
+							-- rotate overlapNode to rsf and rsu, which is in the same place as the ringSelector, only with different rotation
+							I3DUtil.setWorldDirection(LumberJack.overlapNode, rsfx,rsfy,rsfz, rsux,rsuy,rsuz)
+							-- we did all that mostly to get the correct rotation for the overlapBox
+							local rotX, rotY, rotZ = getWorldRotation(LumberJack.overlapNode)
+							-- very thin, half height, full depth
+							local extendX, extendY, extendZ = .005, .2, .3
+
 							LumberJack.splitShape = 0
-							local x,y,z = getWorldTranslation(hTool.chainsawSplitShapeFocus)
-							local xx,xy,xz = localDirectionToWorld(hTool.chainsawSplitShapeFocus, 1,0,0)
-							local yx,yy,yz = localDirectionToWorld(hTool.chainsawSplitShapeFocus, 0,1,0)
-							local zx,zy,zz = localDirectionToWorld(hTool.chainsawSplitShapeFocus, 0,0,1)
-							local size = 2
+							-- we only want the upper half of the ringSelector, and its center is 1/4th in its up direction
+							local ox,oy,oz = localToWorld(LumberJack.overlapNode, 0, 0.25, 0)
 
-							-- chainsawSplitShapeFocus and ringSelector represent a plane with X as the normal
-							-- so P0(x0,y0,z0) is the point on that plane closest to the camera
-							local zs = 0.45
-							local ys = zs
-							local x0 = x - zx * zs - yx * ys
-							local y0 = y - zy * zs - yy * ys
-							local z0 = z - zz * zs - yz * ys
+							rotX,rotY,rotZ = 0,0,0
+							extendX,extendY,extendZ = 0.005, 0.005, 0.005
+							ox,oy,oz = getWorldTranslation(hTool.ringSelector)
 
-							-- this 'if' is always true because we are setting splitShape to 0 above and it is not changed in between
-							if LumberJack.splitShape==0 then
-								local minY, maxY, minZ, maxZ
+							-- the callback will set LumberJack.splitShape, if it finds a stump
+							overlapBox(ox,oy,oz, rotX, rotY, rotZ, extendX, extendY, extendZ, "checkForStump", self, CollisionFlag.TREE, true, true, true)
 
-								-- findSplitShape(P, N, Y, sizeY, sizeZ): N is the normal and needs to be the X vector of the ringSelector
-								-- we are starting from top-close point P0 and extend a plane down and away
-								local bx,by,bz = x0+zx*size, y0+zy*size, z0+zz*size
-								local dx,dy,dz = x0+yx*size, y0+yy*size, z0+yz*size
-								local bdx,bdy,bdz = bx+yx*size, by+yy*size, bz+yz*size
-								if LumberJack.showDebug then
-									-- show search area
-									drawDebugLine(x0,y0,z0, 0,1,0, bx,by,bz, 0,1,0)
-									drawDebugLine(x0,y0,z0, 0,0,1, dx,dy,dz, 0,0,1)
-									drawDebugLine(bdx,bdy,bdz, 0,1,0, dx,dy,dz, 0,1,0)
-									drawDebugLine(bdx,bdy,bdz, 0,0,1, bx,by,bz, 0,0,1)
-								end
+							if LumberJack.showDebug then
+								DebugUtil.drawOverlapBox(ox,oy,oz, rotX, rotY, rotZ, extendX, extendY, extendZ, .3,.3,.3)
+							end
 
-								LumberJack.splitShape, minY, maxY, minZ, maxZ = findSplitShape(x0, y0, z0, xx, xy, xz, yx, yy, yz, size, size)
-								if LumberJack.showDebug and minY ~= nil then
-									-- show found split
-									drawDebugLine(x0+yx*minY,y0+yy*minY,z0+yz*minY, 0,1,0, bx+yx*minY,by+yy*minY,bz+yz*minY, 0,1,0)
-									drawDebugLine(x0+yx*maxY,y0+yy*maxY,z0+yz*maxY, 0,1,0, bx+yx*maxY,by+yy*maxY,bz+yz*maxY, 0,1,0)
-									drawDebugLine(x0+zx*minZ,y0+zy*minZ,z0+zz*minZ, 0,0,1, dx+zx*minZ,dy+zy*minZ,dz+zz*minZ, 0,0,1)
-									drawDebugLine(x0+zx*maxZ,y0+zy*maxZ,z0+zz*maxZ, 0,0,1, dx+zx*maxZ,dy+zy*maxZ,dz+zz*maxZ, 0,0,1)
-								end
-								local isSplit = getIsSplitShapeSplit(LumberJack.splitShape)
-								local isStatic = getRigidBodyType(LumberJack.splitShape) == RigidBodyType.STATIC
-
-								if LumberJack.splitShape == 0 then
-									LumberJack.resetRingSelector(hTool, size, ys, zs)
-									if LumberJack.showDebug then
-										g_currentMission:addExtraPrintText("nothing found")
-									end
-								elseif not isSplit then
-									-- found a tree, but we want to ignore those
-									LumberJack.splitShape = 0
-									LumberJack.resetRingSelector(hTool, size, ys, zs)
-									if LumberJack.showDebug then
-										g_currentMission:addExtraPrintText("found tree")
-									end
-								end
-
-								if LumberJack.splitShape~=0 then
-									-- calculate topmost point and compare against ground
-									local rx, ry, rz = x0+yx*minY+zx*minZ, y0+yy*minY+zy*minZ, z0+yz*minY+zz*minZ
-									local yg=getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, rx, 0, rz)
-									if LumberJack.showDebug then
-										DebugUtil.drawDebugGizmoAtWorldPos(rx,ry,rz, zx,zy,zz, yx,yy,yz, "R")
-									end
-
-									if ry-yg < 0.1 then
-										LumberJack.stumpGrindingFlag = false
-										LumberJack.resetRingSelector(hTool, size, ys, zs)
-										if LumberJack.showDebug then
-										    g_currentMission:addExtraPrintText("ringSelector below ground")
-										end
-									elseif LumberJack.superStrength then
-										LumberJack.stumpGrindingFlag = true
-										LumberJack.updateRingSelector(hTool, minY-ys, maxY-ys, minZ-zs, maxZ-zs)
-									elseif not isStatic then
-										-- found a log, but no superStrength, so we won't grind it away
-										LumberJack.stumpGrindingFlag = false
-										LumberJack.resetRingSelector(hTool, size, ys, zs)
-										if LumberJack.showDebug then
-											g_currentMission:addExtraPrintText("not a stump")
-										end
-									else
-										local midZ = (maxZ+minZ)*0.5
-										local midY = (maxY+minY)*0.5
-										local cx,cy,cz = x0+yx*midY+zx*midZ, y0+yy*midY+zy*midZ, z0+yz*midY+zz*midZ
-
-										local lenBelow, lenAbove = getSplitShapePlaneExtents(LumberJack.splitShape, cx,cy,cz, 0, 1, 0)
-										local _,ly,_ = worldToLocal(LumberJack.splitShape, cx,cy,cz)
-										-- ly+lenAbove is roughly the height of the stump above ground
-										if ly+lenAbove < 0.65 then
-											LumberJack.stumpGrindingFlag = true
-											LumberJack.updateRingSelector(hTool, minY-ys, maxY-ys, minZ-zs, maxZ-zs)
-										else
-											LumberJack.stumpGrindingFlag = false
-											LumberJack.resetRingSelector(hTool, size, ys, zs)
-											if LumberJack.showDebug then
-												g_currentMission:addExtraPrintText("stump too tall")
-											end
-										end
-										if LumberJack.showDebug then
-											g_currentMission:addExtraPrintText(string.format("below:%.3f   above:%.3f   ly:%.3f", lenBelow,lenAbove,ly))
-										end
-									end
+							if LumberJack.splitShape~=0 then
+								if LumberJack.superStrength then
+									LumberJack.stumpGrindingFlag = true
 								else
-									LumberJack.stumpGrindingFlag = false
-									LumberJack.resetRingSelector(hTool, size, ys, zs)
+									-- Y of ground at ringSelector center
+									local yg=getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, cx, 0, cz)
+
+									local lenBelow, lenAbove = getSplitShapePlaneExtents(LumberJack.splitShape, 0,yg,0, 0, 1, 0)
+									if lenAbove < 0.65 then
+										LumberJack.stumpGrindingFlag = true
+									else
+										LumberJack.stumpGrindingFlag = false
+										if LumberJack.showDebug then
+											g_currentMission:addExtraPrintText("stump too tall")
+										end
+									end
+									if LumberJack.showDebug then
+										g_currentMission:addExtraPrintText(string.format("below:%.3f   above:%.3f", lenBelow,lenAbove))
+									end
+								end
+							else
+								LumberJack.stumpGrindingFlag = false
+								if LumberJack.showDebug then
+									g_currentMission:addExtraPrintText("no stump found")
 								end
 							end
 
@@ -613,6 +641,10 @@ function LumberJack:update(dt)
 
 				end
 			end
+		end
+
+		if not chainsawEquipped and LumberJack.overlapNode ~= nil then
+			LumberJack.overlapNode = nil
 		end
 	end
 
