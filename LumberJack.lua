@@ -423,12 +423,10 @@ function LumberJack:update(dt)
 		end
 
 		-- DESTROY SMALL LOGS WHEN USING THE CHAINSAW --
-		local chainsawEquipped = false
 		if g_currentMission.player:hasHandtoolEquipped() then
 			local hTool = g_currentMission.player.baseInformation.currentHandtool
 
 			if hTool ~= nil and hTool.ringSelector ~= nil and hTool.chainsawSplitShapeFocus ~= nil then
-				chainsawEquipped = true
 
 				if LumberJack.originalDefaultCutDuration == nil then
 					LumberJack.originalDefaultCutDuration = hTool.defaultCutDuration
@@ -485,48 +483,20 @@ function LumberJack:update(dt)
 						if getVisibility(hTool.ringSelector) == false then
 							setVisibility(hTool.ringSelector, true)
 
-							-- hTool.ringSelector will be destroyed and recreated
-							-- apparently it also deletes our node, so we need to recreate it
-							if LumberJack.overlapNode == nil then
-								LumberJack.overlapNode = createTransformGroup("overlapNode")
-								link(hTool.ringSelector, LumberJack.overlapNode)
-							end
-
 							-- slide ringSelector into default position
 							LumberJack.resetRingSelector(hTool, dt)
 
-							-- obtain terrain normal vector
-							local cx, _, cz = getWorldTranslation(hTool.ringSelector)
-							local tnx,tny,tnz = getTerrainNormalAtWorldPos(g_currentMission.terrainRootNode, cx, 0, cz)
-
-							-- obtain ringSelector normal vector
-							local rsnx, rsny, rsnz = MathUtil.vector3Normalize(localDirectionToWorld(hTool.ringSelector, 1,0,0))
-
-							-- calculate ringSelector forward vector, which is perpendicular to world up vector: rsf = up x rsn
-							-- would be better to use terrain normal instead of up, but I don't know how to get it
-							local rsfx, rsfy, rsfz = MathUtil.crossProduct(tnx,tny,tnz, rsnx,rsny,rsnz)
-							-- calculate ringSelector up vector, which is perpendicular to forward and normal: rsu = rnx x rsf
-							local rsux, rsuy, rsuz = MathUtil.crossProduct(rsnx,rsny,rsnz, rsfx, rsfy, rsfz)
-							-- rotate overlapNode to rsf and rsu, which is in the same place as the ringSelector, only with different rotation
-							I3DUtil.setWorldDirection(LumberJack.overlapNode, rsfx,rsfy,rsfz, rsux,rsuy,rsuz)
-							-- we did all that mostly to get the correct rotation for the overlapBox
-							local rotX, rotY, rotZ = getWorldRotation(LumberJack.overlapNode)
-							-- very thin, half height, full depth
-							local extendX, extendY, extendZ = .005, .2, .3
-
 							LumberJack.splitShape = 0
-							-- we only want the upper half of the ringSelector, and its center is 1/4th in its up direction
-							local ox,oy,oz = localToWorld(LumberJack.overlapNode, 0, 0.25, 0)
 
-							rotX,rotY,rotZ = 0,0,0
-							extendX,extendY,extendZ = 0.005, 0.005, 0.005
-							ox,oy,oz = getWorldTranslation(hTool.ringSelector)
+							local rotX,rotY,rotZ = 0,0,0
+							local extendX,extendY,extendZ = 0.005, 0.005, 0.005
+							local rx,ry,rz = getWorldTranslation(hTool.ringSelector)
 
 							-- the callback will set LumberJack.splitShape, if it finds a stump
-							overlapBox(ox,oy,oz, rotX, rotY, rotZ, extendX, extendY, extendZ, "checkForStump", self, CollisionFlag.TREE, true, true, true)
+							overlapBox(rx,ry,rz, rotX, rotY, rotZ, extendX, extendY, extendZ, "checkForStump", self, CollisionFlag.TREE, true, true, true)
 
 							if LumberJack.showDebug then
-								DebugUtil.drawOverlapBox(ox,oy,oz, rotX, rotY, rotZ, extendX, extendY, extendZ, .3,.3,.3)
+								DebugUtil.drawOverlapBox(rx,ry,rz, rotX, rotY, rotZ, extendX, extendY, extendZ, .3,.3,.3)
 							end
 
 							if LumberJack.splitShape~=0 then
@@ -534,9 +504,9 @@ function LumberJack:update(dt)
 									LumberJack.stumpGrindingFlag = true
 								else
 									-- Y of ground at ringSelector center
-									local yg=getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, cx, 0, cz)
-
+									local yg=getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, rx, 0, rz)
 									local lenBelow, lenAbove = getSplitShapePlaneExtents(LumberJack.splitShape, 0,yg,0, 0, 1, 0)
+
 									if lenAbove < 0.65 then
 										LumberJack.stumpGrindingFlag = true
 									else
@@ -641,10 +611,6 @@ function LumberJack:update(dt)
 
 				end
 			end
-		end
-
-		if not chainsawEquipped and LumberJack.overlapNode ~= nil then
-			LumberJack.overlapNode = nil
 		end
 	end
 
