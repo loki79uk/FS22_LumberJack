@@ -25,7 +25,7 @@ LumberJack.stumpGrindingFlag = false
 LumberJack.useChainsawFlag = false
 LumberJack.splitShape = 0
 LumberJack.maxWoodchips = 2000
-LumberJack.showDebug = false
+LumberJack.showDebug = true
 LumberJack.initialised = false
 
 source(g_currentModDirectory .. 'LumberJackSettings.lua')
@@ -43,6 +43,45 @@ function LumberJack:isCuttingAllowed(superFunc, x, y, z, shape)
 	local canAccess = g_currentMission.accessHandler:canFarmAccessLand(self.player.farmId, x, z)
 	
 	return canCutTrees and ((canChainsaw and LumberJack.cutAnywhere) or canAccess)
+end
+
+-- DETECT SPLITSHAPES FROM CHAINSAW CALLBACK
+function LumberJack:cutRaycastCallback(hitObjectId, x, y, z, distance)
+	if hitObjectId ~= 0 and hitObjectId ~= nil then
+		if LumberJack.hitObjectId ~= hitObjectId then
+			if getHasClassId(hitObjectId, ClassIds.MESH_SPLIT_SHAPE) then
+				-- print("hitObjectId: " .. hitObjectId)
+				LumberJack.hitObjectId = hitObjectId
+			else
+				LumberJack.hitObjectId = 0
+			end
+		end
+	end
+end
+
+function LumberJack:updateCutRaycast()
+	if self.cutFocusDistance == -1 then
+		LumberJack.hitObjectId = 0
+	end
+end
+
+-- NEW ALTERNATIVE TO "FIND SPLIT SHAPE"
+function LumberJack:setSplitShape(rigidBodyType)
+	local objectId = LumberJack.hitObjectId
+	
+	if objectId~=nil and objectId~=0 and entityExists(objectId) 
+	and getRigidBodyType(objectId) == rigidBodyType then
+		if LumberJack.splitShape ~= objectId then
+			local isSplit = getIsSplitShapeSplit(objectId)
+			print("SET ObjectId = " .. objectId)
+			LumberJack.splitShape = objectId
+		end
+	else
+		if LumberJack.splitShape ~= 0 then
+			print("RESET " .. tostring(LumberJack.splitShape))
+			LumberJack.splitShape = 0
+		end
+	end
 end
 
 -- ALLOW TREE SPRAYING ANYWHERE ON THE MAP
@@ -126,6 +165,10 @@ function LumberJack:loadMap(name)
 	if pdlc_forestryPack~=nil and pdlc_forestryPack.SprayCan~=nil then
 		pdlc_forestryPack.SprayCan.getIsSprayingAllowed = Utils.overwrittenFunction(pdlc_forestryPack.SprayCan.getIsSprayingAllowed, LumberJack.isSprayingAllowed)
 	end
+
+	-- GET OBJECT FROM CHAINSAW RAYCAST
+	Chainsaw.updateCutRaycast = Utils.appendedFunction(Chainsaw.updateCutRaycast, LumberJack.updateCutRaycast)
+	Chainsaw.cutRaycastCallback = Utils.appendedFunction(Chainsaw.cutRaycastCallback, LumberJack.cutRaycastCallback)
 	
 	-- ADD SHORTCUT KEY SELECTION TO OPTIONS MENU
 	Player.registerActionEvents = Utils.appendedFunction(Player.registerActionEvents, LumberJack.registerActionEvents)
@@ -176,6 +219,31 @@ function LumberJack:toggleStrength(name, state)
 			end
 		end
 		
+	end
+end
+
+function LumberJack:drawDebug(hTool)
+	if LumberJack.showDebug then
+		local r = hTool.ringSelectorScaleOffset
+		local xx0,xy0,xz0 = 1,0,0
+		local yx0,yy0,yz0 = 0,1,0
+		local zx0,zy0,zz0 = 0,0,1
+		local x,y,z = getWorldTranslation(hTool.chainsawSplitShapeFocus)
+		local xx,xy,xz = localDirectionToWorld(hTool.chainsawSplitShapeFocus, xx0,xy0,xz0)
+		local yx,yy,yz = localDirectionToWorld(hTool.chainsawSplitShapeFocus, yx0,yy0,yz0)
+		local zx,zy,zz = localDirectionToWorld(hTool.chainsawSplitShapeFocus, zx0,zy0,zz0)
+		local x0 = x + yx*2*r + zx*r
+		local y0 = y + yy*2*r + zy*r
+		local z0 = z + yz*2*r + zz*r
+		Utils.renderTextAtWorldPosition(x0-xx0*r,y0-xy0*r,z0-xz0*r, "-x", getCorrectTextSize(0.012), 0)
+		Utils.renderTextAtWorldPosition(x0+xx0*r,y0+xy0*r,z0+xz0*r, "+x", getCorrectTextSize(0.012), 0)
+		Utils.renderTextAtWorldPosition(x0-yx0*r,y0-yy0*r,z0-yz0*r, "-y", getCorrectTextSize(0.012), 0)
+		Utils.renderTextAtWorldPosition(x0+yx0*r,y0+yy0*r,z0+yz0*r, "+y", getCorrectTextSize(0.012), 0)
+		Utils.renderTextAtWorldPosition(x0-zx0*r,y0-zy0*r,z0-zz0*r, "-z", getCorrectTextSize(0.012), 0)
+		Utils.renderTextAtWorldPosition(x0+zx0*r,y0+zy0*r,z0+zz0*r, "+z", getCorrectTextSize(0.012), 0)
+		drawDebugLine(x0-xx0*r,y0-xy0*r,z0-xz0*r,1,1,1,x0+xx0*r,y0+xy0*r,z0+xz0*r,1,1,1)
+		drawDebugLine(x0-yx0*r,y0-yy0*r,z0-yz0*r,1,1,1,x0+yx0*r,y0+yy0*r,z0+yz0*r,1,1,1)
+		drawDebugLine(x0-zx0*r,y0-zy0*r,z0-zz0*r,1,1,1,x0+zx0*r,y0+zy0*r,z0+zz0*r,1,1,1)
 	end
 end
 
@@ -298,12 +366,9 @@ function LumberJack:update(dt)
 				if hTool.isCutting then
 					--print("CHAINSAW CUTTING")				
 					if not LumberJack.useChainsawFlag then
-						-- Find the splitShape from chainsawSplitShapeFocus (lastFoundObject doesn't exist for client in multiplayer)
-						local x,y,z = getWorldTranslation(hTool.chainsawSplitShapeFocus)
-						local nx,ny,nz = localDirectionToWorld(hTool.chainsawSplitShapeFocus, 1,0,0)
-						local yx,yy,yz = localDirectionToWorld(hTool.chainsawSplitShapeFocus, 0,1,0)
-						local splitShape, minY, maxY, minZ, maxZ = findSplitShape(x,y,z, nx,ny,nz, yx,yy,yz, 5, 5)
-						if splitShape ~=0 then
+						LumberJack:setSplitShape(RigidBodyType.DYNAMIC)
+						if LumberJack.splitShape~=0 and entityExists(LumberJack.splitShape) then
+							local splitShape = LumberJack.splitShape
 							if getVolume(splitShape) < 0.100 then
 							-- DELETE THE SHAPE if too small to worry about (e.g. felling wedge or thin branch)
 								LumberJack:deleteSplitShape(splitShape)
@@ -320,63 +385,37 @@ function LumberJack:update(dt)
 						if getVisibility(hTool.ringSelector) == false then
 							setVisibility(hTool.ringSelector, true)
 							
-							-- Find the splitShape from chainsawSplitShapeFocus
-							local x,y,z = getWorldTranslation(hTool.chainsawSplitShapeFocus)
-							local xx,xy,xz = localDirectionToWorld(hTool.chainsawSplitShapeFocus, 1,0,0)
-							local yx,yy,yz = localDirectionToWorld(hTool.chainsawSplitShapeFocus, 0,1,0)
-							local zx,zy,zz = localDirectionToWorld(hTool.chainsawSplitShapeFocus, 0,0,1)
-							local size = 1.7
-
-							local x0 = x + yx*0.45 + zx*0.3
-							local y0 = y + yy*0.45 + zy*0.3
-							local z0 = z + yz*0.45 + zz*0.3
-							local xx0,xy0,xz0 = 1,0,0
-							local yx0,yy0,yz0 = 0,-1,0
-							local zx0,zy0,zz0 = 0,0,-1
-							if LumberJack.showDebug then
-								local r = hTool.ringSelectorScaleOffset
-								Utils.renderTextAtWorldPosition(x0-xx0*r,y0-xy0*r,z0-xz0*r, "-x", getCorrectTextSize(0.012), 0)
-								Utils.renderTextAtWorldPosition(x0+xx0*r,y0+xy0*r,z0+xz0*r, "+x", getCorrectTextSize(0.012), 0)
-								Utils.renderTextAtWorldPosition(x0-yx0*r,y0-yy0*r,z0-yz0*r, "-y", getCorrectTextSize(0.012), 0)
-								Utils.renderTextAtWorldPosition(x0+yx0*r,y0+yy0*r,z0+yz0*r, "+y", getCorrectTextSize(0.012), 0)
-								Utils.renderTextAtWorldPosition(x0-zx0*r,y0-zy0*r,z0-zz0*r, "-z", getCorrectTextSize(0.012), 0)
-								Utils.renderTextAtWorldPosition(x0+zx0*r,y0+zy0*r,z0+zz0*r, "+z", getCorrectTextSize(0.012), 0)
-							end
-
-							x = x0 - xx0*size/2 + yx0*0.45 - zx0*size/2
-							y = y0 - xy0*size/2 + yy0*0.45 - zy0*size/2
-							z = z0 - xz0*size/2 + yz0*0.45 - zz0*size/2
-							xx,xy,xz = xx0,xy0,xz0
-							yx,yy,yz = yx0,yy0,yz0
-							zx,zy,zz = zx0,zy0,zz0
-							if LumberJack.showDebug then
-								drawDebugLine(x,y,z,1,1,1,x+xx*size,y+xy*size,z+xz*size,1,1,1)
-								drawDebugLine(x,y,z,1,1,1,x+zx*size,y+zy*size,z+zz*size,1,1,1)
-								drawDebugLine(x+xx*size,y+xy*size,z+xz*size,1,1,1,x+xx*size+zx*size,y+xy*size+zy*size,z+xz*size+zz*size,1,1,1)
-								drawDebugLine(x+zx*size,y+zy*size,z+zz*size,1,1,1,x+xx*size+zx*size,y+xy*size+zy*size,z+xz*size+zz*size,1,1,1)
-							end
-							
-							LumberJack.splitShape, _, _, _, _ = findSplitShape(x,y,z, -yx,-yy,-yz, xx,xy,xz, size, size)
-							if LumberJack.splitShape~=0 then
-							
+							LumberJack:setSplitShape(RigidBodyType.STATIC)
+							if LumberJack.splitShape~=0 and entityExists(LumberJack.splitShape) then
 								if LumberJack.superStrength then
 									LumberJack.stumpGrindingFlag = true
 								else
-									local lenBelow, lenAbove = getSplitShapePlaneExtents(LumberJack.splitShape, x,y,z, -yx,-yy,-yz)
-									local _,ly,_ = worldToLocal(LumberJack.splitShape, x,y,z)
-									if ly < 0.5 and lenAbove < 1 then
+									local x0,y0,z0 = getWorldTranslation(LumberJack.splitShape)
+									local y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x0, y0, z0)
+									local lenBelow, lenAbove = getSplitShapePlaneExtents(LumberJack.splitShape, 0,y,0, 0,1,0)
+
+									if lenAbove < 0.65 then
 										LumberJack.stumpGrindingFlag = true
 									else
 										LumberJack.stumpGrindingFlag = false
+										if LumberJack.showDebug then
+											g_currentMission:addExtraPrintText("tree/stump too tall")
+										end
 									end
 									if LumberJack.showDebug then
-										g_currentMission:addExtraPrintText(string.format("below:%.3f   above:%.3f   ly:%.3f", lenBelow,lenAbove,ly))
+										g_currentMission:addExtraPrintText(string.format("below:%.3f   above:%.3f", lenBelow,lenAbove))
 									end
 								end
 							else
+								if LumberJack.splitShape ~= 0 then
+									print("NONE FOUND ObjectId = " .. LumberJack.splitShape)
+									LumberJack.splitShape = 0
+								end  
 								LumberJack.stumpGrindingFlag = false
+								if LumberJack.showDebug then
+									g_currentMission:addExtraPrintText("no split shape found")
+								end
 							end
-
 
 							if LumberJack.stumpGrindingFlag and g_currentMission:getHasPlayerPermission("cutTrees") then
 							-- SHOW RED RING SELECTOR
@@ -388,10 +427,14 @@ function LumberJack:update(dt)
 							
 						else
 							-- CHAINSAW HAS FOUND A PLACE TO CUT THE TREE
-							local x, y, z, nx, ny, nz, yx, yy, yz = hTool:getCutShapeInformation()
-							local shape, _, _, _, _ = findSplitShape(x, y, z, nx, ny, nz, yx, yy, yz, hTool.cutSizeY, hTool.cutSizeZ)
-							
-							if shape ~= nil and shape ~= 0 then
+							LumberJack:setSplitShape(RigidBodyType.DYNAMIC)
+							if LumberJack.splitShape~=0 and entityExists(LumberJack.splitShape) then
+								local shape = LumberJack.splitShape
+								if getVolume(shape) < 0.100 then
+									-- SHOW RED RING SELECTOR if too small to worry about (e.g. felling wedge or thin branch)
+									setShaderParameter(hTool.ringSelector, "colorScale", 0.8, 0.05, 0.05, 1.0, false)
+								end
+								
 								local cutStartX, cutStartY, cutStartZ, cutEndX, cutEndY, cutEndZ = hTool:getCutStartEnd()
 								local x0, y0, z0 = (cutStartX+cutEndX)/2, (cutStartY+cutEndY)/2, (cutStartZ+cutEndZ)/2
 								local below, above = getSplitShapePlaneExtents(shape, x0, y0, z0, localDirectionToWorld(shape, 0, 1, 0))
