@@ -247,6 +247,89 @@ function LumberJack:drawDebug(hTool)
 	end
 end
 
+function LumberJack:resetRingSelectorRaycastCallback(hitObjectId, x0, y0, z0, distance)
+	local x1,y1,z1 = getWorldTranslation(g_currentMission.player.rootNode)
+	LumberJack.chainsawCameraFocus = {x0, y0, z0}
+	if LumberJack.showDebug then
+		--print("RAYCAST: " .. x0 ..", " .. y0 .. ", " .. z0)
+		drawDebugLine(x0,y0,z0,0,1,1,x1,y1,z1,0,1,1)
+	end
+end
+
+function LumberJack.drawDebugRingSelector(x0, y0, z0, x1, y1, z1, r, g, b)
+	r, g, b = r or 1, g or 1, b or 1
+	if LumberJack.showDebug then
+		drawDebugLine(x0,y0,z0,r,g,b,x1,y1-0.005,z1,r,g,b)
+		drawDebugLine(x0,y0,z0,r,g,b,x1,y1+0.005,z1,r,g,b)
+	end
+end
+
+function LumberJack.moveRingSelector(hTool, x0, y0, z0)
+	LumberJack.moveChainsawCameraFocus(hTool, x0, y0, z0)
+	local x,y,z = worldToLocal(getParent(hTool.ringSelector), x0,y0,z0)
+	setTranslation(hTool.ringSelector, x,y,z)
+	setScale(hTool.ringSelector, 1, 1, 1)
+end
+
+function LumberJack.moveChainsawCameraFocus(hTool, x0, y0, z0)
+	local x,y,z = worldToLocal(getParent(hTool.chainsawCameraFocus), x0,y0,z0)
+	setTranslation(hTool.chainsawCameraFocus, x,y,z)
+end
+
+function LumberJack.updateRingSelector(hTool, dt)
+	
+	if hTool == nil then
+		return
+	end
+
+	local x0,y0,z0 = getWorldTranslation(hTool.chainsawCameraFocus)
+	local x1,y1,z1 = getWorldTranslation(hTool.player.cameraNode)
+
+	if x0==0 and y0==0 and z0==0 then
+
+		local x, y, z = getWorldTranslation(hTool.player.cameraNode)
+		local dx, dy, dz = unProject(0.52, 0.4, 1)
+		dx, dy, dz = MathUtil.vector3Normalize(dx, dy, dz)
+		local collisionMask = CollisionFlag.STATIC_WORLD + CollisionFlag.DYNAMIC_OBJECT + CollisionFlag.VEHICLE + CollisionFlag.PLAYER
+		raycastClosest(x, y, z, dx, dy, dz, "resetRingSelectorRaycastCallback", hTool.cutDetectionDistance, LumberJack, collisionMask)	
+		
+		local dx0, dy0, dz0 = unProject(0.52, 0.4, 1)
+		x0 = (LumberJack.chainsawCameraFocus[1] or 0) + dx0
+		y0 = (LumberJack.chainsawCameraFocus[2] or 0) + dy0
+		z0 = (LumberJack.chainsawCameraFocus[3] or 0) + dz0
+
+		local distance = math.sqrt((x1-x0)^2 + (y1-y0)^2 + (z1-z0)^2)
+		local r = hTool.cutDetectionDistance/distance
+		x0 = r*x0 + (1-r)*x1
+		y0 = r*y0 + (1-r)*y1
+		z0 = r*z0 + (1-r)*z1
+		--print("LINE OF SIGHT: " .. x0 ..", " .. y0 .. ", " .. z0)
+		
+		LumberJack.moveRingSelector(hTool, x0, y0, z0)
+		LumberJack.drawDebugRingSelector(x0, y0, z0, x1, y1, z1, 1, 0, 0)
+
+	else
+		
+		local Y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x0,y0,z0)
+		if y0 < Y+0.01 then
+			y0 = Y+0.01
+			LumberJack.moveRingSelector(hTool, x0, y0, z0)
+		end
+		
+		LumberJack.drawDebugRingSelector(x0, y0, z0, x1, y1, z1, 0, 0, 1)
+		LumberJack.chainsawCameraFocus = {x0, y0, z0}
+	end
+	
+	setVisibility(hTool.ringSelector, true)
+	
+	local distance = math.sqrt((x1-x0)^2 + (y1-y0)^2 + (z1-z0)^2)
+	local d = distance/hTool.cutDetectionDistance
+	print("D: " .. d)
+	
+	setShaderParameter(hTool.ringSelector, "colorScale", 1, 1, 1, 1.0, false)
+	
+end
+
 function LumberJack:update(dt)
 	-- Dedicated Server has no player
 	if g_currentMission.player==nil or g_currentMission.player.controllerIndex==0 then
@@ -333,6 +416,13 @@ function LumberJack:update(dt)
 		
 			if hTool ~= nil and hTool.ringSelector ~= nil and hTool.chainsawSplitShapeFocus ~= nil then
 			
+				if not LumberJack.equipChainsawFlag then
+					-- RESET WHEN USING A CHAINSAW FOR THE FIRST TIME
+					LumberJack.equipChainsawFlag = true
+					LumberJack.moveRingSelector(hTool, 0, 0, 0)
+					LumberJack.updateRingSelector(hTool, dt)
+				end
+			
 				if LumberJack.originalDefaultCutDuration == nil then
 					LumberJack.originalDefaultCutDuration = hTool.defaultCutDuration
 					LumberJack.originalMinCutDistance = hTool.minCutDistance
@@ -383,8 +473,10 @@ function LumberJack:update(dt)
 					--print("CHAINSAW NOT CUTTING")		
 					if hTool.ringSelector ~= nil and hTool.ringSelector ~= 0 then	
 						if getVisibility(hTool.ringSelector) == false then
-							setVisibility(hTool.ringSelector, true)
-							
+						
+							--setVisibility(hTool.ringSelector, true)
+							LumberJack.updateRingSelector(hTool, dt)
+
 							LumberJack:setSplitShape(RigidBodyType.STATIC)
 							if LumberJack.splitShape~=0 and entityExists(LumberJack.splitShape) then
 								if LumberJack.superStrength then
@@ -420,9 +512,6 @@ function LumberJack:update(dt)
 							if LumberJack.stumpGrindingFlag and g_currentMission:getHasPlayerPermission("cutTrees") then
 							-- SHOW RED RING SELECTOR
 								setShaderParameter(hTool.ringSelector, "colorScale", 0.8, 0.05, 0.05, 1.0, false)
-							else
-							-- SHOW GREY RING SELECTOR
-								setShaderParameter(hTool.ringSelector, "colorScale", 0.15, 0.15, 0.15, 1.0, false)
 							end
 							
 						else
@@ -446,6 +535,19 @@ function LumberJack:update(dt)
 							end
 						end
 					end
+					
+					-- local x,y,z = getTranslation(hTool.ringSelector)
+					-- print("LOCAL ringSelector: " .. x ..", " .. y .. ", " .. z)
+					-- x,y,z = getTranslation(hTool.chainsawCameraFocus)
+					-- print("LOCAL chainsawCameraFocus: " .. x ..", " .. y .. ", " .. z)
+					-- x,y,z = getTranslation(hTool.chainsawSplitShapeFocus)
+					-- print("LOCAL chainsawSplitShapeFocus: " .. x ..", " .. y .. ", " .. z)
+					-- x,y,z = getWorldTranslation(hTool.ringSelector)
+					-- print("WORLD ringSelector: " .. x ..", " .. y .. ", " .. z)
+					-- x,y,z = getWorldTranslation(hTool.chainsawCameraFocus)
+					-- print("WORLD chainsawCameraFocus: " .. x ..", " .. y .. ", " .. z)
+					-- x,y,z = getWorldTranslation(hTool.chainsawSplitShapeFocus)
+					-- print("WORLD chainsawSplitShapeFocus: " .. x ..", " .. y .. ", " .. z)
 					
 					-- GRIND STUMPS USING THE CHAINSAW --
 					if LumberJack.stumpGrindingFlag and hTool.speedFactor > 0.1 and g_currentMission:getHasPlayerPermission("cutTrees") then
@@ -484,7 +586,11 @@ function LumberJack:update(dt)
 					end
 
 				end
+			else
+				LumberJack.equipChainsawFlag = false
 			end
+		else
+			LumberJack.equipChainsawFlag = false
 		end
 	end	
 	
