@@ -27,6 +27,7 @@ LumberJack.splitShape = 0
 LumberJack.maxWoodchips = 2000
 LumberJack.showDebug = true
 LumberJack.initialised = false
+LumberJack.chainsawCameraFocus = {0, 0, 0}
 
 source(g_currentModDirectory .. 'LumberJackSettings.lua')
 source(g_currentModDirectory .. 'events/DeleteShapeEvent.lua')
@@ -73,12 +74,12 @@ function LumberJack:setSplitShape(rigidBodyType)
 	and getRigidBodyType(objectId) == rigidBodyType then
 		if LumberJack.splitShape ~= objectId then
 			local isSplit = getIsSplitShapeSplit(objectId)
-			print("SET ObjectId = " .. objectId)
+			--print("SET ObjectId = " .. objectId)
 			LumberJack.splitShape = objectId
 		end
 	else
 		if LumberJack.splitShape ~= 0 then
-			print("RESET " .. tostring(LumberJack.splitShape))
+			--print("RESET ObjectId = " .. tostring(LumberJack.splitShape))
 			LumberJack.splitShape = 0
 		end
 	end
@@ -121,6 +122,7 @@ function LumberJack.playerGetDesiredSpeed(self, superFunc)
 	if LumberJack.originalWalkingSpeed == nil then
 		LumberJack.originalWalkingSpeed = self.motionInformation.maxWalkingSpeed
 		LumberJack.originalRunningSpeed = self.motionInformation.maxRunningSpeed
+		LumberJack.originalSwimmingSpeed = self.motionInformation.maxSwimmingSpeed
 	end
 	
 	if g_currentMission:getHasPlayerPermission("superSpeed") then
@@ -130,9 +132,15 @@ function LumberJack.playerGetDesiredSpeed(self, superFunc)
 		else
 			self.motionInformation.maxWalkingSpeed = LumberJack.maxWalkingSpeed
 		end
+		if self.baseInformation.isInWater and self.inputInformation.runAxis > 0 then
+			self.motionInformation.maxSwimmingSpeed = LumberJack.maxRunningSpeed*0.5
+		else
+			self.motionInformation.maxSwimmingSpeed = LumberJack.maxWalkingSpeed*0.8
+		end
 	else
 		self.motionInformation.maxWalkingSpeed = LumberJack.originalWalkingSpeed
 		self.motionInformation.maxRunningSpeed = LumberJack.originalRunningSpeed
+		self.motionInformation.maxSwimmingSpeed = LumberJack.originalSwimmingSpeed
 	end
 	
 	return superFunc(self)
@@ -294,9 +302,9 @@ function LumberJack.updateRingSelector(hTool, dt)
 		raycastClosest(x, y, z, dx, dy, dz, "resetRingSelectorRaycastCallback", hTool.cutDetectionDistance, LumberJack, collisionMask)	
 		
 		local dx0, dy0, dz0 = unProject(0.52, 0.4, 1)
-		x0 = (LumberJack.chainsawCameraFocus[1] or 0) + dx0
-		y0 = (LumberJack.chainsawCameraFocus[2] or 0) + dy0
-		z0 = (LumberJack.chainsawCameraFocus[3] or 0) + dz0
+		x0 = LumberJack.chainsawCameraFocus[1] + dx0
+		y0 = LumberJack.chainsawCameraFocus[2] + dy0
+		z0 = LumberJack.chainsawCameraFocus[3] + dz0
 
 		local distance = math.sqrt((x1-x0)^2 + (y1-y0)^2 + (z1-z0)^2)
 		local r = hTool.cutDetectionDistance/distance
@@ -324,7 +332,6 @@ function LumberJack.updateRingSelector(hTool, dt)
 	
 	local distance = math.sqrt((x1-x0)^2 + (y1-y0)^2 + (z1-z0)^2)
 	local d = distance/hTool.cutDetectionDistance
-	print("D: " .. d)
 	
 	setShaderParameter(hTool.ringSelector, "colorScale", 1, 1, 1, 1.0, false)
 	
