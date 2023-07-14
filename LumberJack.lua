@@ -25,7 +25,7 @@ LumberJack.stumpGrindingFlag = false
 LumberJack.useChainsawFlag = false
 LumberJack.splitShape = 0
 LumberJack.maxWoodchips = 2000
-LumberJack.showDebug = true
+LumberJack.showDebug = false
 LumberJack.initialised = false
 LumberJack.chainsawCameraFocus = {0, 0, 0}
 
