@@ -275,7 +275,8 @@ end
 function LumberJack.moveRingSelector(hTool, x0, y0, z0)
 	LumberJack.moveChainsawCameraFocus(hTool, x0, y0, z0)
 	local x,y,z = worldToLocal(getParent(hTool.ringSelector), x0,y0,z0)
-	setTranslation(hTool.ringSelector, x,y,z)
+	local _,_,zz = getWorldTranslation(getParent(hTool.ringSelector))
+	setTranslation(hTool.ringSelector, x,y,z+(z0-zz))
 	setScale(hTool.ringSelector, 1, 1, 1)
 end
 
