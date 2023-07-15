@@ -27,7 +27,6 @@ LumberJack.splitShape = 0
 LumberJack.maxWoodchips = 2000
 LumberJack.showDebug = false
 LumberJack.initialised = false
-LumberJack.chainsawCameraFocus = {0, 0, 0}
 
 source(g_currentModDirectory .. 'LumberJackSettings.lua')
 source(g_currentModDirectory .. 'events/DeleteShapeEvent.lua')
@@ -258,10 +257,10 @@ end
 function LumberJack:resetRingSelectorRaycastCallback(hitObjectId, x0, y0, z0, distance)
 	local x1,y1,z1 = getWorldTranslation(g_currentMission.player.rootNode)
 	LumberJack.chainsawCameraFocus = {x0, y0, z0}
-	if LumberJack.showDebug then
-		--print("RAYCAST: " .. x0 ..", " .. y0 .. ", " .. z0)
-		drawDebugLine(x0,y0,z0,0,1,1,x1,y1,z1,0,1,1)
-	end
+	--if LumberJack.showDebug then
+		--print("RAYCAST DISTANCE: " .. distance)
+		--drawDebugLine(x0,y0,z0,0,1,1,x1,y1,z1,0,1,1)
+	--end
 end
 
 function LumberJack.drawDebugRingSelector(x0, y0, z0, x1, y1, z1, r, g, b)
@@ -273,11 +272,12 @@ function LumberJack.drawDebugRingSelector(x0, y0, z0, x1, y1, z1, r, g, b)
 end
 
 function LumberJack.moveRingSelector(hTool, x0, y0, z0)
-	LumberJack.moveChainsawCameraFocus(hTool, x0, y0, z0)
-	local x,y,z = worldToLocal(getParent(hTool.ringSelector), x0,y0,z0)
-	local _,_,zz = getWorldTranslation(getParent(hTool.ringSelector))
-	setTranslation(hTool.ringSelector, x,y,z+(z0-zz))
-	setScale(hTool.ringSelector, 1, 1, 1)
+	if hTool ~= nil  and hTool.ringSelector then
+		LumberJack.moveChainsawCameraFocus(hTool, x0, y0, z0)
+		local x,y,z = worldToLocal(getParent(hTool.ringSelector), x0,y0,z0)
+		setTranslation(hTool.ringSelector, x,y,z+0.3)
+		setScale(hTool.ringSelector, 1, 1, 1)
+	end
 end
 
 function LumberJack.moveChainsawCameraFocus(hTool, x0, y0, z0)
@@ -293,40 +293,27 @@ function LumberJack.updateRingSelector(hTool, dt)
 
 	local x0,y0,z0 = getWorldTranslation(hTool.chainsawCameraFocus)
 	local x1,y1,z1 = getWorldTranslation(hTool.player.cameraNode)
-
-	if x0==0 and y0==0 and z0==0 then
-
-		local x, y, z = getWorldTranslation(hTool.player.cameraNode)
-		local dx, dy, dz = unProject(0.52, 0.4, 1)
-		dx, dy, dz = MathUtil.vector3Normalize(dx, dy, dz)
-		local collisionMask = CollisionFlag.STATIC_WORLD + CollisionFlag.DYNAMIC_OBJECT + CollisionFlag.VEHICLE + CollisionFlag.PLAYER
-		raycastClosest(x, y, z, dx, dy, dz, "resetRingSelectorRaycastCallback", hTool.cutDetectionDistance, LumberJack, collisionMask)	
-		
-		local dx0, dy0, dz0 = unProject(0.52, 0.4, 1)
-		x0 = LumberJack.chainsawCameraFocus[1] + dx0
-		y0 = LumberJack.chainsawCameraFocus[2] + dy0
-		z0 = LumberJack.chainsawCameraFocus[3] + dz0
-
-		local distance = math.sqrt((x1-x0)^2 + (y1-y0)^2 + (z1-z0)^2)
-		local r = hTool.cutDetectionDistance/distance
-		x0 = r*x0 + (1-r)*x1
-		y0 = r*y0 + (1-r)*y1
-		z0 = r*z0 + (1-r)*z1
-		--print("LINE OF SIGHT: " .. x0 ..", " .. y0 .. ", " .. z0)
-		
-		LumberJack.moveRingSelector(hTool, x0, y0, z0)
-		LumberJack.drawDebugRingSelector(x0, y0, z0, x1, y1, z1, 1, 0, 0)
-
-	else
-		
-		local Y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x0,y0,z0)
+	
+	LumberJack.chainsawCameraFocus = nil
+	local x, y, z = getWorldTranslation(hTool.player.cameraNode)
+	local dx, dy, dz = unProject(0.52, 0.4, 1)
+	dx, dy, dz = MathUtil.vector3Normalize(dx, dy, dz)
+	local collisionMask = CollisionFlag.DEFAULT + CollisionFlag.STATIC_WORLD + CollisionFlag.VEHICLE
+	raycastClosest(x, y, z, dx, dy, dz, "resetRingSelectorRaycastCallback", hTool.cutDetectionDistance, LumberJack, collisionMask)
+	
+	if LumberJack.chainsawCameraFocus ~= nil then
+		x0, y0, z0 = unpack(LumberJack.chainsawCameraFocus)
+		local Y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x0, y0, z0)
 		if y0 < Y+0.01 then
 			y0 = Y+0.01
-			LumberJack.moveRingSelector(hTool, x0, y0, z0)
 		end
-		
+		LumberJack.moveRingSelector(hTool, x0, y0, z0)
 		LumberJack.drawDebugRingSelector(x0, y0, z0, x1, y1, z1, 0, 0, 1)
-		LumberJack.chainsawCameraFocus = {x0, y0, z0}
+	else
+		local r = hTool.cutDetectionDistance
+		x0, y0, z0 = x+(dx*r), y+(dy*r), z+(dz*r)
+		LumberJack.moveRingSelector(hTool, x0, y0, z0)
+		LumberJack.drawDebugRingSelector(x0, y0, z0, x1, y1, z1, 1, 0, 0)
 	end
 	
 	setVisibility(hTool.ringSelector, true)
