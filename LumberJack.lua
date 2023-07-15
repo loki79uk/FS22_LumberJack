@@ -334,7 +334,7 @@ function LumberJack.updateRingSelector(hTool, dt)
 	local distance = math.sqrt((x1-x0)^2 + (y1-y0)^2 + (z1-z0)^2)
 	local d = distance/hTool.cutDetectionDistance
 	
-	setShaderParameter(hTool.ringSelector, "colorScale", 1, 1, 1, 1.0, false)
+	setShaderParameter(hTool.ringSelector, "colorScale", 0.15*(1+d), 0.15*(1+d), 0.15*(1+d), 1.0, false)
 	
 end
 
@@ -494,7 +494,7 @@ function LumberJack:update(dt)
 									local y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x0, y0, z0)
 									local lenBelow, lenAbove = getSplitShapePlaneExtents(LumberJack.splitShape, 0,y,0, 0,1,0)
 
-									if lenAbove < 0.65 then
+									if lenAbove < 1 then
 										LumberJack.stumpGrindingFlag = true
 									else
 										LumberJack.stumpGrindingFlag = false
