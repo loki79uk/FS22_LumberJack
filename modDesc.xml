@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
-<modDesc descVersion="74">
+<modDesc descVersion="75">
 	<author>loki_79</author>
-    <version>1.5.0.6</version>
+    <version>1.5.1.0</version>
 	<title>
 		<en>LumberJack</en>
 		<de>Holzfäller</de>
@@ -29,6 +29,11 @@ Features:
 - Chainsaw can remove stumps (grind for 3 seconds)
 
 Changelog:
+v1.5.1.0
+- Added support for FS22_PlayerSpeed and FS22_QuickCamera
+- Resolved conflict with FS22_EmergencyPack
+- Improved detection of trees and stumps
+- Improved visualisation of targeting marker
 v1.5.0.0
 - Added ability to run while holding a chainsaw
 - Added options in the main menu to configure strength and speed settings for the player
@@ -68,6 +73,11 @@ Merkmale:
 - Kettensäge kann Stümpfe entfernen (3 Sekunden schleifen)
 
 Changelog:
+v1.5.1.0
+- Unterstützung für FS22_PlayerSpeed und FS22_QuickCamera hinzugefügt
+- Konflikt mit FS22_EmergencyPack behoben
+- Verbesserte Erkennung von Bäumen und Baumstümpfen
+- Verbesserte Visualisierung der Zielmarkierung
 v1.5.0.0
 - Es wurde die Möglichkeit hinzugefügt, mit einer Kettensäge in der Hand zu laufen.
 - Optionen im Hauptmenü hinzugefügt, um die Stärke- und Geschwindigkeitseinstellungen für den Spieler zu konfigurieren
@@ -107,6 +117,11 @@ Caractéristiques:
 - La tronçonneuse permet d'enlever les souches (broyage pendant 3 secondes)
 
 Changelog:
+v1.5.1.0
+- Ajout du support pour FS22_PlayerSpeed et FS22_QuickCamera
+- Résolution du conflit avec FS22_EmergencyPack
+- Amélioration de la détection des arbres et des souches
+- Amélioration de la visualisation du marqueur de ciblage
 v1.5.0.0
 - Ajout de la possibilité de courir en tenant une tronçonneuse
 - Ajout d'options dans le menu principal pour configurer les paramètres de force et de vitesse du joueur
@@ -147,6 +162,11 @@ v1.1.0.0
 - бензопила может убирать пни (измельчать 3 секунды)
 
 Changelog:
+v1.5.1.0
+- Добавлена поддержка FS22_PlayerSpeed и FS22_QuickCamera
+- Устранен конфликт с FS22_EmergencyPack
+- Улучшено обнаружение деревьев и пней
+- Улучшена визуализация маркера прицеливания
 v1.5.0.0
 - Добавлена возможность бежать, держа в руках бензопилу
 - Добавлены опции в главном меню для настройки параметров силы и скорости игрока
@@ -187,6 +207,11 @@ Caratteristiche:
 - La motosega può rimuovere i ceppi (macinare per 3 secondi)
 
 Changelog:
+v1.5.1.0
+- Aggiunto il supporto per FS22_PlayerSpeed e FS22_QuickCamera
+- Risolto il conflitto con FS22_EmergencyPack
+- Migliorato il rilevamento di alberi e ceppi
+- Migliorata la visualizzazione dell'indicatore di puntamento
 v1.5.0.0
 - Aggiunta la possibilità di correre tenendo in mano una motosega
 - Aggiunte opzioni nel menu principale per configurare le impostazioni di forza e velocità per il giocatore
@@ -226,6 +251,11 @@ Funkce:
 - Motorová pila dokáže odstranit pařezy (brousit po dobu 3 sekund)
 
 Seznam změn:
+v1.5.1.0
+- Přidána podpora pro FS22_PlayerSpeed a FS22_QuickCamera
+- Vyřešen konflikt s FS22_EmergencyPack
+- Vylepšena detekce stromů a pařezů
+- Vylepšená vizualizace značky zaměření
 v1.5.0.0
 - Přidána možnost běhu s motorovou pilou v ruce
 - V hlavní nabídce byly přidány možnosti pro konfiguraci nastavení síly a rychlosti hráče
