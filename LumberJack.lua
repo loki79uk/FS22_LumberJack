@@ -165,16 +165,26 @@ function LumberJack.playerGetDesiredSpeed(self, superFunc)
 	end
 	
 	if g_currentMission:getHasPlayerPermission("superSpeed") then
+	
 		self.motionInformation.maxRunningSpeed = LumberJack.maxRunningSpeed
-		if self:hasHandtoolEquipped() and self.inputInformation.runAxis > 0 then
+		if self:hasHandtoolEquipped() and self.inputInformation.runAxis ~= 0 then
 			self.motionInformation.maxWalkingSpeed = LumberJack.maxRunningSpeed
 		else
 			self.motionInformation.maxWalkingSpeed = LumberJack.maxWalkingSpeed
 		end
-		if self.baseInformation.isInWater and self.inputInformation.runAxis > 0 then
+		if self.baseInformation.isInWater and self.inputInformation.runAxis ~= 0 then
 			self.motionInformation.maxSwimmingSpeed = LumberJack.maxRunningSpeed*0.5
 		else
 			self.motionInformation.maxSwimmingSpeed = LumberJack.maxWalkingSpeed*0.8
+		end
+		if self.inputInformation.moveRight ~= 0 then
+			local sidestepFactor = 1/3
+			if self.inputInformation.moveForward ~= 0 then
+				sidestepFactor = math.sqrt(2)/2
+			end
+			self.motionInformation.maxWalkingSpeed = self.motionInformation.maxWalkingSpeed*sidestepFactor
+			self.motionInformation.maxRunningSpeed = self.motionInformation.maxRunningSpeed*sidestepFactor
+			self.motionInformation.maxSwimmingSpeed = self.motionInformation.maxSwimmingSpeed*sidestepFactor
 		end
 	else
 		self.motionInformation.maxWalkingSpeed = LumberJack.originalWalkingSpeed
