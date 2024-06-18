@@ -42,7 +42,13 @@ function LumberJack:isCuttingAllowed(superFunc, x, y, z, shape)
 	local canChainsaw = g_currentMission:getHasPlayerPermission("chainsawSettings")
 	local canAccess = g_currentMission.accessHandler:canFarmAccessLand(self.player.farmId, x, z)
 	
-	return canCutTrees and ((canChainsaw and LumberJack.cutAnywhere) or canAccess)
+	local isAllowed = canCutTrees and ((canChainsaw and LumberJack.cutAnywhere) or canAccess)
+	if isAllowed then
+		return true
+	else
+		return superFunc(self, x, y, z, shape)
+	end
+
 end
 
 -- DETECT SPLITSHAPES FROM CHAINSAW CALLBACK
