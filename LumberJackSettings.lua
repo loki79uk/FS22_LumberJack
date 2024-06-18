@@ -12,7 +12,9 @@ LumberJack.menuItems = {
 	'normalDistanceValue',
 	'cutAnywhere',
 	'maxCutDistance',
-	'defaultCutDuration'
+	'defaultCutDuration',
+	'destroyFoliageSize',
+	'showDebug'
 }
 
 LumberJack.multiplayerPermissions = {
@@ -52,6 +54,23 @@ LumberJack.SETTINGS.createWoodchips = {
 		g_i18n:getText("ui_on")
 	}
 }
+LumberJack.SETTINGS.destroyFoliageSize = {
+-- LumberJack.destroyFoliageSize = 2
+	['default'] = 1,
+	['serverOnly'] = true,
+	['values'] = {0,1,1.5,2,2.5,3,4,5},
+	['strings'] = {
+	g_i18n:getText("ui_off"),
+	"1m",
+	"1.5m",
+	"2m",
+	"2.5m",
+	"3m",
+	"4m",
+	"5m"
+	}
+}
+
 
 --PLAYER
 LumberJack.SETTINGS.cutAnywhere = {

@@ -23,6 +23,8 @@ LumberJack.defaultCutDuration = 4
 LumberJack.stumpGrindingTime = 0
 LumberJack.stumpGrindingPossible = false
 LumberJack.useChainsawFlag = false
+LumberJack.destroyFoliageSize = 2
+LumberJack.bushCuttingPossible = false
 LumberJack.splitShape = 0
 LumberJack.maxWoodchips = 2000
 LumberJack.showDebug = false
@@ -51,9 +53,14 @@ function LumberJack:isCuttingAllowed(superFunc, x, y, z, shape)
 
 end
 
+function LumberJack:testTooLow(superFunc, shape, minY, maxY, minZ, maxZ)
+	return false
+end
+
 -- DETECT SPLITSHAPES FROM CHAINSAW CALLBACK
 function LumberJack:cutRaycastCallback(hitObjectId, x, y, z, distance)
 	if hitObjectId ~= 0 and hitObjectId ~= nil then
+		LumberJack.selectorOnGround = hitObjectId==g_currentMission.terrainRootNode																	 
 		if LumberJack.hitObjectId ~= hitObjectId then
 			if getHasClassId(hitObjectId, ClassIds.MESH_SPLIT_SHAPE) then
 				LumberJack.hitObjectId = hitObjectId
@@ -81,6 +88,9 @@ function LumberJack:updateCutRaycast(superFunc)
 		local r = self.cutDetectionDistance
 		local x0, y0, z0 = x+(dx*r), y+(dy*r), z+(dz*r)
 		LumberJack.moveChainsawCameraFocus(self, x0, y0, z0)
+		
+		local Y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x0, y0, z0)
+		LumberJack.selectorOnGround = y0 < Y+0.01
 	end
 end
 
@@ -217,6 +227,7 @@ function LumberJack:loadMap(name)
 	
 	-- ALLOW CHAINSAW CUTTING ANYWHERE ON THE MAP
 	Chainsaw.isCuttingAllowed = Utils.overwrittenFunction(Chainsaw.isCuttingAllowed, LumberJack.isCuttingAllowed)
+	Chainsaw.testTooLow = Utils.overwrittenFunction(Chainsaw.testTooLow, LumberJack.testTooLow)
 	
 	-- ALLOW TREE SPRAYING ANYWHERE ON THE MAP
 	if pdlc_forestryPack~=nil and pdlc_forestryPack.SprayCan~=nil then
@@ -338,6 +349,181 @@ function LumberJack.updateRingSelector(hTool)
 	setVisibility(hTool.ringSelector, true)
 	setShaderParameter(hTool.ringSelector, "colorScale", 0.15*(1+d), 0.15*(1+d), 0.15*(1+d), 1.0, false)
 	
+end
+
+function LumberJack.getDecoFunctionData()
+	local functionData = LumberJack.decoFunctionData
+
+	if functionData == nil then
+		local decoFoliages = nil
+		
+		if g_currentMission.foliageSystem ~= nil then
+			decoFoliages = g_currentMission.foliageSystem.paintableFoliages
+
+			print("decoFoliages:")
+			DebugUtil.printTableRecursively(decoFoliages, "--", 0, 1)
+			
+			
+			local decoFoliageId = getTerrainDataPlaneByName(g_currentMission.terrainRootNode, "decoFoliage")
+			local scale = g_currentMission.terrainSize / getDensityMapSize(decoFoliageId)
+			print("Terrain Size: " .. tostring(g_currentMission.terrainSize))
+			print("Deco Foliage Size: " .. tostring(getDensityMapSize(decoFoliageId)))
+			print("Deco Foliage Scale: " .. tostring(scale))
+
+		end
+
+		local terrainRootNode = g_currentMission.terrainRootNode
+
+		if decoFoliages ~= nil and #decoFoliages > 0 then
+			functionData = {
+				decoFilters = {},
+				decoModifiers = {},
+				destroyLayer = {}
+			}
+
+			for index, decoFoliage in ipairs(decoFoliages) do
+				if decoFoliage.terrainDataPlaneId ~= nil then
+					local isBush = string.find(decoFoliage.layerName:lower(), "bush") and true or false
+
+					local decoModifier = DensityMapModifier.new(decoFoliage.terrainDataPlaneId, decoFoliage.startStateChannel, decoFoliage.numStateChannels, terrainRootNode)
+					decoModifier:setNewTypeIndexMode(DensityIndexCompareMode.ZERO)
+
+					local decoFilter = DensityMapFilter.new(decoFoliage.terrainDataPlaneId, decoFoliage.startStateChannel, decoFoliage.numStateChannels, terrainRootNode)
+					decoFilter:setValueCompareParams(DensityValueCompareType.GREATER, 0)
+
+					functionData.decoModifiers[decoFoliage.id] = decoModifier
+					functionData.decoFilters[decoFoliage.id] = decoFilter
+					functionData.destroyLayer[decoFoliage.id] = isBush
+				end
+			end
+
+			LumberJack.decoFunctionData = functionData
+		end
+	end
+
+	return functionData
+end
+
+function LumberJack:removeDeco(startWorldX, startWorldZ, areaSize, destroyAll)
+	local functionData = LumberJack.getDecoFunctionData()
+	local decoFoliages = g_currentMission.foliageSystem:getDecoFoliages()
+
+	if functionData ~= nil then
+		local h = areaSize/2
+		for index, decoFilter in pairs(functionData.decoFilters) do
+			if functionData.destroyLayer[index] or destroyAll then
+				local decoModifier = functionData.decoModifiers[index]
+
+				if decoModifier ~= nil and decoFilter ~= nil then
+					decoModifier:setParallelogramWorldCoords(startWorldX-h, startWorldZ-h, startWorldX+h, startWorldZ-h, startWorldX-h, startWorldZ+h, DensityCoordType.POINT_POINT_POINT)
+					decoModifier:executeSet(0, decoFilter)
+				end
+			end
+		end
+	end
+end
+
+function LumberJack:seekAndDestroyFoliage(startWorldX, startWorldZ, destroy)
+
+	local functionData = LumberJack.getDecoFunctionData()
+	local decoFoliageId = getTerrainDataPlaneByName(g_currentMission.terrainRootNode, "decoFoliage")
+	local numChannels = getTerrainDetailNumChannels(decoFoliageId)
+	--print("DensityMapFilename: " .. getDensityMapFilename(decoFoliageId))
+	
+	if destroy and LumberJack.destroyAllFoiliage then
+		LumberJack:removeDeco(startWorldX, startWorldZ, LumberJack.destroyFoliageSize, destroy)
+	end
+	
+	local function decimalToBinary(number, desiredLength)
+		local binaryString = ""
+		local num = math.floor(number)
+
+		repeat
+			local remainder = num % 2
+			binaryString = remainder .. binaryString
+			num = math.floor(num / 2)
+		until num == 0
+
+		local currentLength = #binaryString
+		local paddingLength = math.max(0, desiredLength - currentLength)
+
+		if paddingLength > 0 then
+			binaryString = string.rep("0", paddingLength) .. binaryString
+		end
+
+		return binaryString
+	end
+
+
+	local foundAny = false
+	local squareSize  = 0.05
+	local areaSize = LumberJack.destroyFoliageSize
+    local numSquares = math.ceil(areaSize / squareSize)
+    local offset = (areaSize - (numSquares * squareSize)) / 2
+    for i = 0, numSquares-1 do
+        for j = 0, numSquares-1 do
+		
+			local found = false
+            local rx = startWorldX-areaSize/2 + i*squareSize + offset
+            local rz = startWorldZ-areaSize/2 + j*squareSize + offset
+			
+			local bits = getDensityAtWorldPos(decoFoliageId, rx+squareSize/2, 0, rz+squareSize/2)
+			local value = bitAND(bits, 2^numChannels - 1)
+			
+			--print(value .. " = " .. decimalToBinary(value, numChannels) .. " / " .. decimalToBinary(bitShiftRight(bits, numChannels), 6))
+
+			--bitAND(densityBits, 2^numChannels - 1)
+			--bitAND(bitShiftRight(densityBits, groundTypeFirstChannel), 2^groundTypeNumChannels - 1)
+			
+			if functionData.destroyLayer[value] or (LumberJack.destroyAllFoiliage and value > 0) then
+				found = true
+				foundAny = true
+			end
+
+			if found and destroy then
+				LumberJack:removeDeco(rx, rz, squareSize)
+			end
+			
+			if LumberJack.showDebug then
+				local d = 0.025*squareSize
+				if found then
+					DebugUtil.drawDebugAreaRectangle(rx+d,0,rz+d, rx+squareSize-d,0,rz+d, rx+d,0,rz+squareSize-d, true, 0,0,1)
+				end
+			end
+      
+        end
+    end
+	
+	if LumberJack.showDebug then
+		local n=LumberJack.destroyFoliageSize
+		local scale = g_currentMission.terrainSize / getDensityMapSize(decoFoliageId)
+		DebugUtil.drawDebugAreaRectangle(startWorldX-n/2,0,startWorldZ-n/2, startWorldX+n/2,0,startWorldZ-n/2, startWorldX-n/2,0,startWorldZ+n/2, true, 1,1,1)
+		
+		for x = -n, n do
+			for z = -n, n do
+				local rx,rz = math.floor((startWorldX+x*scale)/scale)*scale, math.floor((startWorldZ+z*scale)/scale)*scale
+				local bits = getDensityAtWorldPos(decoFoliageId, startWorldX+x*scale, 0, startWorldZ+z*scale)
+				local value = bitAND(bits, 2^numChannels - 1)
+				local shift = bitShiftRight(bits, numChannels)
+				
+				local d = 0.025
+				local yg = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, rx+scale/2,0,rz+scale/2)
+				if functionData.destroyLayer[value] or (LumberJack.destroyAllFoiliage and value > 0) then
+					DebugUtil.drawDebugAreaRectangle(rx+d,0,rz+d, rx+scale-d,0,rz+d, rx+d,0,rz+scale-d, true, 0,1,0)
+					Utils.renderTextAtWorldPosition(rx+scale/2, yg+0.1, rz+scale/2, string.format("%d - %d", value, shift), getCorrectTextSize(0.012), 0, {1,1,1})
+				else
+					DebugUtil.drawDebugAreaRectangle(rx+d,0,rz+d, rx+scale-d,0,rz+d, rx+d,0,rz+scale-d, true, 0.15,0.15,0.15)
+					Utils.renderTextAtWorldPosition(rx+scale/2, yg+0.1, rz+scale/2, string.format("%d - %d", value, shift), getCorrectTextSize(0.012), 0, {0.3,0.3,0.3})
+				end
+			end
+		end
+	end
+	
+	if LumberJack.showDebug and foundAny then
+		g_currentMission:addExtraPrintText("Bush")
+	end
+	
+	return foundAny
 end
 
 function LumberJack:update(dt)
@@ -484,65 +670,81 @@ function LumberJack:update(dt)
 						
 							LumberJack.updateRingSelector(hTool)
 
+							-- STUMP GRINDING
 							LumberJack.stumpGrindingPossible = false
-								
-							if LumberJack.splitShape ~= LumberJack.hitObjectId then
-								LumberJack.resetRingSelector(hTool)
-								
-								local splitShape, isTree, isStump, isBranch = LumberJack:getSplitShape()
-								if splitShape and entityExists(splitShape) then
-									LumberJack.splitShape = splitShape
-									LumberJack.isTree = isTree
-									LumberJack.isStump = isStump
-									LumberJack.isBranch = isBranch
-								else
-									LumberJack.splitShape = 0
-								end
-							end
-							
-							if LumberJack.splitShape and entityExists(LumberJack.splitShape) then
-							
-								if LumberJack.showDebug then
-									if LumberJack.isStump then
-										g_currentMission:addExtraPrintText("Stump")
-									elseif LumberJack.isTree then
-										g_currentMission:addExtraPrintText("Tree")
-									elseif LumberJack.isBranch then
-										g_currentMission:addExtraPrintText("Branch")
+							if not LumberJack.bushCuttingActive then
+								if LumberJack.splitShape ~= LumberJack.hitObjectId then
+									LumberJack.resetRingSelector(hTool)
+									
+									local splitShape, isTree, isStump, isBranch = LumberJack:getSplitShape()
+									if splitShape and entityExists(splitShape) then
+										LumberJack.splitShape = splitShape
+										LumberJack.isTree = isTree
+										LumberJack.isStump = isStump
+										LumberJack.isBranch = isBranch
+									else
+										LumberJack.splitShape = 0
 									end
 								end
+								
+								if LumberJack.splitShape and entityExists(LumberJack.splitShape) then
+								
+									if LumberJack.showDebug then
+										if LumberJack.isStump then
+											g_currentMission:addExtraPrintText("Stump")
+										elseif LumberJack.isTree then
+											g_currentMission:addExtraPrintText("Tree")
+										elseif LumberJack.isBranch then
+											g_currentMission:addExtraPrintText("Branch")
+										end
+									end
 
-								if LumberJack.superStrength then
-									local rx, _, rz = getWorldTranslation(hTool.ringSelector)
-									LumberJack.stumpGrindingPossible = hTool:isCuttingAllowed(rx, 0, rz)
-								else
-									if LumberJack.isStump then
-										local x0,y0,z0 = getWorldTranslation(LumberJack.splitShape)
-										local y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x0, y0, z0)
-										local lenBelow, lenAbove = getSplitShapePlaneExtents(LumberJack.splitShape, 0,y,0, 0,1,0)
+									if LumberJack.superStrength then
+										local rx, _, rz = getWorldTranslation(hTool.ringSelector)
+										LumberJack.stumpGrindingPossible = hTool:isCuttingAllowed(rx, 0, rz)
+									else
+										if LumberJack.isStump then
+											local x0,y0,z0 = getWorldTranslation(LumberJack.splitShape)
+											local y = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, x0, y0, z0)
+											local lenBelow, lenAbove = getSplitShapePlaneExtents(LumberJack.splitShape, 0,y,0, 0,1,0)
 
-										if lenAbove < 1 then
-											local rx, _, rz = getWorldTranslation(hTool.ringSelector)
-											LumberJack.stumpGrindingPossible = hTool:isCuttingAllowed(rx, 0, rz)
-										else
-											if LumberJack.showDebug then
-												g_currentMission:addExtraPrintText("Stump is too tall")
+											if lenAbove < 1 then
+												local rx, _, rz = getWorldTranslation(hTool.ringSelector)
+												LumberJack.stumpGrindingPossible = hTool:isCuttingAllowed(rx, 0, rz)
+											else
+												if LumberJack.showDebug then
+													g_currentMission:addExtraPrintText("Stump is too tall")
+												end
 											end
-										end
-										if LumberJack.showDebug then
-											g_currentMission:addExtraPrintText(string.format("below:%.3f   above:%.3f", lenBelow,lenAbove))
+											if LumberJack.showDebug then
+												g_currentMission:addExtraPrintText(string.format("below:%.3f   above:%.3f", lenBelow,lenAbove))
+											end
+										else
+											g_currentMission:addExtraPrintText("DO SOMETHIONG HERE..")
 										end
 									end
-								end
-							else
-								if LumberJack.showDebug then
-									g_currentMission:addExtraPrintText("no split shape found")
+								else
+									if LumberJack.showDebug then
+										g_currentMission:addExtraPrintText("no split shape found")
+									end
 								end
 							end
+							
+							-- BUSH GRINDING
+							if LumberJack.destroyFoliageSize == 0 or LumberJack.stumpGrindingPossible or not LumberJack.selectorOnGround then
+								LumberJack.bushCuttingPossible = false
+							elseif hTool.speedFactor < 0.1 or LumberJack.superStrength then
+								local rx, _, rz = getWorldTranslation(hTool.ringSelector)
+								LumberJack.bushCuttingPossible = hTool:isCuttingAllowed(rx, 0, rz) and LumberJack:seekAndDestroyFoliage(rx, rz)
+							end
+
 
 							if LumberJack.stumpGrindingPossible then
 							-- SHOW RED RING SELECTOR
 								setShaderParameter(hTool.ringSelector, "colorScale", 0.8, 0.05, 0.05, 1.0, false)
+							elseif LumberJack.bushCuttingPossible then
+							-- SHOW GREEN RING SELECTOR
+								setShaderParameter(hTool.ringSelector, "colorScale", 0.2, 0.8, 0.05, 1.0, false)										  
 							end
 							
 						else
@@ -588,10 +790,31 @@ function LumberJack:update(dt)
 							LumberJack.stumpGrindingPossible = false
 							g_currentMission.player:lockInput(false)
 						end
+					elseif LumberJack.bushCuttingPossible and hTool.speedFactor > 0.1 then
+						LumberJack.bushCuttingActive = true
+						LumberJack.stumpGrindingTime = LumberJack.stumpGrindingTime + dt
+						if (LumberJack.superStrength and LumberJack.stumpGrindingTime < 100)
+						or (not LumberJack.superStrength and LumberJack.stumpGrindingTime < 1000) then
+							if not LumberJack.superStrength then
+								g_currentMission.player:lockInput(true)
+							end
+							hTool.isCutting = true
+							hTool:updateParticles()
+							hTool.isCutting = false
+						else
+							local x, _, z = getWorldTranslation(hTool.ringSelector)
+							LumberJack:seekAndDestroyFoliage(x, z, true)
+							LumberJack.stumpGrindingTime = 0
+							LumberJack.bushCuttingPossible = false
+							g_currentMission.player:lockInput(false)
+						end												   
 						
 					else
 						LumberJack.stumpGrindingTime = 0
 						g_currentMission.player:lockInput(false)
+						if hTool.speedFactor < 0.1 then
+							LumberJack.bushCuttingActive = false
+						end
 					end
 					
 					if LumberJack.useChainsawFlag then
