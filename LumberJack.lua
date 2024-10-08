@@ -360,15 +360,15 @@ function LumberJack.getDecoFunctionData()
 		if g_currentMission.foliageSystem ~= nil then
 			decoFoliages = g_currentMission.foliageSystem.paintableFoliages
 
-			print("decoFoliages:")
-			DebugUtil.printTableRecursively(decoFoliages, "--", 0, 1)
+			-- print("decoFoliages:")
+			-- DebugUtil.printTableRecursively(decoFoliages, "--", 0, 1)
 			
 			
 			local decoFoliageId = getTerrainDataPlaneByName(g_currentMission.terrainRootNode, "decoFoliage")
 			local scale = g_currentMission.terrainSize / getDensityMapSize(decoFoliageId)
-			print("Terrain Size: " .. tostring(g_currentMission.terrainSize))
-			print("Deco Foliage Size: " .. tostring(getDensityMapSize(decoFoliageId)))
-			print("Deco Foliage Scale: " .. tostring(scale))
+			-- print("Terrain Size: " .. tostring(g_currentMission.terrainSize))
+			-- print("Deco Foliage Size: " .. tostring(getDensityMapSize(decoFoliageId)))
+			-- print("Deco Foliage Scale: " .. tostring(scale))
 
 		end
 
