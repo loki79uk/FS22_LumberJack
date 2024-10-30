@@ -48,11 +48,11 @@
 		
 		<text name="setting_lumberJack_reduceSideSpeed" text="Снизить боковую скорость"/>
 		<text name="toolTip_lumberJack_reduceSideSpeed" text="Уменьшите скорость игрока при боковом шаге."/>
+    
+		<text name="setting_lumberJack_destroyFoliageSize" text="Размер зоны уничтожения"/>
+		<text name="toolTip_lumberJack_destroyFoliageSize" text="Размер зоны обнаружения для уничтожения веток и кустарников."/>
 		
-		<text name="setting_lumberJack_destroyFoliageSize" text="Destroy Foliage Size"/>
-		<text name="toolTip_lumberJack_destroyFoliageSize" text="The size of the detection area for destruction of foliage and bushes."/>
-		
-		<text name="setting_lumberJack_showDebug" text="Show Debugging Display"/>
+		<text name="setting_lumberJack_showDebug" text="Показать отладочный дисплей"/>
 		<text name="toolTip_lumberJack_showDebug" text="Print debugging text and overlay for detection area."/>
 		
     </texts>
