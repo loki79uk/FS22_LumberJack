@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
-<modDesc descVersion="75">
+<modDesc descVersion="80">
 	<author>loki_79</author>
-    <version>1.5.2.0</version>
+    <version>1.5.2.1</version>
 	<title>
 		<en>LumberJack</en>
 		<de>Holzfäller</de>
@@ -29,6 +29,11 @@ Features:
 - Chainsaw can remove stumps (grind for 3 seconds)
 
 Changelog:
+v1.5.2.0
+- Added new ability to remove foliage with the chainsaw (Disabled by default - activate by setting a size in the options)
+- Strafe less aggressively with super speed active
+- Fixed a bug where superstrength keybind is missing on a brand new game
+- Fixed a bug where trees could not be cut on deadwood missions if "cut anywhere" was disabled
 v1.5.1.0
 - Added support for FS22_PlayerSpeed and FS22_QuickCamera
 - Resolved conflict with FS22_EmergencyPack
@@ -73,6 +78,11 @@ Merkmale:
 - Kettensäge kann Stümpfe entfernen (3 Sekunden schleifen)
 
 Changelog:
+v1.5.2.0
+- Es ist nun möglich, Büsche mit der Kettensäge zu entfernen (standardmäßig deaktiviert - durch Einstellen einer Größe in den Optionen aktivierbar)
+- Seitwärtssbewegungen sind weniger intensiv bei aktivierter Supergeschwindigkeit
+- Ein Fehler wurde behoben, bei dem die Superkraft-Tastenbindung in einem brandneuen Spielstand fehlte
+- Ein Fehler wurde behoben, bei dem Bäume in Totholz-Verträgen nicht gefällt werden konnten, wenn "Überall fällen" deaktiviert war
 v1.5.1.0
 - Unterstützung für FS22_PlayerSpeed und FS22_QuickCamera hinzugefügt
 - Konflikt mit FS22_EmergencyPack behoben
@@ -117,6 +127,11 @@ Caractéristiques:
 - La tronçonneuse permet d'enlever les souches (broyage pendant 3 secondes)
 
 Changelog:
+v1.5.2.0
+- Ajout d'une nouvelle capacité à détruire le feuillage avec la tronçonneuse (désactivée par défaut - activez-la en définissant une taille dans les options)
+- Tir moins agressif lorsque la super-vitesse est activée
+- Correction d'un bug où le raccourci clavier superstrength est manquant sur une toute nouvelle partie
+- Correction d'un bug où les arbres ne pouvaient pas être coupés dans les missions de bois mort si l'option "couper n'importe où" était désactivée
 v1.5.1.0
 - Ajout du support pour FS22_PlayerSpeed et FS22_QuickCamera
 - Résolution du conflit avec FS22_EmergencyPack
@@ -162,6 +177,11 @@ v1.1.0.0
 - бензопила может убирать пни (измельчать 3 секунды)
 
 Changelog:
+v1.5.2.0
+- Добавлена возможность уничтожать листву бензопилой (по умолчанию отключена - активируйте, задав размер в опциях).
+- Удар менее агрессивен при активной суперскорости
+- Исправлена ошибка, при которой привязка клавиш к суперсиле отсутствовала в новой игре
+- Исправлена ошибка, из-за которой деревья не могли быть срублены в миссиях с валежником, если была отключена функция "Срубить в любом месте"
 v1.5.1.0
 - Добавлена поддержка FS22_PlayerSpeed и FS22_QuickCamera
 - Устранен конфликт с FS22_EmergencyPack
@@ -207,6 +227,11 @@ Caratteristiche:
 - La motosega può rimuovere i ceppi (macinare per 3 secondi)
 
 Changelog:
+v1.5.2.0
+- Aggiunta la possibilità di distruggere il fogliame con la motosega (disattivata per impostazione predefinita - attivabile impostando una dimensione nelle opzioni).
+- Strafe meno aggressivo con la supervelocità attiva
+- Corretto un bug per cui mancava il keybind della supervelocità in una partita nuova.
+- Corretto un bug per cui gli alberi non potevano essere tagliati nelle missioni deadwood se “taglia ovunque” era disabilitato
 v1.5.1.0
 - Aggiunto il supporto per FS22_PlayerSpeed e FS22_QuickCamera
 - Risolto il conflitto con FS22_EmergencyPack
@@ -251,6 +276,11 @@ Funkce:
 - Motorová pila dokáže odstranit pařezy (brousit po dobu 3 sekund)
 
 Seznam změn:
+v1.5.2.0
+- Přidána nová možnost ničit listí motorovou pilou (ve výchozím nastavení vypnuto - aktivuje se nastavením velikosti v možnostech).
+- Méně agresivní útok s aktivní superrychlostí
+- Opravena chyba, kdy při zcela nové hře chyběla vazba na klávesu supersíly
+- Opravena chyba, kdy nebylo možné kácet stromy v misích s mrtvým dřevem, pokud byla funkce „kácet kdekoli“ vypnutá
 v1.5.1.0
 - Přidána podpora pro FS22_PlayerSpeed a FS22_QuickCamera
 - Vyřešen konflikt s FS22_EmergencyPack

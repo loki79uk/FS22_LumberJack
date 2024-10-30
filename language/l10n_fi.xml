@@ -45,6 +45,9 @@
 		<text name="setting_lumberJack_maxRunningSpeed" text="Running Speed"/>
 		<text name="toolTip_lumberJack_maxRunningSpeed" text="The normal running speed of the player."/>
 		
+		<text name="setting_lumberJack_reduceSideSpeed" text="Reduce Side Speed"/>
+		<text name="toolTip_lumberJack_reduceSideSpeed" text="Reduce the speed of the player when side stepping."/>
+		
 		<text name="setting_lumberJack_destroyFoliageSize" text="Destroy Foliage Size"/>
 		<text name="toolTip_lumberJack_destroyFoliageSize" text="The size of the detection area for destruction of foliage and bushes."/>
 		

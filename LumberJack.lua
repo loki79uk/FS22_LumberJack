@@ -187,14 +187,16 @@ function LumberJack.playerGetDesiredSpeed(self, superFunc)
 		else
 			self.motionInformation.maxSwimmingSpeed = LumberJack.maxWalkingSpeed*0.8
 		end
-		if self.inputInformation.moveRight ~= 0 then
-			local sidestepFactor = 1/3
-			if self.inputInformation.moveForward ~= 0 then
-				sidestepFactor = math.sqrt(2)/2
+		if LumberJack.reduceSideSpeed then
+			if self.inputInformation.moveRight ~= 0 then
+				local sidestepFactor = 1/2
+				if self.inputInformation.moveForward ~= 0 then
+					sidestepFactor = math.sqrt(2)/2
+				end
+				self.motionInformation.maxWalkingSpeed = self.motionInformation.maxWalkingSpeed*sidestepFactor
+				self.motionInformation.maxRunningSpeed = self.motionInformation.maxRunningSpeed*sidestepFactor
+				self.motionInformation.maxSwimmingSpeed = self.motionInformation.maxSwimmingSpeed*sidestepFactor
 			end
-			self.motionInformation.maxWalkingSpeed = self.motionInformation.maxWalkingSpeed*sidestepFactor
-			self.motionInformation.maxRunningSpeed = self.motionInformation.maxRunningSpeed*sidestepFactor
-			self.motionInformation.maxSwimmingSpeed = self.motionInformation.maxSwimmingSpeed*sidestepFactor
 		end
 	else
 		self.motionInformation.maxWalkingSpeed = LumberJack.originalWalkingSpeed
@@ -360,15 +362,15 @@ function LumberJack.getDecoFunctionData()
 		if g_currentMission.foliageSystem ~= nil then
 			decoFoliages = g_currentMission.foliageSystem.paintableFoliages
 
-			print("decoFoliages:")
-			DebugUtil.printTableRecursively(decoFoliages, "--", 0, 1)
+			-- print("decoFoliages:")
+			-- DebugUtil.printTableRecursively(decoFoliages, "--", 0, 1)
 			
 			
 			local decoFoliageId = getTerrainDataPlaneByName(g_currentMission.terrainRootNode, "decoFoliage")
 			local scale = g_currentMission.terrainSize / getDensityMapSize(decoFoliageId)
-			print("Terrain Size: " .. tostring(g_currentMission.terrainSize))
-			print("Deco Foliage Size: " .. tostring(getDensityMapSize(decoFoliageId)))
-			print("Deco Foliage Scale: " .. tostring(scale))
+			-- print("Terrain Size: " .. tostring(g_currentMission.terrainSize))
+			-- print("Deco Foliage Size: " .. tostring(getDensityMapSize(decoFoliageId)))
+			-- print("Deco Foliage Scale: " .. tostring(scale))
 
 		end
 

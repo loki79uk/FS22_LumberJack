@@ -6,6 +6,7 @@ LumberJack.menuItems = {
 	'createWoodchips',
 	'maxWalkingSpeed',
 	'maxRunningSpeed',
+	'reduceSideSpeed',
 	'superStrengthValue',
 	'normalStrengthValue',
 	'superDistanceValue',
@@ -235,6 +236,17 @@ LumberJack.SETTINGS.maxRunningSpeed = {
 	"180%",
 	"190%",
 	"200%"
+	}
+}
+
+LumberJack.SETTINGS.reduceSideSpeed = {
+-- LumberJack.reduceSideSpeed = true
+	['default'] = 1,
+	['permission'] = 'superSpeed',
+	['values'] = {false, true},
+	['strings'] = {
+		g_i18n:getText("ui_off"),
+		g_i18n:getText("ui_on")
 	}
 }
 
