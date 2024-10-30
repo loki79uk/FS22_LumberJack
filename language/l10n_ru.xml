@@ -48,7 +48,7 @@
 		
 		<text name="setting_lumberJack_reduceSideSpeed" text="Снизить боковую скорость"/>
 		<text name="toolTip_lumberJack_reduceSideSpeed" text="Уменьшите скорость игрока при боковом шаге."/>
-    
+
 		<text name="setting_lumberJack_destroyFoliageSize" text="Размер зоны уничтожения"/>
 		<text name="toolTip_lumberJack_destroyFoliageSize" text="Размер зоны обнаружения для уничтожения веток и кустарников."/>
 		
