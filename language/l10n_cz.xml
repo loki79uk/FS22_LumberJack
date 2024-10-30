@@ -45,14 +45,14 @@
 		<text name="setting_lumberJack_maxRunningSpeed" text="Rychlost běhu"/>
 		<text name="toolTip_lumberJack_maxRunningSpeed" text="Běžná rychlost běhu hráče."/>
 		
-		<text name="setting_lumberJack_reduceSideSpeed" text="Reduce Side Speed"/>
-		<text name="toolTip_lumberJack_reduceSideSpeed" text="Reduce the speed of the player when side stepping."/>
+		<text name="setting_lumberJack_reduceSideSpeed" text="Snížení boční rychlosti"/>
+		<text name="toolTip_lumberJack_reduceSideSpeed" text="Snižuje rychlost hráče při pohybu do stran."/>
 		
-		<text name="setting_lumberJack_destroyFoliageSize" text="Destroy Foliage Size"/>
-		<text name="toolTip_lumberJack_destroyFoliageSize" text="The size of the detection area for destruction of foliage and bushes."/>
+		<text name="setting_lumberJack_destroyFoliageSize" text="Zničit velikost listí"/>
+		<text name="toolTip_lumberJack_destroyFoliageSize" text="Velikost detekční oblasti pro ničení listí a keřů."/>
 		
-		<text name="setting_lumberJack_showDebug" text="Show Debugging Display"/>
-		<text name="toolTip_lumberJack_showDebug" text="Print debugging text and overlay for detection area."/>
+		<text name="setting_lumberJack_showDebug" text="Zobrazit zobrazení ladění"/>
+		<text name="toolTip_lumberJack_showDebug" text="Tisk ladicího textu a překryvu pro oblast detekce."/>
 		
     </texts>
 </l10n>
