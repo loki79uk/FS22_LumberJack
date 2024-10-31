@@ -53,7 +53,7 @@
 		<text name="toolTip_lumberJack_destroyFoliageSize" text="Размер зоны обнаружения для уничтожения веток и кустарников."/>
 		
 		<text name="setting_lumberJack_showDebug" text="Показать отладочный дисплей"/>
-		<text name="toolTip_lumberJack_showDebug" text="Печать текста отладки и наложения для области обнаружения."/>
+		<text name="toolTip_lumberJack_showDebug" text="Показать текстовую и визуальную информацию мода."/>
 		
     </texts>
 </l10n>
