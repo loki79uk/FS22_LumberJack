@@ -29,6 +29,13 @@ LumberJack.splitShape = 0
 LumberJack.maxWoodchips = 2000
 LumberJack.showDebug = false
 LumberJack.initialised = false
+LumberJack.reduceSideSpeed = false
+LumberJack.destroyAllFoliage = false
+
+LumberJack.foliageSearchNames = {
+	"bush",
+	"forest"
+}
 
 source(g_currentModDirectory .. 'LumberJackSettings.lua')
 source(g_currentModDirectory .. 'events/DeleteShapeEvent.lua')
@@ -353,54 +360,103 @@ function LumberJack.updateRingSelector(hTool)
 	
 end
 
+BaseMission.loadMap = Utils.overwrittenFunction(BaseMission.loadMap,
+	function(self, superFunc, filename, ...)
+		LumberJack.mapI3dFilename = filename
+		superFunc(self, filename, ...)
+	end
+)
+
 function LumberJack.getDecoFunctionData()
 	local functionData = LumberJack.decoFunctionData
 
 	if functionData == nil then
-		local decoFoliages = nil
-		
-		if g_currentMission.foliageSystem ~= nil then
-			decoFoliages = g_currentMission.foliageSystem.paintableFoliages
-
-			-- print("decoFoliages:")
-			-- DebugUtil.printTableRecursively(decoFoliages, "--", 0, 1)
-			
-			
-			local decoFoliageId = getTerrainDataPlaneByName(g_currentMission.terrainRootNode, "decoFoliage")
-			local scale = g_currentMission.terrainSize / getDensityMapSize(decoFoliageId)
-			-- print("Terrain Size: " .. tostring(g_currentMission.terrainSize))
-			-- print("Deco Foliage Size: " .. tostring(getDensityMapSize(decoFoliageId)))
-			-- print("Deco Foliage Scale: " .. tostring(scale))
-
-		end
-
 		local terrainRootNode = g_currentMission.terrainRootNode
+		local paintableFoliages = g_currentMission.foliageSystem.paintableFoliages
+		
+		functionData = {
+			decoFilters = {},
+			decoModifiers = {},
+			decoFoliagesById = {},
+			decoFoliagesByName = {},
+			decoIndexToFoliageIndex = {},
+			foliagesToDestroy = {},
+			destroyFoliageLayer = {}
+		}
+		
+		for index, decoFoliage in ipairs(paintableFoliages) do
 
-		if decoFoliages ~= nil and #decoFoliages > 0 then
-			functionData = {
-				decoFilters = {},
-				decoModifiers = {},
-				destroyLayer = {}
-			}
-
-			for index, decoFoliage in ipairs(decoFoliages) do
-				if decoFoliage.terrainDataPlaneId ~= nil then
-					local isBush = string.find(decoFoliage.layerName:lower(), "bush") and true or false
-
-					local decoModifier = DensityMapModifier.new(decoFoliage.terrainDataPlaneId, decoFoliage.startStateChannel, decoFoliage.numStateChannels, terrainRootNode)
-					decoModifier:setNewTypeIndexMode(DensityIndexCompareMode.ZERO)
-
-					local decoFilter = DensityMapFilter.new(decoFoliage.terrainDataPlaneId, decoFoliage.startStateChannel, decoFoliage.numStateChannels, terrainRootNode)
-					decoFilter:setValueCompareParams(DensityValueCompareType.GREATER, 0)
-
-					functionData.decoModifiers[decoFoliage.id] = decoModifier
-					functionData.decoFilters[decoFoliage.id] = decoFilter
-					functionData.destroyLayer[decoFoliage.id] = isBush
+			local decoModifier = DensityMapModifier.new(decoFoliage.terrainDataPlaneId, decoFoliage.startStateChannel, decoFoliage.numStateChannels, terrainRootNode)
+			decoModifier:setNewTypeIndexMode(DensityIndexCompareMode.ZERO)
+			
+			local decoFilter = DensityMapFilter.new(decoFoliage.terrainDataPlaneId, decoFoliage.startStateChannel, decoFoliage.numStateChannels, terrainRootNode)
+			decoFilter:setValueCompareParams(DensityValueCompareType.GREATER, 0)
+			
+			functionData.decoFilters[decoFoliage.id] = decoFilter
+			functionData.decoModifiers[decoFoliage.id] = decoModifier
+			functionData.decoFoliagesById[decoFoliage.id] = decoFoliage
+			functionData.decoFoliagesByName[decoFoliage.layerName] = decoFoliage
+		end
+		
+		if LumberJack.mapI3dFilename then
+			local i = 0
+			local foundBushMultiLayer = false
+			local xmlFile = XMLFile.load("MapI3d", LumberJack.mapI3dFilename)
+			if xmlFile then
+				local rootKey = "i3D.Scene.TerrainTransformGroup.Layers.FoliageSystem"
+				while true do
+					local layerKey = string.format(rootKey..".FoliageMultiLayer(%d)", i)
+					if not xmlFile:hasProperty(layerKey) then
+						break
+					end
+					local numChannels = xmlFile:getInt(layerKey.."#numTypeIndexChannels")
+					
+					local j = 0
+					while true do
+						local typeKey = string.format(layerKey..".FoliageType(%d)", j)
+						if not xmlFile:hasProperty(typeKey) then
+							break
+						end
+						local typeName = xmlFile:getString(typeKey.."#name")
+						
+						for _, name in pairs(LumberJack.foliageSearchNames) do
+							if string.find(typeName:lower(), name) then
+								foundBushMultiLayer = true
+								local foliage = functionData.decoFoliagesByName[typeName]
+								if foliage then
+									functionData.destroyFoliageLayer[j+1] = foliage
+									functionData.decoIndexToFoliageIndex[foliage.id] = j+1
+									table.insert(functionData.foliagesToDestroy, foliage)
+									functionData.foliageNumChannels = functionData.foliageNumChannels or numChannels
+									break
+								end
+							end
+						end
+					
+						j = j + 1
+					end
+					
+					if foundBushMultiLayer then
+						break
+					end
+					i = i + 1
 				end
+				
+				xmlFile:delete()
 			end
 
 			LumberJack.decoFunctionData = functionData
 		end
+			
+		-- local decoFoliageId = functionData.foliagesToDestroy[1].terrainDataPlaneId
+		-- if decoFoliageId then
+			-- local scale = g_currentMission.terrainSize / getDensityMapSize(decoFoliageId)
+			-- print("Terrain Size: " .. tostring(g_currentMission.terrainSize))
+			-- print("decoFoliageId: " .. tostring(decoFoliageId))
+			-- print("Deco Foliage Size: " .. tostring(getDensityMapSize(decoFoliageId)))
+			-- print("Deco Foliage Scale: " .. tostring(scale))
+		-- end
+		
 	end
 
 	return functionData
@@ -408,13 +464,13 @@ end
 
 function LumberJack:removeDeco(startWorldX, startWorldZ, areaSize, destroyAll)
 	local functionData = LumberJack.getDecoFunctionData()
-	local decoFoliages = g_currentMission.foliageSystem:getDecoFoliages()
 
 	if functionData ~= nil then
 		local h = areaSize/2
-		for index, decoFilter in pairs(functionData.decoFilters) do
-			if functionData.destroyLayer[index] or destroyAll then
-				local decoModifier = functionData.decoModifiers[index]
+		for decoIndex, decoFilter in pairs(functionData.decoFilters) do
+			local foliageIndex = functionData.decoIndexToFoliageIndex[decoIndex]
+			if (foliageIndex and functionData.destroyFoliageLayer[foliageIndex]) or destroyAll then
+				local decoModifier = functionData.decoModifiers[decoIndex]
 
 				if decoModifier ~= nil and decoFilter ~= nil then
 					decoModifier:setParallelogramWorldCoords(startWorldX-h, startWorldZ-h, startWorldX+h, startWorldZ-h, startWorldX-h, startWorldZ+h, DensityCoordType.POINT_POINT_POINT)
@@ -428,104 +484,86 @@ end
 function LumberJack:seekAndDestroyFoliage(startWorldX, startWorldZ, destroy)
 
 	local functionData = LumberJack.getDecoFunctionData()
-	local decoFoliageId = getTerrainDataPlaneByName(g_currentMission.terrainRootNode, "decoFoliage")
-	local numChannels = getTerrainDetailNumChannels(decoFoliageId)
-	--print("DensityMapFilename: " .. getDensityMapFilename(decoFoliageId))
 	
-	if destroy and LumberJack.destroyAllFoiliage then
-		LumberJack:removeDeco(startWorldX, startWorldZ, LumberJack.destroyFoliageSize, destroy)
-	end
-	
-	local function decimalToBinary(number, desiredLength)
-		local binaryString = ""
-		local num = math.floor(number)
-
-		repeat
-			local remainder = num % 2
-			binaryString = remainder .. binaryString
-			num = math.floor(num / 2)
-		until num == 0
-
-		local currentLength = #binaryString
-		local paddingLength = math.max(0, desiredLength - currentLength)
-
-		if paddingLength > 0 then
-			binaryString = string.rep("0", paddingLength) .. binaryString
-		end
-
-		return binaryString
-	end
-
-
-	local foundAny = false
-	local squareSize  = 0.05
-	local areaSize = LumberJack.destroyFoliageSize
-    local numSquares = math.ceil(areaSize / squareSize)
-    local offset = (areaSize - (numSquares * squareSize)) / 2
-    for i = 0, numSquares-1 do
-        for j = 0, numSquares-1 do
-		
-			local found = false
-            local rx = startWorldX-areaSize/2 + i*squareSize + offset
-            local rz = startWorldZ-areaSize/2 + j*squareSize + offset
-			
-			local bits = getDensityAtWorldPos(decoFoliageId, rx+squareSize/2, 0, rz+squareSize/2)
-			local value = bitAND(bits, 2^numChannels - 1)
-			
-			--print(value .. " = " .. decimalToBinary(value, numChannels) .. " / " .. decimalToBinary(bitShiftRight(bits, numChannels), 6))
-
-			--bitAND(densityBits, 2^numChannels - 1)
-			--bitAND(bitShiftRight(densityBits, groundTypeFirstChannel), 2^groundTypeNumChannels - 1)
-			
-			if functionData.destroyLayer[value] or (LumberJack.destroyAllFoiliage and value > 0) then
-				found = true
-				foundAny = true
-			end
-
-			if found and destroy then
-				LumberJack:removeDeco(rx, rz, squareSize)
-			end
-			
-			if LumberJack.showDebug then
-				local d = 0.025*squareSize
-				if found then
-					DebugUtil.drawDebugAreaRectangle(rx+d,0,rz+d, rx+squareSize-d,0,rz+d, rx+d,0,rz+squareSize-d, true, 0,0,1)
-				end
-			end
-      
-        end
-    end
-	
-	if LumberJack.showDebug then
-		local n=LumberJack.destroyFoliageSize
-		local scale = g_currentMission.terrainSize / getDensityMapSize(decoFoliageId)
-		DebugUtil.drawDebugAreaRectangle(startWorldX-n/2,0,startWorldZ-n/2, startWorldX+n/2,0,startWorldZ-n/2, startWorldX-n/2,0,startWorldZ+n/2, true, 1,1,1)
-		
-		for x = -n, n do
-			for z = -n, n do
-				local rx,rz = math.floor((startWorldX+x*scale)/scale)*scale, math.floor((startWorldZ+z*scale)/scale)*scale
-				local bits = getDensityAtWorldPos(decoFoliageId, startWorldX+x*scale, 0, startWorldZ+z*scale)
-				local value = bitAND(bits, 2^numChannels - 1)
-				local shift = bitShiftRight(bits, numChannels)
+	if functionData ~= nil then
 				
-				local d = 0.025
-				local yg = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, rx+scale/2,0,rz+scale/2)
-				if functionData.destroyLayer[value] or (LumberJack.destroyAllFoiliage and value > 0) then
-					DebugUtil.drawDebugAreaRectangle(rx+d,0,rz+d, rx+scale-d,0,rz+d, rx+d,0,rz+scale-d, true, 0,1,0)
-					Utils.renderTextAtWorldPosition(rx+scale/2, yg+0.1, rz+scale/2, string.format("%d - %d", value, shift), getCorrectTextSize(0.012), 0, {1,1,1})
-				else
-					DebugUtil.drawDebugAreaRectangle(rx+d,0,rz+d, rx+scale-d,0,rz+d, rx+d,0,rz+scale-d, true, 0.15,0.15,0.15)
-					Utils.renderTextAtWorldPosition(rx+scale/2, yg+0.1, rz+scale/2, string.format("%d - %d", value, shift), getCorrectTextSize(0.012), 0, {0.3,0.3,0.3})
+		if destroy and LumberJack.destroyAllFoliage then
+			LumberJack:removeDeco(startWorldX, startWorldZ, LumberJack.destroyFoliageSize, destroy)
+		end
+		
+		if not functionData.foliagesToDestroy or #functionData.foliagesToDestroy == 0 then
+			return
+		end
+		
+		local numChannels = functionData.foliageNumChannels
+		local decoFoliageId = functionData.foliagesToDestroy[1].terrainDataPlaneId
+
+		local foundAny = false
+		local squareSize  = 0.05
+		local areaSize = LumberJack.destroyFoliageSize
+		local numSquares = math.ceil(areaSize / squareSize)
+		local offset = (areaSize - (numSquares * squareSize)) / 2
+		for i = 0, numSquares-1 do
+			for j = 0, numSquares-1 do
+			
+				local found = false
+				local rx = startWorldX-areaSize/2 + i*squareSize + offset
+				local rz = startWorldZ-areaSize/2 + j*squareSize + offset
+				
+				local bits = getDensityAtWorldPos(decoFoliageId, rx+squareSize/2, 0, rz+squareSize/2)
+				local index = bitAND(bits, 2^numChannels - 1)
+				local value = bitShiftRight(bits, numChannels)
+				
+				if value > 0 and (functionData.destroyFoliageLayer[index] or LumberJack.destroyAllFoliage) then
+					found = true
+					foundAny = true
+				end
+
+				if found and destroy then
+					LumberJack:removeDeco(rx, rz, squareSize)
+				end
+				
+				if LumberJack.showDebug then
+					local d = 0.025*squareSize
+					if found then
+						DebugUtil.drawDebugAreaRectangle(rx+d,0,rz+d, rx+squareSize-d,0,rz+d, rx+d,0,rz+squareSize-d, true, 0,0,1)
+					end
+				end
+		  
+			end
+		end
+		
+		if LumberJack.showDebug then
+			local n=LumberJack.destroyFoliageSize
+			local scale = g_currentMission.terrainSize / getDensityMapSize(decoFoliageId)
+			DebugUtil.drawDebugAreaRectangle(startWorldX-n/2,0,startWorldZ-n/2, startWorldX+n/2,0,startWorldZ-n/2, startWorldX-n/2,0,startWorldZ+n/2, true, 1,1,1)
+			
+			for x = -n, n do
+				for z = -n, n do
+					local rx,rz = math.floor((startWorldX+x*scale)/scale)*scale, math.floor((startWorldZ+z*scale)/scale)*scale
+					local bits = getDensityAtWorldPos(decoFoliageId, startWorldX+x*scale, 0, startWorldZ+z*scale)
+					local index = bitAND(bits, 2^numChannels - 1)
+					local value = bitShiftRight(bits, numChannels)
+					
+					local d = 0.025
+					local yg = getTerrainHeightAtWorldPos(g_currentMission.terrainRootNode, rx+scale/2,0,rz+scale/2)
+					if value > 0 and (functionData.destroyFoliageLayer[index] or LumberJack.destroyAllFoliage)  then
+						DebugUtil.drawDebugAreaRectangle(rx+d,0,rz+d, rx+scale-d,0,rz+d, rx+d,0,rz+scale-d, true, 0,1,0)
+						-- Utils.renderTextAtWorldPosition(rx+scale/2, yg+0.1, rz+scale/2, string.format("%d - %d", index, value), getCorrectTextSize(0.012), 0, {1,1,1})
+					else
+						DebugUtil.drawDebugAreaRectangle(rx+d,0,rz+d, rx+scale-d,0,rz+d, rx+d,0,rz+scale-d, true, 0.15,0.15,0.15)
+						-- Utils.renderTextAtWorldPosition(rx+scale/2, yg+0.1, rz+scale/2, string.format("%d - %d", index, value), getCorrectTextSize(0.012), 0, {0.3,0.3,0.3})
+					end
 				end
 			end
 		end
+		
+		if LumberJack.showDebug and foundAny then
+			g_currentMission:addExtraPrintText("Bush")
+		end
+		
+		return foundAny
 	end
-	
-	if LumberJack.showDebug and foundAny then
-		g_currentMission:addExtraPrintText("Bush")
-	end
-	
-	return foundAny
 end
 
 function LumberJack:update(dt)

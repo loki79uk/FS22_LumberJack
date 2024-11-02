@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <modDesc descVersion="80">
 	<author>loki_79</author>
-    <version>1.5.3.0</version>
+    <version>1.5.4.0</version>
 	<title>
 		<en>LumberJack</en>
 		<de>Holzfäller</de>
@@ -29,6 +29,8 @@ Features:
 - Chainsaw can remove stumps (grind for 3 seconds)
 
 Changelog:
+v1.5.4.0
+- Improved detection of foliage for removal of bushes
 v1.5.3.0
 - Added an option to enable/disable the new strafe speed change
 v1.5.2.0
@@ -80,6 +82,8 @@ Merkmale:
 - Kettensäge kann Stümpfe entfernen (3 Sekunden schleifen)
 
 Changelog:
+v1.5.4.0
+Verbesserte Erkennung von Büschen beim Entfernen von Laub
 v1.5.3.0
 - Option zum Aktivieren/Deaktivieren der neuen Strafe Geschwindigkeitsänderung hinzugefügt
 v1.5.2.0
@@ -131,6 +135,8 @@ Caractéristiques:
 - La tronçonneuse permet d'enlever les souches (broyage pendant 3 secondes)
 
 Changelog:
+v1.5.4.0
+Amélioration de la détection du feuillage pour l'élimination des buissons
 v1.5.3.0
 - Ajout d'une option pour activer/désactiver le nouveau changement de vitesse de strafe
 v1.5.2.0
@@ -183,6 +189,8 @@ v1.1.0.0
 - бензопила может убирать пни (измельчать 3 секунды)
 
 Changelog:
+v1.5.4.0
+Улучшенное обнаружение листвы для удаления кустов
 v1.5.3.0
 - Добавлена опция включения/отключения нового изменения скорости страйфа
 v1.5.2.0
@@ -235,6 +243,8 @@ Caratteristiche:
 - La motosega può rimuovere i ceppi (macinare per 3 secondi)
 
 Changelog:
+v1.5.4.0
+Rilevamento migliorato del fogliame per la rimozione dei cespugli
 v1.5.3.0
 - Aggiunta un'opzione per abilitare/disabilitare la nuova modifica della velocità di strafe
 v1.5.2.0
@@ -286,6 +296,8 @@ Funkce:
 - Motorová pila dokáže odstranit pařezy (brousit po dobu 3 sekund)
 
 Seznam změn:
+v1.5.4.0
+Vylepšená detekce listí pro odstranění keřů
 v1.5.3.0
 - Přidána možnost povolit/zakázat novou změnu rychlosti strafe
 v1.5.2.0
